@@ -1,0 +1,625 @@
+# React Router: State of Routing
+
+Presentation by Eric Cote
+
+[React Academy](https://www.reactAcademy.live/)
+
+---
+
+### Eric Côté
+
+<img
+  src='https://www.reactacademy.live/static/20616643d8afc491bd4c1817ae69db63/5a6cd/Eric_Cote.webp'
+  alt='Eric Côté'
+  title='Eric Côté'
+  width='400px'
+/>
+
+- Got started on 8-bits machines (Commodore 64)
+- Technical trainer since 2001 (.NET, C#, ASP.NET MVC Sql Server, Azure)
+- Training on Open Source dev technologies since 2018
+  - Javascript, TypeScript, React, GitHub, REST, Node, Express, Next, Remix, etc.
+- Trainer-Owner of React Academy Live
+
+---
+
+### React Academy Live
+
+<div>
+
+<img
+  src='/img/logoReact.svg'
+  style={{ float: 'left', width: '300px', marginRight: '40px' }}
+/>
+
+Corporate training, developer training, virtual training
+
+Need to master modern web technologies?
+
+**React, TypeScript, Next** and **Remix**
+
+Open since 2018
+
+Multiple courses
+
+**New:** CRA (Create-React-App) is now replaced by **Vite**
+
+**New:** We are now building all samples on **TypeScript** (instead of JS)
+
+</div>
+
+---
+
+### 3 parts:
+
+1. Routing basics
+2. Introducing React Router
+3. Working with URL Routing instead of State
+
+---
+
+### Why Routing?
+
+- With a SPA (Single Page App), the web server is configured differently:
+- All unresolved queries will return `index.html` instead of a **404** error
+- The JavaScript code will determine what to show, according to the content on the address bar.
+
+---
+
+### Anatomy of an URL
+
+- URL are defined in a Standard (RFC 1738, 3986, 8820, Tim Berners-Lee)
+- URL are split in different parts
+
+<div>
+  <span className='color1 hover-bold'>https</span> ://
+  <span className='color2 hover-bold'>server.com</span>
+  <span className='color3 hover-bold'>/simple/doc</span> ?
+  <span className='color4 hover-bold'>p1=a&p2=b</span>
+  <span className='color5 hover-bold'>#frag</span>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Part</th>
+      <th>Standard Name</th>
+      <th>JavaScript Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr className='color1'>
+      <td>https</td>
+      <td>scheme</td>
+      <td>protocol</td>
+    </tr>
+    <tr className='color2'>
+      <td>server.com</td>
+      <td>authority</td>
+      <td>host || hostName</td>
+    </tr>
+    <tr className='color3'>
+      <td>/simple/doc</td>
+      <td>path</td>
+      <td>pathname</td>
+    </tr>
+    <tr className='color4'>
+      <td>p1=a&amp;p2=b</td>
+      <td>query</td>
+      <td>search || searchParams</td>
+    </tr>
+    <tr className='color5'>
+      <td>frag</td>
+      <td>fragment</td>
+      <td>hash</td>
+    </tr>
+  </tbody>
+</table>
+
+---
+
+### How this works
+
+The _request_ combines the `path` and `query`, with the http[s] protocol
+
+ex:<span className='color1'> `GET /doc/path?p1=a&p2=b HTTP/1.1` </span>
+
+The _request_ never sends the Fragment (hash). It always stays with the client. Fragment works differently depending on the media.
+
+| Media                                                    |                                                                                                                                                         |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <span className='color2'>`document.pdf#page=4`</span>    | Goto page 4                                                                                                                                             |
+| <span className='color3'>`intro.mp4#t=43`</span>         | Goto 43 seconds                                                                                                                                         |
+| <span className='color4'>`document.html#location`</span> | Goto _location_ definition: <br /> <span className='color5'>`<h3 id="location">`</span> or <br /> <span className='color3'>`<a name="location">`</span> |
+
+---
+
+### React conditional rendering
+
+With JavaScript, we can affect the way React renders. Let's display the component differently according the page.
+
+```js
+const page = window.location.pathname;
+
+switch (page) {
+  case '/index':
+  case '/':
+  case '':
+    return <Index />;
+  case '/about':
+    return <About />;
+  case '/contact':
+    return <Contact />;
+  default:
+    return <>404 Error, Cannot find {page}</>;
+}
+```
+
+---
+
+### But...
+
+<div >
+<img  src='/img/AngryCat.jpeg' style={{ marginInlineStart: 30, width: 300, float: 'right' }} />
+
+The menu has regular hyperlinks : `<a href="page1">Page one</a>`
+
+With each click, there's a network call to re-get the application, for the nth time.
+
+To avoid this, we have to replace the regular links with links that won't do network calls.
+
+</div>
+
+---
+
+# 3 ways to 'navigate' a SPA
+
+1. Hash
+2. History API
+3. Navigation API (new)
+
+<img
+  src='/img/spa-day.jpeg'
+  style={{ width: '300px', marginLeft: 'auto', marginRight: 'auto' }}
+/>
+
+---
+
+# Hash navigation
+
+<div>
+
+<img
+  src='/img/homer-question.png'
+  style={{ marginInlineEnd: 30, width: 300, float: 'left' }}
+/>
+
+Hash changes don't do network calls.
+
+If a hash doesn't find an `id` location, then nothing happens on the client...
+
+To display a result, we must re-render when there's a hash change.
+
+How to do a re-render in React?
+
+</div>
+
+---
+
+### State to the rescue
+
+Modifying the state will update the display (re-render)
+
+Create an event handler on hash changes. It should set a new state.
+
+```js
+window.addEventListener('hashchange', (evt) => {
+  setCurrentPage(window.location.hash);
+});
+```
+
+This modifies the DOM (an effect!), so wrap this in a `useEffect(..., [])`.
+
+---
+
+### But...
+
+<div>
+<img
+  src='/img/hashpath.jpeg'
+  style={{ marginInlineStart: 30, marginBottom: 30, width: 300, float: 'right' }}
+/>
+
+People prefer links with _path_ (`/`), without _hash_ (`#`).
+
+A regular link with path allows to have server-side routing, which helps with:
+
+- **SSG** (Static-Side Generation)
+- **SSR** (Server-Side Rendering)
+
+See _NextJS_, _Remix_ and _Gatsby_.
+
+(**Note:** some say that search engine prefer _path_ instead of _hash_, but others say otherwise.)
+
+</div>
+
+---
+
+### History API
+
+- Accesses the browser session history: back(), forward(), go(-5),
+- Can modify the history (pushState(), popState event, etc)
+- Manage the 'back' button with the following event handler:
+
+```js
+useEffect(() => {
+  //handle the Back button!
+  window.addEventListener('popstate', (evt) => {
+    setCurrentPage(evt.state); //change state to re-render the right page
+  });
+}, []); //bind this event on the first render.
+```
+
+---
+
+### Hyperlink clicks with History API
+
+- Click events must be handled on hyperlinks to alter the behavior:
+- Cancel the network call and do a re-render instead
+- Usually done with a component: `<Link to="/path" />`
+- This is how the click of `<Link to="/path" /> would need to be handled`:
+
+```js
+function clickHandler(evt, link) {
+  //create a url object from the link href
+  const url = new URL(link.href);
+
+  evt.preventDefault(); //cancel the navigation
+  //Add destination in history
+  window.history.pushState(url.pathname, '', url.pathname);
+  setCurrentPage(url.pathname); //set State to re-render the app.
+}
+```
+
+---
+
+### Navigation API
+
+- New API, built for SPA apps.
+- Experimental on _Chrome_, _Edge_, _Opera_ and _Chromium_
+- Eventually available on _Firefox_ and _Safari_, in the future
+- Simplifies the _History API_ for SPA apps. No need to handle the click events of links.
+
+<img
+  src='/img/new-shiny.jpeg'
+  width='300'
+  style={{ marginLeft: 'auto', marginRight: 'auto' }}
+/>
+
+---
+
+### Navigation API Example
+
+Code is similar to a hash change event, except the event is now called _navigate_
+
+We can then "intercept" the URL path change, which cancels the network call and then schedules a re-render (setState).
+
+```js
+window.navigation.addEventListener('navigate', (evt) => {
+  if (!evt.canIntercept) return; //is it a local page that we can intercept?
+  evt.intercept({
+    handler: () => {
+      setCurrentPage(new URL(evt.destination.url).pathname);
+    },
+  });
+});
+```
+
+---
+
+### What is **React Router**
+
+<div>
+
+<img
+  src='/img/trends.png'
+  style={{ width: '50%', float: 'Right', marginLeft: 50 }}
+/>
+
+The most popular React component. More popular than :
+
+- TailwindCSS
+- Next.js
+- Material-UI
+- Angular(!)
+
+Half of React programs use a version of React-Router
+
+(Most apps still use React-Router version 5)
+
+</div>
+
+---
+
+### Where can I use React Router?
+
+- Create-React-App (not recommended anymore)
+- Vite
+- Remix (integrated)
+- Preact
+
+<hr />
+
+**Invalid:** These tools use their own routing engine
+
+- Next.js
+- Gatsby
+
+Even there, the influence of React Router will be felt... Eventually
+
+---
+
+### Basic components
+
+### `<RouterProvider router={router} />`
+
+Root component that manages routes, state, context and re-renders.
+
+### `<Link to="about">About Us</Link>`
+
+Hyperlink Component, with click events that make this compatible to the history API.
+
+<hr />
+
+Old route components, not supporting the new route props. (Compatible with V5.)
+
+- ~`<BrowserRouter>`~,
+- ~`<MemoryRouter>`~,
+- ~`<HashRouter>`~,
+- ~`<NativeRouter>`~,
+- ~`<StaticRouter>`~,
+
+---
+
+### Creating the router?
+
+Create the router with a JS array describing routes:
+
+<div style={{ height:"500px", overflowY:"scroll" }}>
+
+```jsx
+createBrowserRouter([
+  {
+    path: '/',
+    element: <Root />,
+    children: [
+      {
+        path: 'about',
+        element: <About />,
+      },
+      {
+        path: 'contact',
+        element: <Contact />,
+      },
+      {
+        element: <AuthLayout />,
+        children: [
+          {
+            path: 'login',
+            element: <Login />,
+          },
+          {
+            path: 'logout',
+            element: <Logout />,
+          },
+        ],
+      },
+    ],
+  },
+]);
+```
+
+</div>
+
+---
+
+### Creating routes with JSX
+
+Similar to V4-V5
+
+```js
+createBrowserRouter(
+  createRoutesFromElements(
+    <Route path='/' element={<Root />}>
+      <Route path='about' element={<About />} />
+      <Route path='contact' element={<Contact />} />
+      <Route element={<AuthLayout />}>
+        <Route path='login' element={<Login />} />
+        <Route path='logout' element={<Logout />} />
+      </Route>
+    </Route>
+  )
+);
+```
+
+---
+
+### Nested routes
+
+<div style={{marginTop: "0px", height:"600px", overflowY:"scroll"  }}  onLoad={(e)=>(e.target.parentElement.scrollTop=105)}>
+
+<iframe
+  src='https://remix.run/_docs/routing'
+  scrolling='no'
+  width='100%'
+  height='800'
+  style={{ overflow: 'hidden' }}
+/>
+</div>
+
+---
+
+### Replace state with URL Routing
+
+For most apps, this makes more sense. Routing has more features than State.
+
+Back button allows you to go to a previous url.
+
+You can also bookmark and share an url.
+
+---
+
+### Dynamic segments
+
+```js
+<Route path='projects/:projectId/tasks/:taskId' />
+```
+
+Read parameters with the prop named `params` (for _loaders_ and _actions_)
+
+In a component, `useParams()` or `useMatch()`
+
+```js
+function Task() {
+  const params = useParams();
+  params.projectId; // abc
+  params.taskId; // 3
+}
+```
+
+---
+
+### Data loading
+
+Routes have a `loader` prop that helps you load data asynchronously...
+
+Without `loader`, you can still load data in `useEffect`, but you'll have to handle the loading state yourself. (i.e.: add a `isLoading` state)
+
+If you are using `loader`, there are nice features that help you handle the loading state.
+
+```js
+loader = async function ({ request }) {
+  const res = await fetch('/api/user.json');
+  const user = await res.json();
+  return user;
+};
+```
+
+---
+
+### Loader is smart
+
+If returning the fetch Promise, the loader will call `res.json()` for you.
+
+```js
+loader = function ({ request }) {
+  return fetch('/api/user.json');
+};
+```
+
+If you navigate away while loading, the loading will automatically be cancelled for you via a signal object.
+
+```js
+loader = function ({ request }) {
+  return fetch('/api/user.json', {
+    signal: request.signal,
+  });
+};
+```
+
+---
+
+# Params are available
+
+```js
+loader = function ({ request, params }) {
+  return fetch(`/api/teams/${params.teamId}`);
+};
+```
+
+To read data in component, `useLoaderData()`
+
+```js
+function Team() {
+  const team = useLoaderData();
+}
+```
+
+---
+
+### Get the loading state
+
+```js
+const navigation = useNavigation();
+const state = navigation.state;
+```
+
+Three states possible:
+**idle** There is no navigation pending.
+**submitting** "action" called using POST, PUT, PATCH, or DELETE
+**loading** "loader" called to render the next page (using GET)
+
+---
+
+### Waiting for data: wait, or display placeholder
+
+By default, we wait for data when loading
+
+Using `defer({data})`, we can enable `<Suspense fallback={plachoder} >` and `<Await resolve={data} > ` functionality
+
+**Suspense** shows the _fallback_ when the **Await** isn't _resolved_.
+
+<img src='/img/wait.gif' width='100px' />
+
+---
+
+### Modifying Data
+
+Route `loader` defines a function to load data
+
+Route `action` defines a function to modify the data. We use an "html Form" to pass the changes.
+The action function can then use `request.formData()` to read the data "sent" through the form.
+
+```js
+action = async function ({ request }) {
+  const formData = await request.formData();
+  const newPerson = await createPerson({
+    name: formData.get('name'),
+    email: formData.get('email'),
+  });
+  return redirect(`/person/{newPerson.id}`);
+};
+```
+
+---
+
+### What should we cover in a future event?
+
+<div>
+<img
+  src='/img/debug.jpeg'
+  style={{ float: 'right'}}
+/>
+
+Remix
+
+Next
+
+Testing
+
+Security
+
+Caching
+
+???
+
+</div>
+
+---
+
+## Questions?
+
+<img
+  src='/img/job.jpeg'
+  style={{ marginLeft: 'auto', marginRight: 'auto', width: '50%' }}
+/>

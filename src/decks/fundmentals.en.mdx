@@ -1,0 +1,402 @@
+# React Fundamentals
+
+Presented by Eric Cote
+
+[React Academy](https://www.reactAcademy.live/)
+
+---
+
+### Eric Cote
+
+<img
+  src='https://www.reactacademy.live/static/20616643d8afc491bd4c1817ae69db63/5a6cd/Eric_Cote.webp'
+  alt='Eric Côté'
+  title='Eric Côté'
+  width='400px'
+/>
+
+- Got started on 8-bits machines (Commodore 64)
+- Technical trainer since 2001 (.NET, C#, ASP.NET MVC, Sql Server, Azure)
+- Training on Open Source dev technologies since 2018
+  - Javascript, TypeScript, React, GitHub, REST, Node, Express, Next, Remix, etc.
+- Trainer-Owner of React Academy Live
+
+---
+
+### React Academy Live
+
+<div>
+
+<img
+  src='/img/logoReact.svg'
+  style={{ float: 'left', width: '300px', marginRight: '40px' }}
+/>
+
+Corporate training, developer training, virtual training
+
+Need to master modern web technologies?
+
+**React, TypeScript, Next** and **Remix**
+
+Open since 2018
+
+Multiple courses
+
+**New:** CRA (Create-React-App) is now replaced by **Vite**
+
+**New:** We are now building all samples on **TypeScript** (instead of JS)
+
+</div>
+
+---
+
+### Introduce who you are
+
+- Name
+- Job title, Company, Job description
+- Work with the following Tech
+- PC type (Mac, Windows, Linux)
+- Programming Languages (JavaScript? TypeScript? Python? other?)
+- Web Experience (Beginner? Advanced?)
+- SPA Experience (None? React? Angular? Vue? Svelte?)
+- Backend Service Experience (ASP.NET Web API? Azure Functions? Python Flask? AWS Lambda? Other?)
+- Expectations (What do you need to build?)
+
+---
+
+### What is React?
+
+- “A JavaScript library for building user interfaces”
+- Declarative views are written in JSX (html-like expressions in JS)
+- Decompose your app with reusable components
+- Allows the creation of SPA (Single Page Apps)
+- JSX needs to convert to JavaScript using a compiler tool (Babel, Parcel, SWC...)
+- To build a React app, one should use a toolbox or Framework (Vite, Next, Gatsby, Remix...)
+
+---
+
+### Short history of React
+
+- Created in 2011 by Jordan Walke (Faceboook-Meta)
+- 2012: rewrite of Instagram
+- 2013: First public release of React Open Source
+- 2015: React Native allows Mobile Apps (phone, tablet)
+- 2017: React 16 (Fiber rendering)
+- 2020: React 17 (Hooks)
+- 2022: React 18 (Concurrent rendering)
+
+---
+
+### React comes in different flavors
+
+- Lots of rendering engines to choose from
+  - React DOM for HTML (most popular)
+  - React PDF for PDF documents
+  - React Docx for Word documents
+  - React Native for phone and tablet apps (Android, iOS, Windows)
+  - React TV for TV apps
+  - React VR for virtual reality
+  - React Unity for 3D scenes
+
+https://github.com/chentsulin/awesome-react-renderer
+
+---
+
+### React pros
+
+- **Backwards-compatible** new React versions avoid breaking existing apps
+- **Popular** Used by a lot of apps, easy to find guidance on the internet
+- **Opinion-less** React doesn't care about routing, data-loading, styles, etc.
+- **SSR** Compatible with Server-Side Rendering
+- **SSG** Compatible with Static-Site Generation
+- **RSC** New: compatible with React Server Components
+
+---
+
+## React Cons
+
+- **Doing bad code is easy** It's easy to end up with spaghetti code with React
+- **Some component isn't forward or backward compatible** Components needs to be regularly updated
+- **Opinions need to be provided** one must choose a routing library, a data-loading strategy, a caching structure, a styling approach... It's exhausting!
+- **No conventions** Each React app has its own way of solving problèmes
+
+---
+
+### React Toolbox
+
+- Lots of tools help us generate a React App
+- Back in the day, those tools had to be picked manually:
+  - Package Manager (npm, yarn, pnpm)
+  - Compiler (Babel, TypeScript, swc)
+  - Bundler (WebPack, Parcel, esBuild, swc)
+  - Minifier (terser, swc)
+  - Web Server (express)
+  - Linter (ESLint)
+  - Tests (Jest, Cypress)
+  - MonoRepo (Nx, Turborepo)
+
+---
+
+### Turnkey Toolbox
+
+- Today, you have a plethora of toolboxes available:
+  - Create-React-App (now deprecated)
+  - Vite
+  - Gatsby
+  - Next js
+  - Remix
+  - T3
+  - Epic Stack
+
+---
+
+### VS Code extensions
+
+- Some useful extensions:
+
+  - **ESLint** (dbaeumer.vscode-eslint): Validates the js code with rules
+  - **Prettier** (esbenp.prettier-vscode): Formats web files (css, js, html)
+  - **Simple React Snippets** (burkeholland.simple-react-snippets): adds some code snippets
+    - UsefulSnippets:
+      - **imr, imrs, imrse:** import React, \{useState, useEffect\}
+      - **ffc, sfc:** Create React components
+      - **uef, usf:** useEffect, useState
+
+---
+
+## Configure VS Code (1/2)
+
+- Useful Configurations
+- Use `cmd-,` (ctrl-comma) to go to 'settings'
+
+  - **Editor:** Tab Size: 2 or 4
+  - **Editor:** Default Formatter: Prettier - `esbenp.prettier-vscode`
+  - **Editor:** Format On Save: true
+  - **Prettier:** Jsx Single Quote: true
+  - **Prettier:** Single Quote: true
+  - **Emmet:** Include Language: `"javascript": "javascriptreact"`
+
+---
+
+## Configure VS Code (2/2)
+
+- **MacOS only:** Add Code to the Terminal "path" command line
+
+  - Need to go to the command palette
+
+```
+Shift-Cmd-P
+Shell Command: Install 'code' command in PATH
+```
+
+- Quit `code` and close the Terminal
+  - Future Terminal windows now have "path" configured.
+  - Type `code .` to open the current folder with VS Code.
+
+---
+
+### New Vite Project
+
+To create a new project called _myweb_:
+
+```bash
+> npm create vite@latest myweb -- --template react-swc
+```
+
+Alternative: Start **vite** in interactive mode. Use arrows and enter to navigate.
+
+```bash
+> npm create vite@latest
+```
+
+This creates a new folder. Navigate to the new folder.
+
+```bash
+> cd myweb
+> code .
+```
+
+---
+
+## Structure of Vite:
+
+**Files:**
+
+- **index.html** : Empty Html Homepage
+- **vite.config.js** : Vite configuration
+- **package.json** : npm configuration
+- **package-lock.json** : npm versioning file for dependencies and sub-dependencies. **Don't touch.** _npm_ manages this file when you call `npm install` and `npm update`.
+
+**Folders:**
+
+- **node_modules** : contains dependencies and sub-dependencies. **Don't touch.** Use `npm install` or `npm update` pour manage.
+- **src**: contains .js, .ts, jsx, .css, and .svg files that are compiled by vite
+- **public**: contains files that are served but not compiled by vite (png, pdf, etc)
+
+---
+
+### Start in dev mode
+
+The following commands are launched from the project root. (where `package.json` is stored)
+
+You'll need to install the dependencies
+
+```bash
+npm install
+```
+
+Launch the project in dev mode:
+
+```bash
+npm run dev
+```
+
+This starts a web server in dev mode. Type the letter `o` to open the browser. (Or navigate to: http://localhost:5173 )
+
+---
+
+### Fast Refresh (Hot Module Reload, HMR)
+
+- Modify `src/app.jsx` and save,
+  - This will automatically update the browser, no need to _refresh_
+- This feature is called _React Fast Refresh_ (also _Hot Reload_)
+- _Fast Refresh_ will sometime fail, so one needs to manualy click _refresh_
+- _Fast Refresh_ is only available while in dev mode
+
+---
+
+### JSX
+
+- JSX : _JavaScript eXtension_
+- JSX is similar to HTML
+- JSX is stricter than HTML
+- Convert to HTML to JSX using a tool:
+  https://transform.tools/html-to-jsx
+
+---
+
+### JSX, behind the curtain
+
+Typical JSX
+
+```js
+<h3 title='alarm'>This alarm is set to {alarmTime}</h3>
+```
+
+Then JSX gets compiled by Babel, swc, TypeScript or another tool:
+
+```js
+React.createElement(
+  'h3',
+  { title: 'alarm' },
+  'This alarm is set to ',
+  alarmTime
+);
+```
+
+---
+
+### JSX, behind the curtain
+
+After execution, this generates a **React Element** (a simple JS object):
+
+```js
+{
+  type: 'h3',
+  props: {
+    title: 'alarm',
+    children: ["This alarm is set to ", alarmTime],
+  },
+  key: null,
+  ref: null,
+  $$typeof: Symbol.for('react.element'),
+};
+```
+
+These React elements build a tree structure called **Virtual DOM**.
+
+---
+
+### Dev experience
+
+Browsers don't understand JSX, one must first compile (transpile) JSX to JS.
+
+To compile to dev mode and start a local dev Web Server:
+
+```bash
+npm run dev
+```
+
+**Dev mode** enables the following:
+
+- **Strict Mode**, where every component is rendered twice, to check if your component is compatible with "concurrent rendering".
+- **Profiler Mode**, when it is enabled in the "React Dev Tools" browser extension.
+- **Hot Module Reloading (HMR)**, which updates the JavaScript live in your app, without having to reload the whole page.
+
+---
+
+### Compile to production
+
+To compile to production mode:
+
+```bash
+npm run build
+```
+
+This creates a new `dist` folder, that we can easily deploy to any Web Server.
+
+**Build** will:
+
+- minify the JavaScript code
+- Ignore _Strict Mode_, _Profiling_, etc.
+
+---
+
+### Preview the dist folder
+
+To start a **Preview Web Server** for testing the `dist` contents:
+
+```bash
+npm run preview
+```
+
+Then browse to: http://localhost:4173
+
+**Please note:**
+
+- Preview Web Server doesn't have Hot Module Reloading (HMR)
+- If you change some JavaScript, you'll have to **build** again and **reload** the page
+
+---
+
+### Deploy the project
+
+Take the `dist` folder, and deploy it to any static web hosting service.
+
+If you don't know which host to use, you can easily try Netlify (free)
+
+---
+
+### Homework #1
+
+- Create a new React App using Vite
+  - Use the Vite doc to create a React app with swc
+- Modify the JSX content that was generated in `app.js`. Make a simple home page using your name.
+- You can use https://transform.tools/html-to-jsx to convert html to jsx
+- Test your app using `npm run dev`
+  - Type `o`, or navigate to: `http://localhost:5173`
+- Create a production output with with the command `npm run build`
+  - This creates a new folder `dist`
+- Test the production output using `npm run preview`
+  - Browse to `http://localhost:4173`
+- Deploy your `dist` folder to a hosting web service, and share the link to your friends.
+  - If you need a hosting service, you could use Netlify (free).
+
+---
+
+### Questions?
+
+<img
+  src='/img/job.jpeg'
+  style={{ marginLeft: 'auto', marginRight: 'auto', width: '50%' }}
+/>

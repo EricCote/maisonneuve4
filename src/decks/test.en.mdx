@@ -1,0 +1,64 @@
+# test
+
+yes, a test
+
+---
+
+### Install git
+
+You will need to type the following commands from the system command line tool (_bash_, _powershell_, _cmd_, _command prompt_ etc.)
+
+- Have **git** version 2.36 or greater installed. Verify the version number with: `> git --version`
+  - Install a recent version from the web site if needed. (http://git-scm.com/downloads)
+
+---
+
+### Install nvm
+
+To manage the installation of **Node.js**, we use a special installer called **nvm** (node version manager)
+
+{/* prettier-ignore */}
+- Check if a recent version of nvm is installed:
+  - Use the command line `> nvm version` _(pc)_ `$ nvm -v` _(mac)_
+    - Should be v0.39.3 or greater on MacOS
+    - Should be 1.1.10 or greater on Windows PCs
+
+- If you need to update or install **nvm** on your machine:
+  - First, uninstall **nvm** and **Node.js**
+    - On Windows PCs, go to **Settings**, **Apps**, **Apps & features**.
+      - Uninstall both **Node.js** and **NVM for Windows**
+    - On MacOS, type the following in Terminal:
+      - `$ rm -rf $NVM_DIR ~/.npm ~/.bower`
+
+- Install **nvm** on _Windows_ PC
+
+  - Goto https://github.com/coreybutler/nvm-windows/releases/latest
+  - At the bottom of the page, download **nvm-setup.zip**
+  - Install **nvm** by running the installer
+
+- Install **nvm** on _MacOS_
+  - Run the following on Terminal:
+  - `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash`
+
+- Freshly installed **nvm** may not be immediately detected on the command line.
+  - In that case, just close the console and restart a new command line.
+
+---
+
+### Install Node.js
+
+On Windows, run the following on a **Command Prompt** that runs as _administrator_:
+
+```
+nvm install lts
+nvm use lts
+```
+
+On MacOS Terminal:
+
+```
+nvm install --lts
+nvm use --lts
+```
+
+---

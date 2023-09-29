@@ -1,0 +1,15 @@
+//This file is only used when deployed on Azure Static Web Apps.
+
+{
+  "trailingSlash": "auto",
+  "navigationFallback": {
+    "rewrite": "index.html",
+    "exclude": ["/img/*.{png,jpg,gif}", "/css/*"]
+  },
+  "globalHeaders": {
+    "content-security-policy": "default-src https: ; object-src 'none' ; img-src *"
+  },
+  "mimeTypes": {
+    ".json": "text/json"
+  }
+}

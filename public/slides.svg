@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
+<g>
+	<path stroke="white" stroke-width="10" fill="blue" d="M460.8,12.8H51.2C22.95,12.8,0,35.78,0,64v256c0,28.25,22.95,51.2,51.2,51.2h179.2V448h-76.8v51.2h76.8h51.2h76.8V448
+		h-76.8v-76.8h179.2c28.23,0,51.2-22.95,51.2-51.2V64C512,35.78,489.02,12.8,460.8,12.8z M51.2,320V64h409.6l0.03,256H51.2z"/>
+	<polygon stroke="white" stroke-width="10" fill="blue" points="204.8,268.8 332.8,192 204.8,115.2 	"/>
+</g>
+</svg>
