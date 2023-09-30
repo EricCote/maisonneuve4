@@ -1,0 +1,149 @@
+{/* prettier-ignore */}
+# Installation du cours
+
+### Faites <kbd>→</kbd> pour naviger à la prochaine diapositive
+
+---
+
+## Installation sur l'ordinateur
+
+<div className="alert alert-warning px-5 py-4 text-body" >
+
+Installez les outils de développement sur votre ordinateur!
+
+Une partie importante de cette formation sera dédiée à créer vos propres applications sur votre équipement. Vous allez coder, déboguer et éxécuter dans un environnement propice à la création. Vous pouvez utiliser _Windows_, _Mac_ ou _Linux_ pour votre développement.
+
+Voici la configuration nécessaire:
+
+- Avoir des permissions **Admin Local** sur votre équipement. (Nous allons installer des outils de programmation durant le cours).
+- Ayez un (ou plusieurs) navigateurs installés pour vos tests (_**Chrome**_, _Firefox_, _Safari_, _Edge_, _Opera_, etc.)
+
+</div>
+
+---
+
+## Éditeur de code
+
+<div className="alert alert-warning px-5 py-4 text-body" >
+- Ayez un éditeur de code installé. Le formateur utilise **Visual Studio Code** (un outil gratuit). Mais vous pouvez utiliser ce qui vous convient:
+  - **[Visual Studio Code](https://code.visualstudio.com)**
+  - Atom
+  - WebStorm
+  - Sublime
+  - PHPStorm
+  - Brackets
+
+ </div>
+
+---
+
+### Installation de Git
+
+<div className="alert alert-warning px-5 py-4 text-body" >
+
+Git est un outil de gestion de code source.
+
+Écrivez les instructions suivantes dans une ligne de commande (_bash_, _powershell_, _cmd_, etc.)
+
+- Vous devez avoir installé git version 2.39 ou plus. Vérifiez la version avec la commande `> git --version`
+  - Installez une nouvelle version au besoin [https://git-scm.com/downloads](https://git-scm.com/downloads).
+
+</div>
+
+---
+
+### Installation de nvm
+
+<div className="alert alert-warning px-5 py-4 text-body" >
+
+Pour installer **Node.js**, nous utilisons l'installateur **nvm** (node version manager).
+
+NVM permet d'installer de multilples versions de Node, et de basculer d'une version à l'autre.
+
+{/* prettier-ignore */}
+- Validez la version de nvm installée
+  - Tapez sur la ligne de commande: `> nvm -v`
+  - Il faut v0.39.5 ou plus sur MacOS
+  - Il faut 1.1.11 ou plus sur Windows PCs
+- D'abord désinstaller les anciennes versions de **nvm** et **Node.js**
+    - Sur Windows, aller sur **Paramètres**, **Applications** , **Applications et fonctionalités**.
+      - Désinstallez **NVM for Windows** et **Node.js** (si elles existent)
+    - Sur MacOS, tapez la commande suivante dans le Terminal:
+      - `$ rm -rf $NVM_DIR ~/.npm ~/.bower`
+
+</div>
+
+---
+
+## Validation de nvm
+
+<div className="alert alert-warning px-5 py-4 text-body" >
+
+- Pour installer **nvm** sur _Windows_
+  - Aller sur [https://github.com/coreybutler/nvm-windows/releases/latest](https://github.com/coreybutler/nvm-windows/releases/latest)
+  - Tout en bas de la page, téléchargez **nvm-setup.exe**
+  - Installez **nvm** en utilisant l'installateur
+- Pour installer **nvm** sur _MacOS_
+  - Tapez cette commande dans votre Terminal :
+  - `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash`
+- Une fois installé, il est possible que **nvm** ne soit pas immédiatement détecté.
+  - Fermez la fenêtre et ouvrez une nouvelle ligne de commande.
+
+</div>
+
+---
+
+### Installation de Node.js
+
+<div className="alert alert-warning px-5 py-4 text-body" >
+
+Sur Windows, dans une **Invite de commandes** exécutée en tant qu'_administrateur_:
+
+```
+nvm install lts
+nvm use lts
+```
+
+Sur Terminal de _MacOS_:
+
+```
+nvm install --lts
+nvm use --lts
+```
+
+- **LTS** (long-term support) est la dernière version stable de Node (20.x).
+- **Current** est la dernière version en développement de Node (21.x)
+
+</div>
+
+---
+
+### Création d'une application React
+
+<div className="alert alert-warning px-5 py-4 text-body" >
+
+- Sur la ligne de commande, déplacez-vous dans un dossier dans lequel vous allez créer vos projets du cours. (Nous utilisons ici un dossier nommé `Projets`)
+- Naviguez vers votre dossier: `> cd Projets`
+- Créez votre application nommée demo1: <br/> `> npm create vite@latest demo1 -- --template react-swc`
+  - Ceci va créer un projet **vite** nommé _demo1_, utilisant le gabarit React
+  - Notez que la commande possède un double tiret vide (`--`)
+  - Vous aurez un message _Need to install the following packages. Ok to proceed?_ Faites _Y_ (ou O) et <kbd>enter</kbd> pour confirmer.
+
+</div>
+
+---
+
+## Démmarer une application React
+
+<div className="alert alert-warning px-5 py-4 text-body" >
+
+- Naviguez vers le dossier de votre nouvelle app: `> cd demo1`
+- Installez les outils et les dépendences: `> npm install`
+  - Ces outils et dépendances seront intallées dans le dossier `node_modules`
+- Démarrez le serveur web local de développent: `> npm run dev`
+- Pressez la lettre <kbd>o</kbd>
+  - Ceci démarre votre navigateur et charge la page `http://localhost:5173/`.
+  - Si vous voyez une page web, vous avez réussi votre installation.
+- Faites **ctrl-c** pour stopper le serveur web sur la ligne de commande: <kbd>^C</kbd>
+
+</div>

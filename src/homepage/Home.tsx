@@ -3,6 +3,18 @@ import Menu from './Menu';
 
 const decks = [
   {
+    route: 'install',
+    title: 'Installation',
+    description: 'Comment installer votre environnement pour cette formation',
+    language: 'fr',
+  },
+  {
+    route: 'install',
+    title: 'Install',
+    description: 'Comment installer votre environnement pour notre formation',
+    language: 'en',
+  },
+  {
     route: 'fundamentals',
     title: 'React Fundamentals',
     description: 'Your first steps with React',

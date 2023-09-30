@@ -4,7 +4,8 @@ import RouterEn from './decks/react-router.en.mdx';
 import RouterFr from './decks/react-router.fr.mdx';
 import FundamentalsFr from './decks/fundmentals.fr.mdx';
 import FundamentalsEn from './decks/fundmentals.en.mdx';
-import TestEn from './decks/test.en.mdx';
+import InstallEn from './decks/install.en.mdx';
+import InstallFr from './decks/install.fr.mdx';
 
 import GotoPopup from './components/GotoPopup';
 import { createBrowserRouter, Outlet, useParams } from 'react-router-dom';
@@ -36,7 +37,8 @@ const router = createBrowserRouter([
             path: '/:lang?',
             element: <Language />,
             children: [
-              { path: 'en/test', element: <TestEn /> },
+              { path: 'en/install', element: <InstallEn /> },
+              { path: 'fr/install', element: <InstallFr /> },
               { path: 'en/fundamentals', element: <FundamentalsEn /> },
               { path: 'fr/fundamentals', element: <FundamentalsFr /> },
               { path: 'en/react-router', element: <RouterEn /> },
