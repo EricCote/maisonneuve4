@@ -66,38 +66,6 @@
         color: #000;
       }
     </style>
-    <style>
-      .gatsby-image-wrapper {
-        position: relative;
-        overflow: hidden;
-      }
-      .gatsby-image-wrapper picture.object-fit-polyfill {
-        position: static !important;
-      }
-      .gatsby-image-wrapper img {
-        bottom: 0;
-        height: 100%;
-        left: 0;
-        margin: 0;
-        max-width: none;
-        padding: 0;
-        position: absolute;
-        right: 0;
-        top: 0;
-        width: 100%;
-        object-fit: cover;
-      }
-      .gatsby-image-wrapper [data-main-image] {
-        opacity: 0;
-        transform: translateZ(0);
-        transition: opacity 0.25s linear;
-        will-change: opacity;
-      }
-      .gatsby-image-wrapper-constrained {
-        display: inline-block;
-        vertical-align: top;
-      }
-    </style>
     <noscript
       ><style>
         .gatsby-image-wrapper noscript [data-main-image] {
@@ -108,39 +76,7 @@
         }
       </style></noscript
     >
-    <script type="module">
-      const e =
-        'undefined' != typeof HTMLImageElement &&
-        'loading' in HTMLImageElement.prototype;
-      e &&
-        document.body.addEventListener(
-          'load',
-          function (e) {
-            const t = e.target;
-            if (void 0 === t.dataset.mainImage) return;
-            if (void 0 === t.dataset.gatsbyImageSsr) return;
-            let a = null,
-              n = t;
-            for (; null === a && n; )
-              void 0 !== n.parentNode.dataset.gatsbyImageWrapper &&
-                (a = n.parentNode),
-                (n = n.parentNode);
-            const o = a.querySelector('[data-placeholder-image]'),
-              r = new Image();
-            (r.src = t.currentSrc),
-              r
-                .decode()
-                .catch(() => {})
-                .then(() => {
-                  (t.style.opacity = 1),
-                    o &&
-                      ((o.style.opacity = 0),
-                      (o.style.transition = 'opacity 500ms linear'));
-                });
-          },
-          !0
-        );
-    </script>
+
     <title data-react-helmet="true">
       Installation du cours - Académie React
     </title>
@@ -440,20 +376,5 @@ nvm use --lts
         aria-atomic="true"
       ></div>
     </div>
-    <script id="gatsby-script-loader">
-      /*<![CDATA[*/ window.pagePath = '/fr/setup/'; /*]]>*/
-    </script>
-    <!-- slice-start id="_gatsby-scripts-1" -->
-    <script id="gatsby-chunk-mapping">
-      window.___chunkMapping =
-        '{"app":["/app-f5c9a901826f88f1a4be.js"],"component---src-pages-404-js":["/component---src-pages-404-js-1707abdfd5849216ccd9.js"],"component---src-pages-about-js":["/component---src-pages-about-js-11188c39aa71f8ef6183.js"],"component---src-pages-index-js":["/component---src-pages-index-js-cf07decb0360bf921e72.js"],"component---src-pages-login-js":["/component---src-pages-login-js-e8b2a43c471a7e1c643d.js"],"component---src-pages-pdf-js":["/component---src-pages-pdf-js-9e32895be932427e541f.js"],"component---src-pages-setup-2-js":["/component---src-pages-setup-2-js-9d1740a271346be9a7d6.js"],"component---src-pages-setup-index-fr-mdx":["/component---src-pages-setup-index-fr-mdx-71de4d5e74c6ea62acf3.js"],"component---src-pages-setup-index-mdx":["/component---src-pages-setup-index-mdx-481fd55f25886c3ba19e.js"]}';
-    </script>
-    <script>
-      window.___webpackCompilationHash = 'e3e40ec0aa55be9ea88a';
-    </script>
-    <script src="/webpack-runtime-b21e09838bb903fc4134.js" async></script>
-    <script src="/framework-bf56e7157a6b4e4761ae.js" async></script>
-    <script src="/app-f5c9a901826f88f1a4be.js" async></script>
-    <!-- slice-end id="_gatsby-scripts-1" -->
   </body>
 </html>

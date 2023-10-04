@@ -77,7 +77,7 @@ function SandpackRoot(props: SandpackProps) {
 
   return (
     <div className='sandpack sandpack--playground w-full my-8' dir='ltr'>
-      <Sandpack template='react' files={files} theme='dark'></Sandpack>
+      <Sandpack template='react' files={files} theme='dark' />{' '}
     </div>
   );
 }
