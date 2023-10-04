@@ -11,8 +11,14 @@ const decks = [
   {
     route: 'install',
     title: 'Install',
-    description: 'Comment installer votre environnement pour notre formation',
+    description: 'How to install your training',
     language: 'en',
+  },
+  {
+    route: 'plan',
+    title: 'Plan de formation',
+    description: 'Plan pour la formation React',
+    language: 'fr',
   },
   {
     route: 'fundamentals',
@@ -27,6 +33,13 @@ const decks = [
     language: 'fr',
   },
   {
+    route: 'components',
+    title: 'Composants',
+    description: 'Découper application en composants',
+    language: 'fr',
+  },
+
+  {
     route: 'react-router',
     title: 'React Router',
     description: 'Introducing React Router',
@@ -38,6 +51,30 @@ const decks = [
     description: 'Introduction à React Router',
     language: 'fr',
   },
+  {
+    route: 'state',
+    title: 'État',
+    description: "Gérer l'état (state) de vos apps",
+    language: 'fr',
+  },
+  {
+    route: 'loading',
+    title: 'Appeler services',
+    description: 'Appeler des API REST avec React',
+    language: 'fr',
+  },
+  {
+    route: 'manage-state',
+    title: 'État avancé',
+    description: 'Appeler des API distantes',
+    language: 'fr',
+  },
+  {
+    route: 'advanced',
+    title: 'Patrons évolués',
+    description: 'Comment utiliser les patrons évolués de React',
+    language: 'fr',
+  },
 ];
 
 const languages = [
@@ -46,31 +83,33 @@ const languages = [
 ];
 
 export default function Home() {
-  document.documentElement.lang = 'en';
+  document.documentElement.lang = 'fr';
   return (
     <>
       <Menu />
-      <h1 className='my-5'>Simple MDX Slides</h1>
-      {languages.map((lang) => (
-        <>
-          <div>
-            <h3>{lang.language}</h3>
-            {decks
-              .filter((deck) => deck.language === lang.shortName)
-              .map((deck) => (
-                <>
-                  <h5>
-                    <Link to={`${lang.shortName}/${deck.route}`}>
-                      {deck.title}
-                    </Link>
-                  </h5>
-                  <p>{deck.description}</p>
-                </>
-              ))}
+      <h1 className='my-5'>Formation React</h1>
+      {languages
+        .filter((lang) => lang.shortName === 'fr')
+        .map((lang) => (
+          <div key={lang.shortName}>
+            <div>
+              <h3></h3>
+              {decks
+                .filter((deck) => deck.language === lang.shortName)
+                .map((deck) => (
+                  <div key={deck.title}>
+                    <h5>
+                      <Link to={`${lang.shortName}/${deck.route}`}>
+                        {deck.title}
+                      </Link>
+                    </h5>
+                    <p>{deck.description}</p>
+                  </div>
+                ))}
+            </div>
+            <hr className='my-5' />
           </div>
-          <hr className='my-5' />
-        </>
-      ))}
+        ))}
 
       <p>
         Please visit: <a href='https://www.reactacademy.live'>React Academy</a>

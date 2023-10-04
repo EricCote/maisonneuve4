@@ -9,9 +9,20 @@ export default function Menu() {
     <LocalTheme theme='auto'>
       <Navbar expand='lg' bg='body' className='mb-4'>
         <Container>
-          <Navbar.Brand as='h4'>
+          <Navbar.Brand>
             <Link to='/' className='text-decoration-none'>
-              React Academy
+              <h4>
+                <img
+                  src='img/maisonneuve.svg'
+                  style={{
+                    backgroundColor: 'aliceblue',
+                    paddingLeft: 6,
+                    marginRight: 6,
+                    borderRadius: 3,
+                  }}
+                />
+                React Academy
+              </h4>
             </Link>
           </Navbar.Brand>
           <Navbar.Toggle aria-controls='basic-navbar-nav' />
@@ -19,7 +30,7 @@ export default function Menu() {
             <Nav
               activeKey={location.pathname}
               variant='pills'
-              className='me-auto'
+              className='ms-auto'
             >
               <DarkModeMenu />
             </Nav>
