@@ -7,7 +7,6 @@ import RouterFr from './decks/3-react-router.fr.mdx';
 import RouterEn from './decks/3-react-router.en.mdx';
 import StateFr from './decks/4-state.fr.mdx';
 import LoadingFr from './decks/5-loading.fr.mdx';
-
 import ManageStateFr from './decks/6-manage-state.fr.mdx';
 import AdvancedFr from './decks/7-advanced.fr.mdx';
 import InstallEn from './decks/install.en.mdx';

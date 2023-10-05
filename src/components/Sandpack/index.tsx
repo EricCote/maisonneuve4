@@ -8,11 +8,10 @@ import { createFileMap } from './createFileMap';
 const SandpackRoot = lazy(() => import('./SandpackRoot'));
 
 const SandpackGlimmer = ({ code }: { code: string }) => (
-  <div className=''></div>
+  <div className=''>{code}</div>
 );
 
 export default memo(function SandpackWrapper(props: any): any {
-  console.log(props);
   const codeSnippet = createFileMap(Children.toArray(props.children));
 
   // To set the active file in the fallback we have to find the active file first.
@@ -22,12 +21,14 @@ export default memo(function SandpackWrapper(props: any): any {
       codeSnippet[fileName]?.active === true &&
       codeSnippet[fileName]?.hidden === false
   );
+
   let activeCode;
   if (!activeCodeSnippet.length) {
     activeCode = codeSnippet['/App.js'].code;
   } else {
     activeCode = codeSnippet[activeCodeSnippet[0]].code;
   }
+  // console.log(activeCode);
 
   return (
     <Suspense fallback={<SandpackGlimmer code={activeCode} />}>

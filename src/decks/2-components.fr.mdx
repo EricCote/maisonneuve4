@@ -364,9 +364,6 @@ ex: `import Pressoir from './button.js';`
 
 ---
 
-{/* prettier-ignore */}
-{/*
-
 ### Défi 5
 
 Déplacer la composante Profile dans son fichier `Profile.js`;
@@ -624,6 +621,8 @@ body > div > div {
 
 </Sandpack>
 
+---
+
 ### Défi 9
 
 Dans l'objet ci-bas, l'url de l'image est séparé en 4 parties: base URL, `imageId`, `imageSize`, and l'extention de fichier.
@@ -681,19 +680,21 @@ body > div > div {
 
 </Sandpack>
 
+---
+
 ## Passer des props dans des composants
 
 React utilise des props pour passer de l'information entre les composants.
 
 On peut passer des chaînes de caractères, des objets, des tableaux, des fonctions, etc.
 
----
+.
 
-## Props familiers
+### Props familiers
 
 `className, src, alt, width, height` sont des props familiers
 
-```js
+```jsx
 <img
   className='avatar'
   src='https://i.imgur.com/1bX5QH6.jpg'
@@ -753,7 +754,9 @@ La valeur par défaut est utilisée quand `size` n'est pas présent ou quand `si
 
 ## Pousser des props avec la syntaxe de décomposition
 
-```js
+<aside style={{display:'grid', gridTemplateColumns:"1fr 1fr", columnGap:5}}>
+
+```jsx
 // Approche répétitive
 function Profile({ person, size, isSepia, thickBorder }) {
   return (
@@ -769,7 +772,7 @@ function Profile({ person, size, isSepia, thickBorder }) {
 }
 ```
 
-```js
+```jsx
 // Approche avec syntaxe de décomposition
 function Profile(props) {
   return (
@@ -779,6 +782,10 @@ function Profile(props) {
   );
 }
 ```
+
+Les deux approches sont équivalentes.
+
+</aside>
 
 ---
 
@@ -1089,7 +1096,7 @@ export default function ListeBaggages() {
 
 ### Défi 14
 
-Dans cet exemple, chaque `Ìtem` reçoit une prop numérique nommée `importance`. Utilisez l'opérateur && pour afficher _(Importance: X)_ en italiques, mais seulement pour les items qui ont une importance autre que 0.
+Dans cet exemple, chaque `Item` reçoit une prop numérique nommée `importance`. Utilisez l'opérateur && pour afficher _(Importance: X)_ en italiques, mais seulement pour les items qui ont une importance autre que 0.
 
 Votre liste d'items doit ressembler à ceci:
 
@@ -1185,9 +1192,11 @@ return <ul>{listeItems}</ul>
 
 ---
 
-## Filtrer les données
+## Données complexes
 
-Avec une structure plus complexe:
+Avec une structure plus complexe, fltrons et affichons:
+
+<div style={{fontSize:"1rem"}}>
 
 ```js
 const personnalités = [
@@ -1220,7 +1229,13 @@ const personnalités = [
 ];
 ```
 
-Filtrons les artistes
+</div>
+
+---
+
+### Filtrer les artistes
+
+`.filter` est une fonction standard.
 
 ```js
 const artistes = personnalités.filter(
@@ -1228,7 +1243,9 @@ const artistes = personnalités.filter(
 );
 ```
 
-Faisons un map
+---
+
+### Faire un map
 
 ```js
 const listeItems = artistes.map((personne) => (
@@ -1242,7 +1259,7 @@ const listeItems = artistes.map((personne) => (
 ));
 ```
 
-Affichons les résultats
+Afficher les résultats
 
 ```js
 return <ul>{listeItems}</ul>;
@@ -1267,6 +1284,8 @@ const listeItems = artistes.map(personne =>
   <li>...</li>;
 );
 ```
+
+---
 
 ## Gérer les clés
 
@@ -1540,11 +1559,7 @@ Un haïku contient trois lignes, mais votre solution doit fonctionner avec des h
 
 ```js
 const poem = {
-  lines: [
-    'I write, erase, rewrite',
-    'Erase again, and then',
-    'A poppy blooms.',
-  ],
+  lines: ['au vent de la mer', 'ondulation des épis', 'en vagues vertes'],
 };
 
 export default function Poem() {
@@ -1592,16 +1607,18 @@ function doubler(nombre) {
 React assume que chaque composant que vous créez est pur.
 Pour la même "entrée", on obtient toujours le même résultat.
 
-Voici un exmple qui respecte la règle:
+---
+
+## Exemple d'un composant pur
 
 ```js
-function Recipe({ drinkers }) {
+function Recipe({ nbPersonnes }) {
   return (
     <ol>
-      <li>Bouillir {drinkers} tasses d'eau</li>
-      <li>Ajouter {drinkers} cuillères à soupe de thé,
-      <li>Ajouter {0.5 * drinkers} cuillères à soupe d'épices</li>
-      <li>Ajouter {0.5 * drinkers} tasses de lait à ébulition</li>
+      <li>Bouillir {nbPersonnes} tasses d'eau</li>
+      <li>Ajouter {nbPersonnes} cuillères à soupe de thé,
+      <li>Ajouter {0.5 * nbPersonnes} cuillères à soupe d'épices</li>
+      <li>Ajouter {0.5 * nbPersonnes} tasses de lait à ébulition</li>
       <li>Sucrer au besoin</li>
     </ol>
   );
@@ -1612,9 +1629,9 @@ export default function App() {
     <section>
       <h1>Recette de thé Chai</h1>
       <h2>Pour deux personnes</h2>
-      <Recipe drinkers={2} />
+      <Recipe nbPersonnes={2} />
       <h2>Pour un groupe</h2>
-      <Recipe drinkers={4} />
+      <Recipe nbPersonnes={4} />
     </section>
   );
 }
@@ -1631,12 +1648,12 @@ le rendu.
 Voici un composant qui brise la règle:
 
 ```js
-let guest = 0;
+let invité = 0;
 
 function Cup() {
   // Mauvais: on modifie une variable existante!
-  guest = guest + 1;
-  return <h2>Tasse pour l'invité #{guest}</h2>;
+  invité = invité + 1;
+  return <h2>Tasse pour l'invité #{invité}</h2>;
 }
 
 export default function TeaSet() {
@@ -1647,6 +1664,7 @@ export default function TeaSet() {
       <Cup />
     </>
   );
+}
 ```
 
 Pour réparer, on pourrait utiliser des props:
@@ -1976,6 +1994,3 @@ li {
 ```
 
 </Sandpack>
-
-{/* prettier-ignore */}
-*/}

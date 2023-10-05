@@ -2,8 +2,8 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import mdx from '@mdx-js/rollup';
 import remarkGfm from 'remark-gfm';
-import rehypePrism from '@mapbox/rehype-prism';
 import path from 'path';
+import rehypePrism from './src/components/rehype-prism';
 import { rehypeSimpleSlides } from './src/components/rehype-simple-slides';
 
 // https://vitejs.dev/config/

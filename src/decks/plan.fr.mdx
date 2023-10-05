@@ -1,6 +1,56 @@
+import Sandpack from '../components/Sandpack';
+
 # Plan de cours
 
 ### Faites <kbd>→</kbd> pour naviger à la prochaine diapositive
+
+---
+
+<Sandpack>
+
+```js App.js
+import Gallery from './Gallery.js';
+import { Profile } from './Gallery.js';
+
+export default function App() {
+  return (
+    <div>
+      <Profile />
+    </div>
+  );
+}
+```
+
+```js Gallery.js active
+// me déplacer vers Profile.js!
+export function Profile() {
+  return <img src='https://i.imgur.com/QIrZWGIs.jpg' alt='Alan L. Hart' />;
+}
+
+export default function Gallery() {
+  return (
+    <section>
+      <h1>Liste de personalités</h1>
+      <Profile />
+      <Profile />
+      <Profile />
+    </section>
+  );
+}
+```
+
+```js Profile.js
+// vide
+```
+
+```css
+img {
+  margin: 0 10px 10px 0;
+  height: 90px;
+}
+```
+
+</Sandpack>
 
 ---
 

@@ -5,9 +5,11 @@
 import type { SandpackFile } from '@codesandbox/sandpack-react/unstyled';
 
 export const createFileMap = (codeSnippets: any) => {
-  return codeSnippets.reduce(
+  console.log(codeSnippets);
+
+  const myres = codeSnippets.reduce(
     (result: Record<string, SandpackFile>, codeSnippet: React.ReactElement) => {
-      if ((codeSnippet.type as any) !== 'pre') {
+      if (codeSnippet.type !== 'pre') {
         return result;
       }
 
@@ -16,7 +18,6 @@ export const createFileMap = (codeSnippets: any) => {
       let fileHidden = false; // if the file is available as a tab
       let fileActive = false; // if the file tab is shown by default
 
-      console.log(props.meta);
       if (props.meta) {
         const [name, ...params] = props.meta.split(' ');
         filePath = '/' + name;
@@ -42,13 +43,8 @@ export const createFileMap = (codeSnippets: any) => {
           `File ${filePath} was defined multiple times. Each file snippet should have a unique path name`
         );
       }
-
-      let cody: string = myReduce(props.children);
-
-      console.log(cody);
-
       result[filePath] = {
-        code: cody,
+        code: (props.children || '') as string,
         hidden: fileHidden,
         active: fileActive,
       };
@@ -57,27 +53,27 @@ export const createFileMap = (codeSnippets: any) => {
     },
     {}
   );
+  return myres;
 };
 
-function myReduce(items: any) {
-  if (typeof items === 'string') {
-    return items;
-  }
+// function myReduce(items: any) {
+//   if (typeof items === 'string') {
+//     return items;
+//   }
 
-  if (items?.props?.children) {
-    return myReduce(items.props.children);
-  }
+//   if (items?.props?.children) {
+//     return myReduce(items.props.children);
+//   }
 
-  if (items.reduce)
-    return items.reduce((res: string, item: any) => {
-      if (typeof item === 'string') {
-        return res + item;
-      }
-      if (typeof item === 'object') {
-        return res + myReduce(item.props.children);
-      }
-      console.log('vraiment??');
-      return res;
-    }, '');
-  console.log('!!!!!');
-}
+//   if (items.reduce)
+//     return items.reduce((res: string, item: any) => {
+//       if (typeof item === 'string') {
+//         return res + item;
+//       }
+//       if (typeof item === 'object') {
+//         return res + myReduce(item.props.children);
+//       }
+
+//       return res;
+//     }, '');
+// }
