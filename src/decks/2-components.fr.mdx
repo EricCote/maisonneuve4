@@ -1,3 +1,8 @@
+---
+title: stuff
+description: other
+---
+
 # Composants et JSX
 
 import Sandpack from '../components/Sandpack';
@@ -42,7 +47,7 @@ import Sandpack from '../components/Sandpack';
 //On trouve le div
 let rootNode = document.getElementById('root');
 
-//Modify the content of the DOM.  No React!
+//Modifier le contenu du DOM. Sans React!
 rootNode.innerHTML = '<h2>Bonjour tous!</h2>';
 ```
 
@@ -50,9 +55,9 @@ rootNode.innerHTML = '<h2>Bonjour tous!</h2>';
 
 ## Point d'entrée React
 
-- Index.jsx doit importer ReactDOM/client
+- `Index.jsx` doit importer `react-dom/client`
 
-- ReactDOM permet de créer une racine React pour le Web.
+- `ReactDOM.createRoot` permet de créer une racine React pour le `<div>`.
 
 ```js
 //On importe ReactDOM
@@ -76,6 +81,7 @@ On peut stocker le jsx dans une variable.
 
 ```js
 let jsx = <h2>Bonjour Tous!</h2>;
+
 root.render(jsx);
 ```
 
@@ -92,7 +98,7 @@ function Bonjour() {
   return <h2>Bonjour Tous!</h2>;
 }
 
-//on pourrait appeler tel qu'une fonction 🔴
+//on pourrait appeler tel qu'une fonction 🚫
 root.render(Bonjour());
 
 //Mieux vaut utiliser du JSX  ✅
@@ -123,7 +129,7 @@ root.render(
 
 ## Découper les composants dans fichiers différents
 
-**Règle** Quand on isole le composant dans son fichier, il faut utiliser `export default`
+**Règle** Quand on isole le composant dans son propre fichier, il faut utiliser `export default`
 
 **Règle** Quand on écrit le JSX sur plusieurs lignes, il faut entourer de parenthèses ()
 
@@ -141,8 +147,10 @@ export default Bonjour() {
 
 ## Le JSX ne permet qu'une seule racine
 
+<aside style={{display:'grid', gridTemplateColumns:"1fr 1fr", columnGap:10}}>
+
 ```js
-// Erreur: deux racines  🔴
+// Erreur: deux racines  🚫
 <h1>Titre</h1>
 <h2>Sous-titre</h2>
 ```
@@ -155,14 +163,18 @@ export default Bonjour() {
 </div>
 ```
 
+</aside>
+
 ---
 
 ## Le fragment
 
 Le fragment permet d'englober sans générer d'élément dans le DOM
 
+<aside style={{display:'grid', gridTemplateColumns:"1fr 1fr", columnGap:5}}>
+
 ```js
-// Fragment avec importation
+// Fragment avec importation ✅
 import { Fragment } from 'react';
 
 <Fragment>
@@ -172,18 +184,34 @@ import { Fragment } from 'react';
 ```
 
 ```js
-// Fragment implicite  ✅
+// Fragment implicite  ✅✅
 <>
   <h1>Titre</h1>
   <h2>Sous-titre</h2>
 </>
 ```
 
+</aside>
+
+Les 2 approches sont équivalentes (compilent de façon identique). La seconde est plus populaire.
+
 ---
 
 ## Pas de composants imbriqués
 
 Ne jamais imbriquer les composants les uns dans les autres.
+
+<aside style={{display:'grid', gridTemplateColumns:"1fr 1fr", columnGap:5}}>
+
+```js
+function Composant1() {
+  function Composant2() {
+    //Composant imbriqué  🚫
+    return <br />;
+  }
+  return <Composant2 />;
+}
+```
 
 ```js
 function Composant1() {
@@ -197,17 +225,10 @@ function Composant2() {
 }
 ```
 
-```js
-function Composant1() {
-  function Composant2() {
-    //Composant imbriqué  🔴
-    return <br />;
-  }
-  return <Composant2 />;
-}
-```
+</aside>
 
 C'est correct d'imbriquer des gestionnaires d'événements et d'autres fonctions.
+
 Le problème d'imbriquer des composants, c'est la performance. (Chaque rendu de Composant1 va générer un nouveau Composant2, avec un nouvel état... )
 
 ---
@@ -299,7 +320,7 @@ img {
 <Sandpack>
 
 ```js
-// Écrivez votre compsant ici...
+// Écrivez votre composant ici...
 ```
 
 </Sandpack>
@@ -426,15 +447,15 @@ JSX et React sont deux technologies différentes et séparées, on peut utiliser
 
 ## Règles de JSX
 
-1. Une seule racine
+1. **Une seule racine**
 
 On peut combiner avec une balise qui englobe (`<div>`) ou un fragment (`<></>`)
 
-2. Balises sont explicitement fermées
+2. **Balises sont explicitement fermées**
 
 Pas de `<img>` mais plutôt `<img />`
 
-3. Utiliser le camelCase pour les attributs
+3. **Utiliser le camelCase pour les attributs**
 
 JSX est converti en JavaScript par la boîte à outils. Les attributs sont alors transformés en propriétés du DOM (qui sont en camelCase).
 
@@ -499,17 +520,17 @@ export default function Bio() {
 
 On utilise les accolades {} pour insérer des expressions Javascript dans JSX
 
-```js
+```jsx
 //js dans le texte jsx
 <h1>Bonjour {user.name}!</h1>
 ```
 
-```js
+```jsx
 //js utilisé avec attributs
 <img className='usager' src={user.imageUrl} />
 ```
 
-```js
+```jsx
 //Deux paires d'accolades:
 //la première pour utiliser du JS,
 //la seconde pour définir un objet JS
@@ -710,25 +731,25 @@ On peut passer des chaînes de caractères, des objets, des tableaux, des foncti
 
 #### Pousser des props au composant enfant
 
-```js
+```jsx
 <Avatar person={{ name: 'Lin Lanying', imageId: '1bX5QH6' }} size={100} />
 ```
 
-#### Lire les props dans le composant enfant
+---
+
+## Lire les props
+
+<aside style={{display:'grid', gridTemplateColumns:"1fr 1fr", columnGap:5}}>
 
 ```js
+// décomposition du paramètre props
 function Avatar({ person, size }) {
   // person et size sont accessibles
 }
 ```
 
----
-
-## La nature des props
-
-Il n'y a qu'un seul paramètre passé aux composants.
-
 ```js
+// paramètre props
 function Avatar(props) {
   let person = props.person;
   let size = props.size;
@@ -736,7 +757,11 @@ function Avatar(props) {
 }
 ```
 
-Cette sytaxe est moins populaire que la décomposition avec `{}`. (destructuring)
+</aside>
+
+Les deux approches sont équivalentes.
+
+La décomposition (destructuring) avec `{}` est populaire.
 
 ---
 
@@ -756,9 +781,12 @@ La valeur par défaut est utilisée quand `size` n'est pas présent ou quand `si
 
 <aside style={{display:'grid', gridTemplateColumns:"1fr 1fr", columnGap:5}}>
 
+{/* prettier-ignore */}
 ```jsx
-// Approche répétitive
-function Profile({ person, size, isSepia, thickBorder }) {
+
+// Approche détaillée
+function Profile({ person, size, 
+                   isSepia, thickBorder }) {
   return (
     <div className='card'>
       <Avatar
@@ -783,9 +811,8 @@ function Profile(props) {
 }
 ```
 
-Les deux approches sont équivalentes.
-
 </aside>
+Les deux approches sont équivalentes.
 
 ---
 
@@ -1035,9 +1062,12 @@ h1 {
 
 Différentes approches
 
+<aside style={{display:'grid', gridTemplateColumns:"1fr 1fr", columnGap:10}}>
+<div>
+
 Méthode classique, utiliser des instructions `if`:
 
-```js
+```jsx
 let contenu;
 if (vip) {
   contenu = <Vip />;
@@ -1047,17 +1077,25 @@ if (vip) {
 return <div>{contenu}</div>;
 ```
 
-Méthode compacte, utiliser l'opérateur conditionnel ternaire `(expression ? resultat_vrai : resultat_faux)`
+</div>
 
-```js
-<div>{vip ? <Vip /> : <Régulier />}</div>
+<div>
+
+Méthode compacte, utiliser l'opérateur conditionnel ternaire <br/> `(expression ? resultat_vrai : resultat_faux)`
+
+```jsx
+<div>{vip ? <Vip /> : <Regulier />}</div>
 ```
 
 Méthode sans `else`, utiliser l'opérateur logique `&&`
 
-```js
+```jsx
 <div>{vip && <Vip />}</div>
 ```
+
+</div>
+
+</aside>
 
 ---
 
@@ -1186,8 +1224,8 @@ const personnalités = [
 const listeItems = personnalités.map((personne) => <li>{personne}</li>);
 ```
 
-```
-return <ul>{listeItems}</ul>
+```js
+return <ul>{listeItems}</ul>;
 ```
 
 ---
@@ -1196,7 +1234,7 @@ return <ul>{listeItems}</ul>
 
 Avec une structure plus complexe, fltrons et affichons:
 
-<div style={{fontSize:"1rem"}}>
+<aside style={{display:'grid', gridTemplateColumns:"1fr 1fr", columnGap:10, fontSize: "0.8em"}}>
 
 ```js
 const personnalités = [
@@ -1211,6 +1249,12 @@ const personnalités = [
     nom: 'Isabelle Boulay',
     profession: 'artiste',
   },
+
+  ...
+```
+
+```js
+
   {
     id: 2,
     nom: 'François Bellefeuille',
@@ -1229,7 +1273,7 @@ const personnalités = [
 ];
 ```
 
-</div>
+</aside>
 
 ---
 
@@ -1291,9 +1335,9 @@ const listeItems = artistes.map(personne =>
 
 Si on oublie de spécifier une `key` unique, un message est affiché dans la console
 
-<p style={{ color: 'red' }}>
+<code style={{ color: 'red' }}>
   Warning: Each child in a list should have a unique “key” prop.
-</p>
+</code>
 
 Pour éliminer le message, il faut utiliser une clé unique.
 Il faut fournir cela pour n'importe quel tableau de JSX, incluant le `map`.
@@ -1611,19 +1655,23 @@ Pour la même "entrée", on obtient toujours le même résultat.
 
 ## Exemple d'un composant pur
 
-```js
+<aside style={{display:'grid', gridTemplateColumns:"2fr 1fr", columnGap:5, fontSize:"0.8em"}}>
+
+```jsx
 function Recipe({ nbPersonnes }) {
   return (
     <ol>
       <li>Bouillir {nbPersonnes} tasses d'eau</li>
-      <li>Ajouter {nbPersonnes} cuillères à soupe de thé,
+      <li>Ajouter {nbPersonnes} cuillères à soupe de thé,</li>
       <li>Ajouter {0.5 * nbPersonnes} cuillères à soupe d'épices</li>
       <li>Ajouter {0.5 * nbPersonnes} tasses de lait à ébulition</li>
       <li>Sucrer au besoin</li>
     </ol>
   );
 }
+```
 
+```jsx
 export default function App() {
   return (
     <section>
@@ -1637,6 +1685,8 @@ export default function App() {
 }
 ```
 
+</aside>
+
 ---
 
 ## Effets de bord
@@ -1648,38 +1698,42 @@ le rendu.
 Voici un composant qui brise la règle:
 
 ```js
-let invité = 0;
+let numInvité = 0;
 
-function Cup() {
+function Tasse() {
   // Mauvais: on modifie une variable existante!
-  invité = invité + 1;
-  return <h2>Tasse pour l'invité #{invité}</h2>;
+  numInvité = numInvité + 1;
+  return <h2>Tasse pour l'invité #{numInvité}</h2>;
 }
 
 export default function TeaSet() {
   return (
     <>
-      <Cup />
-      <Cup />
-      <Cup />
+      <Tasse />
+      <Tasse />
+      <Tasse />
     </>
   );
 }
 ```
 
+---
+
+### Éliminer les effets de bord
+
 Pour réparer, on pourrait utiliser des props:
 
 ```js
-function Cup({ guest }) {
-  return <h2>Tasse pour l'invité #{guest}</h2>;
+function Tasse({ numInvité }) {
+  return <h2>Tasse pour l'invité #{numInvité}</h2>;
 }
 
 export default function TeaSet() {
   return (
     <>
-      <Cup guest={1} />
-      <Cup guest={2} />
-      <Cup guest={3} />
+      <Tasse numInvité={1} />
+      <Tasse numInvité={2} />
+      <Tasse numInvité={3} />
     </>
   );
 }
@@ -1699,25 +1753,27 @@ Avec le `StrictMode`, quand on est en mode développement, chaque composant est 
 
 ## Mutation locale
 
-La mutation locale est permise. C'est la mutation de variables préexistantes qui n'est pas permise.
+La mutation locale est permise. (C'est la mutation de variables préexistantes qui n'est pas permise.)
 
 ```js
-function Cup({ guest }) {
-  return <h2>Tea cup for guest #{guest}</h2>;
+function Tasse({ numInvité }) {
+  return <h2>Tasse pour invité #{numInvité}</h2>;
 }
 
-export default function TeaGathering() {
-  let cups = [];
+export default function RassemblementDeThé() {
+  let tasses = [];
   for (let i = 1; i <= 12; i++) {
-    cups.push(<Cup key={i} guest={i} />);
+    tasses.push(<Tasse key={i} numInvité={i} />);
   }
-  return cups;
+  return tasses;
 }
 ```
 
-Le code précédent est correct, car cups est une variable locale. On peut modifier les variables locales sans problème.
+Le code précédent est correct, car `tasses` est une variable locale. On peut modifier les variables locales sans problèmes.
 
-Si cups était une variable globale, ce serait mauvais.
+Si `tasses` était une variable globale, ce serait mauvais.
+
+---
 
 ## Où placer les effets de bords
 

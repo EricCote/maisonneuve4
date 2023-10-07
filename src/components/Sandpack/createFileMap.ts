@@ -5,8 +5,6 @@
 import type { SandpackFile } from '@codesandbox/sandpack-react/unstyled';
 
 export const createFileMap = (codeSnippets: any) => {
-  console.log(codeSnippets);
-
   const myres = codeSnippets.reduce(
     (result: Record<string, SandpackFile>, codeSnippet: React.ReactElement) => {
       if (codeSnippet.type !== 'pre') {

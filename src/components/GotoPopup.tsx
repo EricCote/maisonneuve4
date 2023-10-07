@@ -22,20 +22,20 @@ function GotoPopup() {
     setShow(false);
   }
 
-  function handleKeyDown(evt: KeyboardEvent) {
-    if (evt.key === 'g') {
-      evt.preventDefault();
+  function handleKeyUp(evt: KeyboardEvent) {
+    if ((evt.metaKey || evt.ctrlKey) && evt.key == 'g') {
+      //evt.preventDefault();
       setShow(!txtNombre.current);
     }
   }
 
   useEffect(() => {
     if (!isEventRegistered) {
-      window.addEventListener('keydown', handleKeyDown);
+      window.addEventListener('keyup', handleKeyUp);
     }
     isEventRegistered = true;
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
       isEventRegistered = false;
     };
   }, []);
