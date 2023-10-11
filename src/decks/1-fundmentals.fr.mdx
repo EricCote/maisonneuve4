@@ -15,11 +15,11 @@ Présentation par Éric Côté
   width='400px'
 />
 
-- Got started on 8-bits machines (Commodore 64)
-- Technical trainer since 2001 (.NET, C#, ASP.NET MVC, Sql Server, Azure)
-- Training on Open Source dev technologies since 2018
+- a débuté sur des machines 8-bit (Commodore 64)
+- Formateur technique depuis 2001 (.NET, C#, ASP.NET MVC, SQL Server, Azure)
+- Formateur sur les technologies Open Source depuis 2018
   - Javascript, TypeScript, React, GitHub, REST, Node, Express, Next, Remix, etc.
-- Trainer-Owner of React Academy Live
+- Propriétaire de React Academy Live
 
 ---
 
@@ -77,9 +77,10 @@ Offre de la formation depuis 2018.
   - Utilisé en 2012 pour réécrire Instagram.
 - 2013: React devient Open Source
 - 2015: React-Native permet de développer des apps mobiles
-- 2017: Sortie majeure de React 16
-- 2020: Sortie majeure de React 17
-- 2022: Sortie majeure de React 18 (permet le “concurrent mode”)
+- 2017: React 16 (Fiber rendering)
+- 2020: React 17 (Hooks)
+- 2022: React 18 (Concurrent rendering)
+- 2024: React 19 (Server components)
 
 ---
 
@@ -105,6 +106,7 @@ https://github.com/chentsulin/awesome-react-renderer
 - **Sans opinion** React se fout du routage, du chargement de données, des styles, etc.
 - **SSR** Compatible avec le Server-Side Rendering
 - **SSG** Compatible avec le Static-Site Generation
+- **RSC** Compatible avec le React Server Components
 
 ---
 
@@ -117,7 +119,7 @@ https://github.com/chentsulin/awesome-react-renderer
 
 ---
 
-### Boîte à outils de React
+## Boîte à outils de React
 
 - Il existe de nombreux outils pour générer une application React
 - À une certaine époque, on devait générer l'outillage nous-même:
@@ -135,12 +137,13 @@ https://github.com/chentsulin/awesome-react-renderer
 ### Boites à outils clé en main
 
 - Aujourd'hui, on peut prendre des outils simples, ou des Framework évolués:
-  - Create-React-App
+  - Create-React-App (déprécié en 2023)
   - Vite
   - Gatsby
   - Next js
   - Remix
   - T3
+  - Epic Stack
 
 ---
 
@@ -160,8 +163,8 @@ https://github.com/chentsulin/awesome-react-renderer
 
 ## Configurations VS Code (1/2)
 
-- Configurations utiles
-- Utilisez `cmd-,` (commande-virgule) pour aller en mode 'settings'
+- Configurations utiles:
+- Utilisez `cmd-,` (ctrl-virgule) pour aller en mode 'settings'
 
   - **Editor:** Tab Size: 2 ou 4
   - **Editor:** Default Formatter: Prettier - `esbenp.prettier-vscode`
@@ -215,6 +218,7 @@ On se déplace vers le nouveau dossier et on peut ouvrir code dans le dossier co
 
 **Fichiers:**
 
+- **.eslintrc.cjs** : configurations pour eslint (validateur js)
 - **index.html** : Page d'accueil en html, vide
 - **vite.config.js** : configurations pour vite
 - **package.json** : configurations pour npm
@@ -232,7 +236,7 @@ On se déplace vers le nouveau dossier et on peut ouvrir code dans le dossier co
 
 Les commandes suivantes doivent être lancées à la racine du projet. (La racine du projet, c'est où se trouve le fichier `package.json`)
 
-Si ce n'est pas déjà fait, installez de les dépendances du projet:
+D'abord, installez les dépendances du projet dans le dossier `node_modules`
 
 ```bash
 npm install
@@ -244,16 +248,16 @@ Lancez le projet en mode dev:
 npm run dev
 ```
 
-Ceci démarre un serveur web en mode dev. Lancez votre navigateur vers l'url suivant: http://localhost:5173
+Ceci démarre un **serveur web** en mode dev. Tapez `o` pour lancer votre navigateur vers: http://localhost:5173
 
 ---
 
 ### Fast Refresh (Hot Module Reload, HMR)
 
-- Modifiez `src/app.jsx` et sauvegardez,
+- Modifiez la ligne 19 de `src/app.jsx` et sauvegardez,
   - Vous verrez la mise-à-jour se faire automatiquement dans le navigateur, sans avoir besoin de cliquer sur _rafraîchir_.
-- Cela s'appelle _Fast Refresh_ (ainsi que _Hot Reload_)
-- Parfois, le _Fast Refresh_ échoue et il faut rafraîchir le navigateur manuellement en cliquant sur `refresh`
+- Cela s'appelle _Fast Refresh_ (ainsi que _Hot Module Reload_)
+- Parfois, le _Fast Refresh_ échoue et il faut rafraîchir le navigateur manuellement en cliquant sur _rafraichir_
 - _Fast Refresh_ n'est disponible qu'avec le mode dev.
 
 ---
@@ -282,7 +286,7 @@ Ceci démarre un serveur web en mode dev. Lancez votre navigateur vers l'url sui
 
 ---
 
-### JSX dans les coulises
+### JSX dans les coulises (1/2)
 
 JSX est écrit par un programmeur:
 
@@ -298,7 +302,7 @@ React.createElement('h3', { title: 'alarme' }, "L'alarme sonne à ", alarmTime);
 
 ---
 
-### JSX dans les coulisses
+### JSX dans les coulisses (2/2)
 
 Après exécution, cela génère un **élément React** (un simple objet JS):
 
@@ -319,25 +323,53 @@ L'ensemble des éléments React génère une arborescence nommée **Virtual DOM*
 
 ---
 
-### Compiler le projet
+### Expérience de développement (DX)
 
-Les navigateurs ne peuvent pas utiliser de JSX, il faut donc compiler (transpiler) le JSX vers JS.
+Le JSX n'est pas géré par les navigateurs, il faut d'abord compiler (transpiler) le JSX en JS.
 
-On utilise la commande suivante:
+Pour compiler en mode dev et démarrer un serveur Web:
+
+```bash
+npm run dev
+```
+
+**Dev mode** active les éléments suivants:
+
+- **Strict Mode**, où chaque composant est rendu 2 fois, pour valider la compatibilité avec le "rendu concurrent".
+- **Profiler Mode**, mesure la performance des composants, activé par l'extension du navigateur "React Dev Tools".
+- **Hot Module Reloading (HMR)**, permet la mise à jour du JavaScript dans l'application, sans avoir besoin de recharger la page.
+
+---
+
+### Compiler en production
 
 ```bash
 npm run build
 ```
 
-Il y a un nouveau dossier nommé "dist". C'est ce petit dossier qu'il faut distribuer.
+Ceci créé un nouveau dossier nommé `dist`. C'est ce dossier qu'il faut distribuer.
 
-Pour démarrer un serveur web pour tester le contenu de `dist`:
+Le processus **Build**:
+
+- Minifie le code JavaScript
+- Ignore le _Strict Mode_, _Profiling_, etc.
+
+---
+
+### Démarrer la production
+
+Pour démarrer un mini-serveur web local, pour tester le contenu de `dist`:
 
 ```bash
 npm run preview
 ```
 
-On peut alors naviguer vers http://localhost:4173
+On peut alors taper `o` pour ouvrir le navigateur http://localhost:4173
+
+**Note:**
+
+- le serveur web Preview ne permet pas le _Hot Module Reloading_ (HMR)
+- Si on modifie le JavaScript, il faut appeler **build** et **preview** pour voir les changements
 
 ---
 
