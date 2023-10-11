@@ -21,56 +21,56 @@ const decks = [
     language: 'fr',
   },
   {
-    route: 'fundamentals',
+    route: '1-fundamentals',
     title: 'React Fundamentals',
     description: 'Your first steps with React',
     language: 'en',
   },
   {
-    route: 'fundamentals',
+    route: '1-fundamentals',
     title: 'Fondements de React',
     description: 'Vos premiers pas en React',
     language: 'fr',
   },
   {
-    route: 'components',
+    route: '2-components',
     title: 'Composants',
     description: 'Découper application en composants',
     language: 'fr',
   },
 
   {
-    route: 'react-router',
+    route: '3-react-router',
     title: 'React Router',
     description: 'Introducing React Router',
     language: 'en',
   },
   {
-    route: 'react-router',
+    route: '3=react-router',
     title: 'Routage React',
     description: 'Introduction à React Router',
     language: 'fr',
   },
   {
-    route: 'state',
+    route: '4-state',
     title: 'État',
     description: "Gérer l'état (state) de vos apps",
     language: 'fr',
   },
   {
-    route: 'loading',
+    route: '5-loading',
     title: 'Appeler services',
     description: 'Appeler des API REST avec React',
     language: 'fr',
   },
   {
-    route: 'manage-state',
+    route: '6-manage-state',
     title: 'État avancé',
     description: 'Appeler des API distantes',
     language: 'fr',
   },
   {
-    route: 'advanced',
+    route: '7-advanced',
     title: 'Patrons évolués',
     description: 'Comment utiliser les patrons évolués de React',
     language: 'fr',
@@ -99,7 +99,7 @@ export default function Home() {
                 .map((deck) => (
                   <div key={deck.title}>
                     <h5>
-                      <Link to={`${lang.shortName}/${deck.route}`}>
+                      <Link to={`decks/${lang.shortName}/${deck.route}`}>
                         {deck.title}
                       </Link>
                     </h5>
