@@ -2,6 +2,7 @@ import Home from './homepage/Home';
 import GotoPopup from './components/GotoPopup';
 import { createBrowserRouter, Outlet, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import Status from './decks/4-state.fr.mdx';
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,7 @@ const router = createBrowserRouter([
           </>
         ),
         children: [
+          { path: 'status', element: <Status></Status> },
           {
             path: 'decks/:lang/',
             element: <Language />,

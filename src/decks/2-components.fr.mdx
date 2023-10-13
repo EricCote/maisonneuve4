@@ -2057,7 +2057,105 @@ li {
 
 Créez une WebApp React avec Vite qui doit afficher une liste de 5 vidéos YouTube.
 
+<aside style={{display:'grid', gridTemplateColumns:"1fr 1fr", columnGap:10}}>
+<div>
+
 Liste des vidéos:
 
-Votre arborescence:
-Man
+```js
+const videos = [
+  'SqcY0GlETPk',
+  'bMknfKXIFA8',
+  'Tn6-PIqc4UM',
+  'b9eMGE7QtTk',
+  'w7ejDZ8SWv8',
+];
+```
+
+</div>
+<div>
+Comment afficher le premier vidéo:
+
+```html
+<iframe
+  width="480"
+  height="270"
+  src="https://www.youtube.com/embed/SqcY0GlETPk"
+  allowfullscreen
+  title="Video"
+></iframe>
+```
+
+</div>
+</aside>
+
+---
+
+## Devoir (1/3)
+
+Pour ce devoir, vous devez compléter le code du composant YouTube.
+
+Voici une référence des [paramètres](https://developers.google.com/youtube/player_parameters?hl=fr).
+Vous pouvez améliorer l'expérience.
+
+Le résultat final désiré ressemblerait à ceci:
+
+```jsx
+<iframe
+  type='text/html'
+  width={480}
+  height={270}
+  src='https://www.youtube.com/embed/M7lc1UVf-VE'
+  title='Vidéo YouTube'
+  frameBorder={0}
+  allowFullscreen
+/>
+```
+
+---
+
+## Devoir (2/3)
+
+Voici le code avec lequel vous allez démarrer:
+
+```jsx
+const videos = [
+  {
+    id: 'Tn6-PIqc4UM',
+    name: 'React in 100 seconds',
+  },
+  {
+    id: '8pDqJVdNa44',
+    name: 'React.js: The Documentary',
+  },
+  {
+    id: 'kvkAoCbTM3Q',
+    name: 'Stop Using Create React App',
+  },
+];
+```
+
+---
+
+## Devoir (3/3)
+
+```jsx
+export default function App() {
+  return <ListerVideos videos={videos} />;
+}
+
+function ListerVideos({ videos }) {
+  return (
+    <>
+      <h1>Liste de vidéos</h1>
+      {videos.map((video) => (
+        <YouTube key={video.id} id={video.id} width={368} height={207} />
+      ))}
+    </>
+  );
+}
+
+function YouTube({ id, width = 480, height = 270 }) {
+  return 'à compléter';
+}
+```
