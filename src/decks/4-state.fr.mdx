@@ -3752,6 +3752,8 @@ input {
 
 </Sandpack>
 
+---
+
 ## Défi 3
 
 Voci un boîte que l'on peut déplacer. On peut changer sa couleur avec le champ de saisie.
@@ -3894,6 +3896,8 @@ select {
 ```
 
 </Sandpack>
+
+---
 
 ### Défi 4
 
@@ -4051,9 +4055,13 @@ select {
 
 </Sandpack>
 
+---
+
 ## Modifier les tableaux
 
 En JavaScript, il est permis de muter les tableaux. Mais pour l'état React, on doit les traiter de façon immuable. Comme les objets, quand on veut modifier un tableau, il faut en créer un nouveau ou le cloner.
+
+---
 
 ## Modifier les tableaux sans mutation
 
@@ -4068,9 +4076,13 @@ Voici une table de référence des opérations de tableau communes. Evitez les m
 | Ajouter   | `push`, `unshift`                    | `concat`, `[...arr]` syntaxe décomposition |
 | Enlever   | `pop`, `shift`, `splice`             | `filter`, `slice`                          |
 | Remplacer | `splice`, `arr[i] = ...` assignation | `map`                                      |
-| Trier     | `reverse`, `sort`                    | Copier le tableau avec de trier            |
+| Trier     | `reverse`, `sort`                    | Copier le tableau avant de trier           |
 
 Alternativement, on peut utiliser Immer qui permet l'usage des deux colonnes.
+
+---
+
+## Note
 
 <div className="alert alert-warning px-5 py-4 text-body">
 
@@ -4083,7 +4095,9 @@ En React, on recommande d'utiliser `slice` (sans `p`!) pour éviter la mutation.
 
 </div>
 
-### Ajouter à un tableau
+---
+
+### Ajouter à un tableau avec push
 
 `push()` mute un tableau en ajoutant un item.
 
@@ -4130,6 +4144,10 @@ button {
 ```
 
 </Sandpack>
+
+---
+
+## Ajouter
 
 Préférez plutôt la création d'un _nouveau_ tableau contenant les items existants et un nouvel item à la fin. Il y a plusieurs approches possibles, mais le plus simple est d'utiliser la syntaxe de décomposition de tableau: `...`
 
@@ -4198,6 +4216,8 @@ setArtists([
 
 De cette façon, la décomposition permet autant les `push()` (ajouter à la fin) que les `unshift()` (ajouter au début)
 
+---
+
 ### Enlever à un Tableau
 
 Pour enlever un item, il suffit de le _filtrer_. le but est de produire un nouveau tableau qui ne contiendra pas cet item. On utilise `filter` pour cela.
@@ -4247,6 +4267,8 @@ setArtists(artists.filter((a) => a.id !== artist.id));
 ```
 
 Ici, `artists.filter(a => a.id !== artist.id)` signifie "créer un nouveau tableau d' `artists` dont les ID sont différents de `artist.id`". Chaque bouton "enlever" va filtrer l'artiste courant, et provoque un re-rendu. Notez que filtrer ne modifie pas le tableau original.
+
+---
 
 ### Transformer un tableau
 
@@ -4315,6 +4337,8 @@ body {
 
 </Sandpack>
 
+---
+
 ### Remplacer les items d'un tableau
 
 Il est fréquent de vouloir remplacer un ou plusieurs items d'un tableau. Les asignations du genre `arr[0] = 'non'` mutent l'objet. On préfère utiliser `map`.
@@ -4370,6 +4394,8 @@ button {
 ```
 
 </Sandpack>
+
+---
 
 ### Insérer au milieu d'un tableau
 
@@ -4430,6 +4456,8 @@ button {
 
 </Sandpack>
 
+---
+
 ### Faire d'autres changements
 
 On pourrait vouloir renverser un tableau, ou le trier. Mais les méthodes `reverse()` et `sort()` mutent le tableau orginal. Que faire?
@@ -4485,6 +4513,8 @@ setList(nextList);
 ```
 
 Même si `nextList` et `list` sont deux tableaux distincts, **`nextList[0]` et `list[0]` pointent au même objet** En modifiant `nextList[0].seen`, on modifie aussi `list[0].seen`. C'est donc une mutation d'état, qu'il est préférable d'éviter. On résout ce problème de la même façon qu'avec les objets JS imbriqués -- En copiant des items individuels qu'on désire changer plutôt que de muter. Voici comment:
+
+---
 
 ## Modifier des objets dans des tableaux
 
@@ -4671,6 +4701,8 @@ En général, **le seul objet d'état que l'on peut muter, c'est celui qui vient
 
 In general, **you should only mutate objects that you have just created.** If you were inserting a _new_ artwork, you could mutate it, but if you're dealing with something that's already in state, you need to make a copy.
 
+---
+
 ### Écrivez une logique concise avec Immer.
 
 Modifier des tableaux imbriqués sans mutation est répétitif et complexe. Utilisez les mêmes stratégies qu'avec les objets:
@@ -4839,6 +4871,8 @@ button {
 
 </Sandpack>
 
+---
+
 ### Défi 6
 
 Le bouton "-" ne fait rien. Il faut ajouter un gestionnaire d'événements qui décrémente le `count`du produit. Quand on pèse "-" et que le compte est 1, il faut enlever le produit du panier d'achat. (On ne doit pas afficher 0)
@@ -4911,6 +4945,8 @@ button {
 ```
 
 </Sandpack>
+
+---
 
 ### Défi 7
 
@@ -5065,6 +5101,8 @@ li {
 ```
 
 </Sandpack>
+
+---
 
 ### Défi 8
 
