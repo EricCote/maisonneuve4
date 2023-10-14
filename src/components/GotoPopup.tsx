@@ -24,18 +24,20 @@ function GotoPopup() {
 
   function handleKeyUp(evt: KeyboardEvent) {
     if ((evt.metaKey || evt.ctrlKey) && evt.key == 'g') {
-      //evt.preventDefault();
+      evt.stopImmediatePropagation();
       setShow(!txtNombre.current);
     }
   }
 
+  let options = { capture: true };
+
   useEffect(() => {
     if (!isEventRegistered) {
-      window.addEventListener('keyup', handleKeyUp);
+      window.addEventListener('keydown', handleKeyUp, options);
     }
     isEventRegistered = true;
     return () => {
-      window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('keydown', handleKeyUp, options);
       isEventRegistered = false;
     };
   }, []);

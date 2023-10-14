@@ -2733,7 +2733,7 @@ React stocke `6` comme résultat final et le retourne via le `useState`
 
 ### Si on remplace l'état après l'avoir modifié
 
-Qelle sera la valeur ici?
+Quelle sera la valeur ici?
 
 ```js
 <button onClick={() => {
@@ -2806,12 +2806,16 @@ React stocke `42` comme résultat final et le retourne via le `useState`
 
 ## Explications
 
-En résumé, voici comment appeler `setNumber`:
+Deux façons d'appeler `setNumber`:
 
-- **Avec une fonction updater n** (i.e. `n => n + 1`) qui se fait ajouter dans la file.
-- **Avec une valeur** (i.e. nombre `5`) ajoute "remplacer avec `5`" à la file, en ignorant ce qui est déjà présent.
+1. **Avec une fonction updater n** (i.e. `n => n + 1`) qui se fait ajouter dans la file.
+2. **Avec une valeur** (i.e. nombre `5`) ajoute "remplacer avec `5`" à la file, en ignorant ce qui est déjà présent.
 
-Après que le gestionnaire d'événements complète, React déclenche alors un re-rendu. Pendant ce re-rendu, React exécute les éléments de la file. Les fonctions updater exécutent durant le rendu, donc les **fonctions updater doivent être purs ([pure](/learn/keeping-components-pure))** et seulement _retourner_ le résultat. N'esayez pas d'activer le setState ou de provoquer tout autre effet de bord. En mode Strict, React exécute chaque fonction updater deux fois (mais exclut le second résultat) to aider à touver les erreurs.
+- C'est après la série d'événments, au début du re-rendu, que React appelle la file des **updaters**.
+- Les **updaters** doivent être des fonctions pures
+- Ne pas mettre d'effets de bord, ni de setState.
+- En mode Strict, React exécute chaque fonction **updater** deux fois (mais exclut le second résultat)
+  - Ça aide à trouver les effets de bords indésirables.
 
 ---
 
@@ -2825,7 +2829,12 @@ setLastName((ln) => ln.reverse());
 setFriendCount((fc) => fc * 2);
 ```
 
-Si on préfère utiliser plus de lettres, une autre convention serait d'utiliser le nom de l'état, avec ou sans préfixe. Par exemple: `setEnabled(enabled => !enabled)`, ou `setEnabled(prevEnabled => !prevEnabled)`.
+Si on préfère utiliser plus de lettres, une autre convention serait d'utiliser le nom de l'état, avec ou sans préfixe.
+
+```js
+setEnabled((enabled) => !enabled);
+setEnabled((prevEnabled) => !prevEnabled);
+```
 
 ---
 
@@ -2873,11 +2882,13 @@ function delay(ms) {
 
 ---
 
-## React et les objets
+## React et les mutations d'objets
 
 En React, on ne devrait jamais modifier un objet stocké dans l'état. Plutôt que de muter un objet, on devrait créer de nouvelles copies qu'on modifie.
 
-## Qu'est-ce qu'une mutation
+---
+
+## Mutations de valeurs
 
 N'importe quel type de valeur peut être stocké par l'état.
 
@@ -2891,11 +2902,11 @@ Jusqu'à maintenant, on travaille avec des nombres, des chaines de caractères e
 setX(5);
 ```
 
+L'état `x` est modifié de `0` à `5`, mais le _nombre `0`_ n'a pas changé. Il n'est pas possible de modifer les valeurs primitives en JavaScript, tel que les nombres, les booléens et les chaînes de caractères.
+
 ---
 
 ## Explications
-
-L'état `x` est modifié de `0` à `5`, mais le _nombre `0`_ n'a pas changé. Il n'est pas possible de modifer les valeurs primitives en JavaScript, tel que les nombres, les booléens et les chaînes de caractères.
 
 Mais considérons un objet dans l'état
 
@@ -2909,7 +2920,9 @@ Techniquement, il est possible de changer le contenu de l'objet lui-même. **C'e
 position.x = 5;
 ```
 
-Même si les objets dans un état React sont, techniquement, mutables, on devrait toujours les traiter **comme si** ils étaient immuables. (tel que les nombres, booléens et chaînes de caractères). Plutôt que de les muter, il est préférable de les remplacer.
+- Les objets dans un état React sont, techniquement, mutables.
+- **MAIS** On devrait toujours les traiter **comme si** ils étaient immuables. (Tel un nombre, booléen ou chaîne de caractères)
+- Plutôt que de les muter, il est préférable de les remplacer.
 
 ---
 
@@ -2984,7 +2997,7 @@ onPointerMove={e => {
 }}
 ```
 
-Ce code mute l'objet assigné à `position`du rendu précédent. Mais sans utiliser la fonction `setState`, React n'a pas moyen de savoir que l'objet est modifié. Donc React ne réagit pas.
+Ce code mute l'objet assigné à `position` du rendu précédent. Mais sans utiliser la fonction `setState`, React n'a pas moyen de savoir que l'objet est modifié. Donc React ne réagit pas.
 
 </aside>
 
@@ -3001,7 +3014,7 @@ onPointerMove={e => {
 
 ---
 
-## Explicatons
+## Explications
 
 Avec `setPosition`, on dit à React de:
 
@@ -3095,6 +3108,8 @@ La mutation est un problème seulement quand on chage des objets _existants_ dan
 
 </div>
 
+---
+
 ## Copier des objets avec la syntaxe de décomposition.
 
 Dans l'exemple précédent, l'objet position est toujours recréé avec les nouvelles positions. Mais que faire si on désire inclure les données existantes dans le nouvel objet. Par exemple, si on désire modifier un seul champ d'un formulaire, tout en gardant les autres données existantes.
@@ -3159,6 +3174,10 @@ input {
 
 </Sandpack>
 
+---
+
+## Explications
+
 Par exemple, ceci mute l'objet `person` en modifiant le "firstName" du rendu précédent.
 
 ```js
@@ -3175,6 +3194,10 @@ setPerson({
 });
 ```
 
+---
+
+### Décomposition
+
 On peut utiliser la syntaxe `...` de la [décomposition d'objet](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax#spread_in_object_literals) pour ne pas avoir besoin de recopier chaque propriété séparément.
 
 ```js
@@ -3183,6 +3206,10 @@ setPerson({
   firstName: e.target.value, // Modifie firstName
 });
 ```
+
+---
+
+## Valider le nouveau code
 
 Maintenant, le formulaire fonctionne.
 
@@ -3255,7 +3282,7 @@ input {
 
 </Sandpack>
 
-Notez que `...` (la syntaxe de décomposition, spread syntax) est "superficielle". Elle ne copie qu'à un seul niveau de profondeur. Ça garde de bonnes performances, mais qaund on a des objets imbriqués, il faut utiliser cette syntaxe à de multiples niveaux.
+Notez que `...` (la syntaxe de décomposition, spread syntax) est "superficielle". Elle ne copie qu'à un seul niveau de profondeur. Ça garde de bonnes performances, mais quand on a des objets imbriqués, il faut utiliser cette syntaxe à de multiples niveaux.
 
 ---
 
@@ -3329,6 +3356,8 @@ input {
 Ici, `e.target.name` réfère à la propriété `name` dans l'élément `<input>` du DOM.
 
 </div>
+
+---
 
 ## Mettre à jour un objet imbriqué
 
