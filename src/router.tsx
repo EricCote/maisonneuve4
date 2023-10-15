@@ -52,7 +52,7 @@ function MyLoader() {
   const [jsx, setJsx] = useState(<></>);
   useEffect(() => {
     Loading();
-  });
+  }, []);
   async function Loading() {
     const Result = await import(`./decks/${id}.${lang}.mdx`);
     setJsx(Result.default);

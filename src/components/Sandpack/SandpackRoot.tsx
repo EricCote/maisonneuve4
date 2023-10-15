@@ -5,10 +5,10 @@
 import { Children } from 'react';
 import * as React from 'react';
 import { Sandpack } from '@codesandbox/sandpack-react';
-import { SandpackLogLevel } from '@codesandbox/sandpack-client';
-import { CustomPreset } from './CustomPreset';
+//import { SandpackLogLevel } from '@codesandbox/sandpack-client';
+//import { CustomPreset } from './CustomPreset';
 import { createFileMap } from './createFileMap';
-import { CustomTheme } from './Themes';
+//import { CustomTheme } from './Themes';
 
 type SandpackProps = {
   children: React.ReactNode;

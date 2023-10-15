@@ -1655,9 +1655,8 @@ Pour la même "entrée", on obtient toujours le même résultat.
 
 ## Exemple d'un composant pur
 
-<aside style={{display:'grid', gridTemplateColumns:"2fr 1fr", columnGap:5, fontSize:"0.8em"}}>
-
-```jsx
+<Sandpack>
+```js App.js
 function Recipe({ nbPersonnes }) {
   return (
     <ol>
@@ -1669,9 +1668,7 @@ function Recipe({ nbPersonnes }) {
     </ol>
   );
 }
-```
 
-```jsx
 export default function App() {
   return (
     <section>
@@ -1685,7 +1682,7 @@ export default function App() {
 }
 ```
 
-</aside>
+</Sandpack>
 
 ---
 
@@ -1697,18 +1694,19 @@ le rendu.
 
 Voici un composant qui brise la règle:
 
+<Sandpack>
 ```js
 let numInvité = 0;
 
 function Tasse() {
-  // Mauvais: on modifie une variable existante!
-  numInvité = numInvité + 1;
-  return <h2>Tasse pour l'invité #{numInvité}</h2>;
+// Mauvais: on modifie une variable existante!
+numInvité = numInvité + 1;
+return <h2>Tasse pour l'invité #{numInvité}</h2>;
 }
 
 export default function TeaSet() {
   return (
-    <>
+    <Sandpack>
       <Tasse />
       <Tasse />
       <Tasse />
@@ -1716,13 +1714,14 @@ export default function TeaSet() {
   );
 }
 ```
-
+</Sandpack>
 ---
 
 ### Éliminer les effets de bord
 
 Pour réparer, on pourrait utiliser des props:
 
+<Sandpack>
 ```js
 function Tasse({ numInvité }) {
   return <h2>Tasse pour l'invité #{numInvité}</h2>;
@@ -1730,7 +1729,7 @@ function Tasse({ numInvité }) {
 
 export default function TeaSet() {
   return (
-    <>
+    <Sandpack>
       <Tasse numInvité={1} />
       <Tasse numInvité={2} />
       <Tasse numInvité={3} />
@@ -1738,7 +1737,7 @@ export default function TeaSet() {
   );
 }
 ```
-
+</Sandpack>
 ---
 
 ## Mode Strict
@@ -1755,6 +1754,8 @@ Avec le `StrictMode`, quand on est en mode développement, chaque composant est 
 
 La mutation locale est permise. (C'est la mutation de variables préexistantes qui n'est pas permise.)
 
+<Sandpack>
+
 ```js
 function Tasse({ numInvité }) {
   return <h2>Tasse pour invité #{numInvité}</h2>;
@@ -1768,6 +1769,8 @@ export default function RassemblementDeThé() {
   return tasses;
 }
 ```
+
+</Sandpack>
 
 Le code précédent est correct, car `tasses` est une variable locale. On peut modifier les variables locales sans problèmes.
 
