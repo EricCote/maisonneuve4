@@ -1,8 +1,8 @@
 import Home from './homepage/Home';
-import GotoPopup from './components/GotoPopup';
+import GotoPopup from './components/slides/GotoPopup';
 import { createBrowserRouter, Outlet, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import Status from './decks/4-state.fr.mdx';
+import Status from './decks/6-manage-state.fr.mdx';
 
 const router = createBrowserRouter([
   {

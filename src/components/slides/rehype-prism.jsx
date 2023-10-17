@@ -7,6 +7,7 @@ import jsx from 'refractor/lang/jsx';
 
 refractor.register(jsx);
 
+// will colorize code samples
 export default function rehypePrism(options) {
   options = options || {};
 
@@ -58,6 +59,7 @@ export default function rehypePrism(options) {
   }
 }
 
+//returns the programming language of a code fragment (js, jsx, css, etc)
 function getLanguage(node) {
   const className = node.properties.className || [];
 

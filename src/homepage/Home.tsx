@@ -46,7 +46,7 @@ const decks = [
     language: 'en',
   },
   {
-    route: '3=react-router',
+    route: '3-react-router',
     title: 'Routage React',
     description: 'Introduction à React Router',
     language: 'fr',

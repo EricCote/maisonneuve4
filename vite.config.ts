@@ -4,8 +4,8 @@ import mdx from '@mdx-js/rollup';
 import remarkGfm from 'remark-gfm';
 import path from 'path';
 import remarkFrontmatter from 'remark-frontmatter';
-import rehypePrism from './src/components/rehype-prism';
-import { rehypeSimpleSlides } from './src/components/rehype-simple-slides';
+import rehypePrism from './src/components/slides/rehype-prism';
+import { rehypeSimpleSlides } from './src/components/slides/rehype-simple-slides';
 
 // https://vitejs.dev/config/
 export default defineConfig({

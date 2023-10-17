@@ -167,6 +167,22 @@ tr:hover {
   background-color: lightgray;
 }
 
+.dark-image {
+  display: none;
+}
+
+.light-image {
+  display: block;
+}
+
+[data-bs-theme='dark'] .dark-image {
+  display: block;
+}
+
+[data-bs-theme='dark'] .light-image {
+  display: none;
+}
+
 [data-bs-theme='dark'] tr:hover {
   background-color: darkslategrey;
 }

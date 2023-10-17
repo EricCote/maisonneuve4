@@ -1,5 +1,509 @@
 # Gérer l'état
 
+import Sandpack from '../components/Sandpack';
+
+import Diagram from '../components/slides/Diagram';
+
+import Illustration from '../components/slides/Illustration';
+
 ---
 
-## À compléter
+## Réagir aux saisies avec l'état
+
+React utilise une approche **déclarative** pour manipuler l'interface.
+Plutôt que de manipuler des pièces individuelles de l'interface, on
+décrit les états du composant, et on bascule d'après les interaction
+de l'usager.
+
+---
+
+## Approche impérative
+
+Quand on conçoit des interactions, on pense à comment l'interface _change_ en réaction aux actions d'un usager. Considérez un fomulaire avec lequel l'usager envoie une réponse.
+
+- Quand on tape dans le formulaire, le bouton "Envoyer" **devient actif.**
+- Quand on presse "Envoyer", le bouton et le formulaire **sont désactivés** et un disque rotatif **apparaît.**
+- Si la requête réseau complète avec succès, le formulaire **est chaché** et le message "Merci" **apparaît**.
+- Si la requète réseau échoue, un message d'erreur **apparaît** et le formulaire est **réactivé**.
+
+En **programmation impérative**, ces verbes correspondent à comment implanter l'interaction.
+Il faut traduire ces verbes en instructions et séquences dans un langage de programmation.
+
+---
+
+## Exemple impératif
+
+Ça se nomme programmation _impérative_ car il faut donner une "commande" pour chaque élément du résultat. Du plateau rotatif au bouton, il faut expliquer _comment_ modifier l'interface.
+
+Voici un exemple de formulaire impératif **sans** React. Cela utilise le [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model):
+
+<Sandpack>
+
+```js index.js active
+async function handleFormSubmit(e) {
+  e.preventDefault();
+  disable(textarea);
+  disable(button);
+  show(loadingMessage);
+  hide(errorMessage);
+  try {
+    await submitForm(textarea.value);
+    show(successMessage);
+    hide(form);
+  } catch (err) {
+    show(errorMessage);
+    errorMessage.textContent = err.message;
+  } finally {
+    hide(loadingMessage);
+    enable(textarea);
+    enable(button);
+  }
+}
+
+function handleTextareaChange() {
+  if (textarea.value.length === 0) {
+    disable(button);
+  } else {
+    enable(button);
+  }
+}
+
+function hide(el) {
+  el.style.display = 'none';
+}
+
+function show(el) {
+  el.style.display = '';
+}
+
+function enable(el) {
+  el.disabled = false;
+}
+
+function disable(el) {
+  el.disabled = true;
+}
+
+function submitForm(answer) {
+  // Faire semblant de communiquer avec le réseau
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (answer.toLowerCase() == 'ottawa') {
+        resolve();
+      } else {
+        reject(
+          new Error(
+            "Bien essayé mais c'est la mauvaise réponse. Tentez à nouveau!"
+          )
+        );
+      }
+    }, 1500);
+  });
+}
+
+let form = document.getElementById('form');
+let textarea = document.getElementById('textarea');
+let button = document.getElementById('button');
+let loadingMessage = document.getElementById('loading');
+let errorMessage = document.getElementById('error');
+let successMessage = document.getElementById('success');
+form.onsubmit = handleFormSubmit;
+textarea.oninput = handleTextareaChange;
+```
+
+```js sandbox.config.json hidden
+{
+  "hardReloadOnChange": true
+}
+```
+
+```html public/index.html
+<form id="form">
+  <h2>Quiz</h2>
+  <p>Quelle est la capitale du Canada?</p>
+  <textarea id="textarea"></textarea>
+  <br />
+  <button id="button" disabled>Envoyer</button>
+  <p id="loading" style="display: none">Chargement...</p>
+  <p id="error" style="display: none; color: red;"></p>
+</form>
+<h1 id="success" style="display: none">C'est exact!</h1>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: sans-serif;
+    margin: 20px;
+    padding: 0;
+  }
+</style>
+```
+
+</Sandpack>
+
+C'est beaucoup de manipulation de toucher à l'interface: désactiver, réactiver, afficher, cacher.
+
+Ça fonctionne pour de petits exemples. Mais ça peut devnir compliqué pour des exemples plus complexes.
+
+---
+
+## Approche Déclarative
+
+C'est beaucoup de manipulation de toucher à l'interface. Désactiver, réactiver, afficher, cacher.
+
+Ce qu'on fait en React, on **déclare ce que l'on veut montrer** et React détermine comment mettre à jour l'interface.
+
+C'est comme entrer dans un taxi, donner la destination, et laisser le chauffeur (React) déterminer le meilleur chemin. Il est fort possible que le chauffeur connaisse des raccourcis.
+
+---
+
+## Penser déclarativment
+
+Prenons l'exemple impératif et convertissons-le en React. Voici les étapes:
+
+1. **Identifier** les différents états visuels du composant
+2. **Déterminer** ce qui provoque ces changements
+3. **Modéliser** l'état en mémoire avec `useState`
+4. **Enlever** toute variable d'état non-nécessaire
+5. **Connecter** les gestionnaires d'événements à l'état
+
+---
+
+## Étape 1: Identifier les différents états visuels du composant {/* step-1-identify-your-components-different-visual-states */}
+
+En informatique, il existe le concept de ["state machine"](https://en.wikipedia.org/wiki/Finite-state_machine) qui sont dans un “état” particulier. En graphisme, il y a les maquettes des "visual states". React se situe entre ces deux mondes.
+
+Visualisons les états de l'interface usager:
+
+- **Vide**: Bouton "Envoyé" est désactivé.
+- **Tape**: Bouton "Envoyé" est activé.
+- **Envoyer**: On désactive le formulaire. Un icône d'attente est affiché
+- **Succès**: "Merci" est affiché plutôt que le formulaire
+- **Erreur**: Similaire à l'état tape, mais avec un message d'erreur visible
+
+---
+
+## Maquette des états (V1)
+
+Comme un graphiste, on veut créer une maquette (mock) des états. Ici, on gère l'état via une prop `status` (initialement au mode vide)
+
+<Sandpack>
+
+```js
+export default function Form({ status = 'vide' }) {
+  if (status === 'succès') {
+    return <h1>C'est exact!</h1>;
+  }
+  return (
+    <>
+      <h2>Quiz</h2>
+      <p>Quelle est la capitale du Canada?</p>
+      <form>
+        <textarea />
+        <br />
+        <button>Envoyer</button>
+      </form>
+    </>
+  );
+}
+```
+
+</Sandpack>
+
+On peut modifier la valeur de la prop (Essayez de modifier `status = 'vide'` en `status = 'succès'`)
+
+---
+
+## Exemple plus complet (v2)
+
+<Sandpack>
+
+```js
+export default function Form({
+  // Essayez 'vide', 'envoi', 'erreur', 'succès' :
+  status = 'vide',
+}) {
+  if (status === 'succès') {
+    return <h1>C'est exact!</h1>;
+  }
+  return (
+    <>
+      <h2>Quiz</h2>
+      <p>Quelle est la capitale du Canada?</p>
+      <form>
+        <textarea disabled={status === 'envoi'} />
+        <br />
+        <button disabled={status === 'vide' || status === 'envoi'}>
+          Envoyer
+        </button>
+        {status === 'erreur' && (
+          <p className='Error'>
+            Bien essayé mais c'est la mauvaise réponse. Tentez à nouveau!
+          </p>
+        )}
+      </form>
+    </>
+  );
+}
+```
+
+```css
+.Error {
+  color: red;
+}
+```
+
+</Sandpack>
+
+---
+
+## Afficher de multiples états visuels
+
+<Sandpack>
+
+```js App.js active
+import Form from './Form.js';
+
+let statuses = ['vide', 'taper', 'envoi', 'succès', 'erreur'];
+
+export default function App() {
+  return (
+    <>
+      {statuses.map((status) => (
+        <section key={status}>
+          <h4>Formulaire ({status}):</h4>
+          <Form status={status} />
+        </section>
+      ))}
+    </>
+  );
+}
+```
+
+```js Form.js
+export default function Form({ status }) {
+  if (status === 'succès') {
+    return <h1>C'est exact!</h1>;
+  }
+  return (
+    <form>
+      <textarea disabled={status === 'envoi'} />
+      <br />
+      <button disabled={status === 'vide' || status === 'envoi'}>Submit</button>
+      {status === 'erreur' && (
+        <p className='Error'>
+          Bien essayé mais c'est la mauvaise réponse. Tentez à nouveau!
+        </p>
+      )}
+    </form>
+  );
+}
+```
+
+```css
+section {
+  border-bottom: 1px solid #aaa;
+  padding: 20px;
+}
+h4 {
+  color: #222;
+}
+body {
+  margin: 0;
+}
+.Error {
+  color: red;
+}
+```
+
+</Sandpack>
+
+Ces pages sont nommées "guide de styles dynamiques" et _"storybooks"_.
+
+---
+
+## Étape 2: Déterminer ce qui provoque les changements d'états
+
+On catégorise les déclancheurs en deux familles:
+
+- **Événements utilisateurs** : cliquer un bouton, taper dans un champ, naviguer un lien.
+- **Événements techniques** : réponse d'une requête réseau, un délai qui timeout, une image qui complète son chargeement.
+
+Dans les deux cas, **il faut modifier des variables d'état (state) pour mettre à jour le IU.**
+
+---
+
+## Exemple de modification de State
+
+- **Modifier le champ de saisie** (utilisateur) passe du mode _vide_ au mode _taper_ (ou vice-versa)
+- **Cliquer le bouton envoyer** (utilisateur) passe au mode _Envoi_.
+- **Succès de réponse réseau** (technique) passe au mode _Succès_.
+- **Échec de réponse réseau** (technique) passe au mode _Erreur_ avec le message .
+
+Pour visualiser ce flot, dessinez les états sur du papier comme des cercles nommés. Les flèches indiquent les changements possibles.
+
+<Diagram name='responding_to_input_flow' width={688} height={350} />
+
+---
+
+### Étape 3: **Modéliser** l'état en mémoire avec `useState`
+
+Représentez l'état visuel de votre composant avec `useState`. Gardez cela simple.
+
+Débutez avec les états _absolument nécéssaires_. Par exemple, la réponse ou la dernière erreur:
+
+```js
+const [answer, setAnswer] = useState('');
+const [error, setError] = useState(null);
+```
+
+Il faudra ajouter les variables qui représentent l'état visuel:
+
+```js
+const [isEmpty, setIsEmpty] = useState(true);
+const [isTyping, setIsTyping] = useState(false);
+const [isSubmitting, setIsSubmitting] = useState(false);
+const [isSuccess, setIsSuccess] = useState(false);
+const [isError, setIsError] = useState(false);
+```
+
+Il faudra réessayer quelques fois avant d'arriver à un "state" optimal.
+
+---
+
+### Step 4: Remove any non-essential state variables {/* step-4-remove-any-non-essential-state-variables */}
+
+You want to avoid duplication in the state content so you're only tracking what is essential. Spending a little time on refactoring your state structure will make your components easier to understand, reduce duplication, and avoid unintended meanings. Your goal is to **prevent the cases where the state in memory doesn't represent any valid UI that you'd want a user to see.** (For example, you never want to show an error message and disable the input at the same time, or the user won't be able to correct the error!)
+
+Here are some questions you can ask about your state variables:
+
+- **Does this state cause a paradox?** For example, `isTyping` and `isSubmitting` can't both be `true`. A paradox usually means that the state is not constrained enough. There are four possible combinations of two booleans, but only three correspond to valid states. To remove the "impossible" state, you can combine these into a `status` that must be one of three values: `'typing'`, `'submitting'`, or `'success'`.
+- **Is the same information available in another state variable already?** Another paradox: `isEmpty` and `isTyping` can't be `true` at the same time. By making them separate state variables, you risk them going out of sync and causing bugs. Fortunately, you can remove `isEmpty` and instead check `answer.length === 0`.
+- **Can you get the same information from the inverse of another state variable?** `isError` is not needed because you can check `error !== null` instead.
+
+After this clean-up, you're left with 3 (down from 7!) _essential_ state variables:
+
+```js
+const [answer, setAnswer] = useState('');
+const [error, setError] = useState(null);
+const [status, setStatus] = useState('taper'); // 'taper', 'envoi', ou 'succès'
+```
+
+You know they are essential, because you can't remove any of them without breaking the functionality.
+
+---
+
+#### Eliminating “impossible” states with a reducer
+
+<div className='alert alert-warning px-5 py-4 text-body'>
+  These three variables are a good enough representation of this form's state.
+  However, there are still some intermediate states that don't fully make sense.
+  For example, a non-null `error` doesn't make sense when `status` is
+  `'success'`. To model the state more precisely, you can [extract it into a
+  reducer.](/learn/extracting-state-logic-into-a-reducer) Reducers let you unify
+  multiple state variables into a single object and consolidate all the related
+  logic!
+</div>
+
+---
+
+### Step 5: Connect the event handlers to set state {/* step-5-connect-the-event-handlers-to-set-state */}
+
+Lastly, create event handlers to set the state variables. Below is the final form, with all event handlers wired up:
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+export default function Form() {
+  const [answer, setAnswer] = useState('');
+  const [error, setError] = useState(null);
+  const [status, setStatus] = useState('taper');
+
+  if (status === 'succès') {
+    return <h1>C'est exact!</h1>;
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setStatus('envoi');
+    try {
+      await submitForm(answer);
+      setStatus('succès');
+    } catch (err) {
+      setStatus('taper');
+      setError(err);
+    }
+  }
+
+  function handleTextareaChange(e) {
+    setAnswer(e.target.value);
+  }
+
+  return (
+    <>
+      <h2>Quiz</h2>
+      <p>Quelle est la capitale du Canada?</p>
+      <form onSubmit={handleSubmit}>
+        <textarea
+          value={answer}
+          onChange={handleTextareaChange}
+          disabled={status === 'envoi'}
+        />
+        <br />
+        <button disabled={answer.length === 0 || status === 'envoi'}>
+          Envoyer
+        </button>
+        {error !== null && <p className='Error'>{error.message}</p>}
+      </form>
+    </>
+  );
+}
+
+function submitForm(answer) {
+  // Prétendre qu'il y a un accès réseau.
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      let shouldError = answer.toLowerCase() !== 'ottawa';
+      if (shouldError) {
+        reject(
+          new Error(
+            "Bien essayé mais c'est la mauvaise réponse. Tentez à nouveau!"
+          )
+        );
+      } else {
+        resolve();
+      }
+    }, 1500);
+  });
+}
+```
+
+```css
+.Error {
+  color: red;
+}
+```
+
+</Sandpack>
+
+Although this code is longer than the original imperative example, it is much less fragile. Expressing all interactions as state changes lets you later introduce new visual states without breaking existing ones. It also lets you change what should be displayed in each state without changing the logic of the interaction itself.
+
+---
+
+## Note
+
+<div className="alert alert-warning px-5 py-4 text-body">
+
+- Declarative programming means describing the UI for each visual state rather than micromanaging the UI (imperative).
+- When developing a component:
+  1. Identify all its visual states.
+  2. Determine the human and computer triggers for state changes.
+  3. Model the state with `useState`.
+  4. Remove non-essential state to avoid bugs and paradoxes.
+  5. Connect the event handlers to set state.
+
+</div>
