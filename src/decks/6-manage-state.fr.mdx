@@ -145,7 +145,7 @@ textarea.oninput = handleTextareaChange;
 
 C'est beaucoup de manipulation de toucher à l'interface: désactiver, réactiver, afficher, cacher.
 
-Ça fonctionne pour de petits exemples. Mais ça peut devnir compliqué pour des exemples plus complexes.
+Ça fonctionne pour de petits exemples. Mais ça devient compliqué pour des plus gros.
 
 ---
 
@@ -166,7 +166,7 @@ Prenons l'exemple impératif et convertissons-le en React. Voici les étapes:
 1. **Identifier** les différents états visuels du composant
 2. **Déterminer** ce qui provoque ces changements
 3. **Modéliser** l'état en mémoire avec `useState`
-4. **Enlever** toute variable d'état non-nécessaire
+4. **Élminer** toute variable d'état non-nécessaire
 5. **Connecter** les gestionnaires d'événements à l'état
 
 ---
@@ -373,17 +373,23 @@ Il faudra réessayer quelques fois avant d'arriver à un "state" optimal.
 
 ---
 
-### Step 4: Remove any non-essential state variables {/* step-4-remove-any-non-essential-state-variables */}
+### Étape 4 : Éliminer toute variable d'état non-nécessaire
 
-You want to avoid duplication in the state content so you're only tracking what is essential. Spending a little time on refactoring your state structure will make your components easier to understand, reduce duplication, and avoid unintended meanings. Your goal is to **prevent the cases where the state in memory doesn't represent any valid UI that you'd want a user to see.** (For example, you never want to show an error message and disable the input at the same time, or the user won't be able to correct the error!)
+Refactorisez l'état pour ne garder que l'essentiel.
 
-Here are some questions you can ask about your state variables:
+Le but est d'empêcher les cas où l'état ne représente pas une IU valide pour l'utilisateur.
 
-- **Does this state cause a paradox?** For example, `isTyping` and `isSubmitting` can't both be `true`. A paradox usually means that the state is not constrained enough. There are four possible combinations of two booleans, but only three correspond to valid states. To remove the "impossible" state, you can combine these into a `status` that must be one of three values: `'typing'`, `'submitting'`, or `'success'`.
-- **Is the same information available in another state variable already?** Another paradox: `isEmpty` and `isTyping` can't be `true` at the same time. By making them separate state variables, you risk them going out of sync and causing bugs. Fortunately, you can remove `isEmpty` and instead check `answer.length === 0`.
-- **Can you get the same information from the inverse of another state variable?** `isError` is not needed because you can check `error !== null` instead.
+Par exemple, si on affiche un message d'erreur, il ne faut pas cacher la boîte de saisie qui provoque le message d'erreur. Il faut que l'utilisateur puisse corriger la saisie.
 
-After this clean-up, you're left with 3 (down from 7!) _essential_ state variables:
+---
+
+## Exemples de questions à propos de l'état
+
+- **Un état provoque-il un paradoxe?** `isTyping` et `isSubmitting` ne peuvent simultanément être `true`. Un paradoxe indique que l'état manque de contraintes. Il y a 4 cominaisons de 2 booléens, mais seulement 3 états valides. Éliminez l'état "impossible", avec un `status` de 3 modes: `'tape'`, `'envoi'`, ou `'succès'`.
+- **La même info est-elle disponble ailleurs dans l'état?** un autre paradoxe: `isEmpty` et `isTyping` ne peuvent être `true` simultanément. Enlevons `isEmpty` et validons plutôt `answer.length === 0`.
+- **L'information serait-elle l'inverse d'un autre état?** `isError` n'est pas nécéssaire si on peut plutôt valider `error !== null`
+
+Après le nettoyage, on passe de 7 à 3 variables d'états:
 
 ```js
 const [answer, setAnswer] = useState('');
@@ -391,27 +397,31 @@ const [error, setError] = useState(null);
 const [status, setStatus] = useState('taper'); // 'taper', 'envoi', ou 'succès'
 ```
 
-You know they are essential, because you can't remove any of them without breaking the functionality.
+Ils sont essentiels. On ne pourrait en retirer un sans briser la fonctionalité.
 
 ---
 
-#### Eliminating “impossible” states with a reducer
+## Éliminez les états “impossibles” avec un reducteur
 
 <div className='alert alert-warning px-5 py-4 text-body'>
-  These three variables are a good enough representation of this form's state.
-  However, there are still some intermediate states that don't fully make sense.
-  For example, a non-null `error` doesn't make sense when `status` is
-  `'success'`. To model the state more precisely, you can [extract it into a
-  reducer.](/learn/extracting-state-logic-into-a-reducer) Reducers let you unify
-  multiple state variables into a single object and consolidate all the related
-  logic!
+
+Certains états intermédiaires ne font pas de sens.
+
+Par exemple, un état `error` non-null n'est pas simultanément possible avec un `status` de `succès`.
+
+Pour mieux modéliser l'état, on pourrait utiliser un **réducteur** (reducer).
+
+Les réducteurs permettent d'unifier plusieurs variables d'état dans un seul objet. Ils consolident toute la logique de modification.
+
+Nous verrons les réducteurs plus tard.
+
 </div>
 
 ---
 
-### Step 5: Connect the event handlers to set state {/* step-5-connect-the-event-handlers-to-set-state */}
+### Étape 5: Connecter les gestionnaires d'événements à l'état
 
-Lastly, create event handlers to set the state variables. Below is the final form, with all event handlers wired up:
+Finalement, créez des gestionnaires d'événement qui modifient l'état.
 
 <Sandpack>
 
@@ -490,20 +500,2830 @@ function submitForm(answer) {
 
 </Sandpack>
 
-Although this code is longer than the original imperative example, it is much less fragile. Expressing all interactions as state changes lets you later introduce new visual states without breaking existing ones. It also lets you change what should be displayed in each state without changing the logic of the interaction itself.
+Le code semble plus long, mais il est moins fragile que dans l'exemple original. Il est plus facile de modifier ou d'ajouter des états.
 
 ---
 
-## Note
+## Défi 1
 
-<div className="alert alert-warning px-5 py-4 text-body">
+#### Ajouter et enlever des classes css
 
-- Declarative programming means describing the UI for each visual state rather than micromanaging the UI (imperative).
-- When developing a component:
-  1. Identify all its visual states.
-  2. Determine the human and computer triggers for state changes.
-  3. Model the state with `useState`.
-  4. Remove non-essential state to avoid bugs and paradoxes.
-  5. Connect the event handlers to set state.
+Quand on clique sur l'image, on devrait enlever la classe `background--active` du `<div>` externe, et ajouter le `picture--active` du `<img>`. Cliquer sur le fond devrait restaurer le CSS originel.
+
+Visuellement, cliquer sur l'image devrait enlever le fond mauve et encadrer l'image. Cliquer le fond l'inverse.
+
+<Sandpack>
+
+```js
+export default function Picture() {
+  return (
+    <div className='background background--active'>
+      <img
+        className='picture'
+        alt='Rainbow houses in Kampung Pelangi, Indonesia'
+        src='https://i.imgur.com/5qwVYb1.jpeg'
+      />
+    </div>
+  );
+}
+```
+
+```css
+body {
+  margin: 0;
+  padding: 0;
+  height: 250px;
+}
+
+.background {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #eee;
+}
+
+.background--active {
+  background: #a6b5ff;
+}
+
+.picture {
+  width: 200px;
+  height: 200px;
+  border-radius: 10px;
+}
+
+.picture--active {
+  border: 5px solid #a6b5ff;
+}
+```
+
+</Sandpack>
+
+[Solution](https://fr.react.dev/learn/reacting-to-input-with-state#challenges)
+
+---
+
+## Défi 2a
+
+#### Édition de Profile
+
+Voici un formulaire écrite en JS et DOM. Jouez avec pour comprendre le fonctionnement.
+
+<Sandpack>
+
+```js index.js active
+function handleFormSubmit(e) {
+  e.preventDefault();
+  if (editButton.textContent === 'Edit Profile') {
+    editButton.textContent = 'Save Profile';
+    hide(firstNameText);
+    hide(lastNameText);
+    show(firstNameInput);
+    show(lastNameInput);
+  } else {
+    editButton.textContent = 'Edit Profile';
+    hide(firstNameInput);
+    hide(lastNameInput);
+    show(firstNameText);
+    show(lastNameText);
+  }
+}
+
+function handleFirstNameChange() {
+  firstNameText.textContent = firstNameInput.value;
+  helloText.textContent =
+    'Hello ' + firstNameInput.value + ' ' + lastNameInput.value + '!';
+}
+
+function handleLastNameChange() {
+  lastNameText.textContent = lastNameInput.value;
+  helloText.textContent =
+    'Hello ' + firstNameInput.value + ' ' + lastNameInput.value + '!';
+}
+
+function hide(el) {
+  el.style.display = 'none';
+}
+
+function show(el) {
+  el.style.display = '';
+}
+
+let form = document.getElementById('form');
+let editButton = document.getElementById('editButton');
+let firstNameInput = document.getElementById('firstNameInput');
+let firstNameText = document.getElementById('firstNameText');
+let lastNameInput = document.getElementById('lastNameInput');
+let lastNameText = document.getElementById('lastNameText');
+let helloText = document.getElementById('helloText');
+form.onsubmit = handleFormSubmit;
+firstNameInput.oninput = handleFirstNameChange;
+lastNameInput.oninput = handleLastNameChange;
+```
+
+```js sandbox.config.json hidden
+{
+  "hardReloadOnChange": true
+}
+```
+
+```html public/index.html
+<form id="form">
+  <label>
+    First name:
+    <b id="firstNameText">Jane</b>
+    <input id="firstNameInput" value="Jane" style="display: none" />
+  </label>
+  <label>
+    Last name:
+    <b id="lastNameText">Jacobs</b>
+    <input id="lastNameInput" value="Jacobs" style="display: none" />
+  </label>
+  <button type="submit" id="editButton">Edit Profile</button>
+  <p><i id="helloText">Hello, Jane Jacobs!</i></p>
+</form>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: sans-serif;
+    margin: 20px;
+    padding: 0;
+  }
+  label {
+    display: block;
+    margin-bottom: 20px;
+  }
+</style>
+```
+
+</Sandpack>
+
+Le formulaire bascule entre deux modes: mode Édition, où l'on peut saisir, et le mode Visionnement, où l'on peut consulter les infos. Le bouton change en "Edit" et "Save", dépendant du mode. Le mesage de bienvenue (en bas) se met à jour avec la saisie.
+
+---
+
+## Défi 2b
+
+Réécrivez le code en React. On a déjà converti le HTML en JSX.
+
+Il faut émuler tous les autres comportements.
+
+<Sandpack>
+
+```js
+export default function EditProfile() {
+  return (
+    <form>
+      <label>
+        First name: <b>Jane</b>
+        <input />
+      </label>
+      <label>
+        Last name: <b>Jacobs</b>
+        <input />
+      </label>
+      <button type='submit'>Edit Profile</button>
+      <p>
+        <i>Hello, Jane Jacobs!</i>
+      </p>
+    </form>
+  );
+}
+```
+
+```css
+label {
+  display: block;
+  margin-bottom: 20px;
+}
+```
+
+</Sandpack>
+
+---
+
+## Défi 3a
+
+#### Visionnez le code sans React
+
+Voici le code sans React
+
+<Sandpack>
+
+```js index.js active
+function handleFormSubmit(e) {
+  e.preventDefault();
+  if (editButton.textContent === 'Edit Profile') {
+    editButton.textContent = 'Save Profile';
+    hide(firstNameText);
+    hide(lastNameText);
+    show(firstNameInput);
+    show(lastNameInput);
+  } else {
+    editButton.textContent = 'Edit Profile';
+    hide(firstNameInput);
+    hide(lastNameInput);
+    show(firstNameText);
+    show(lastNameText);
+  }
+}
+
+function handleFirstNameChange() {
+  firstNameText.textContent = firstNameInput.value;
+  helloText.textContent =
+    'Hello ' + firstNameInput.value + ' ' + lastNameInput.value + '!';
+}
+
+function handleLastNameChange() {
+  lastNameText.textContent = lastNameInput.value;
+  helloText.textContent =
+    'Hello ' + firstNameInput.value + ' ' + lastNameInput.value + '!';
+}
+
+function hide(el) {
+  el.style.display = 'none';
+}
+
+function show(el) {
+  el.style.display = '';
+}
+
+let form = document.getElementById('form');
+let editButton = document.getElementById('editButton');
+let firstNameInput = document.getElementById('firstNameInput');
+let firstNameText = document.getElementById('firstNameText');
+let lastNameInput = document.getElementById('lastNameInput');
+let lastNameText = document.getElementById('lastNameText');
+let helloText = document.getElementById('helloText');
+form.onsubmit = handleFormSubmit;
+firstNameInput.oninput = handleFirstNameChange;
+lastNameInput.oninput = handleLastNameChange;
+```
+
+```js sandbox.config.json hidden
+{
+  "hardReloadOnChange": true
+}
+```
+
+```html public/index.html
+<form id="form">
+  <label>
+    First name:
+    <b id="firstNameText">Jane</b>
+    <input id="firstNameInput" value="Jane" style="display: none" />
+  </label>
+  <label>
+    Last name:
+    <b id="lastNameText">Jacobs</b>
+    <input id="lastNameInput" value="Jacobs" style="display: none" />
+  </label>
+  <button type="submit" id="editButton">Edit Profile</button>
+  <p><i id="helloText">Hello, Jane Jacobs!</i></p>
+</form>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: sans-serif;
+    margin: 20px;
+    padding: 0;
+  }
+  label {
+    display: block;
+    margin-bottom: 20px;
+  }
+</style>
+```
+
+</Sandpack>
+
+Modifiez sur la page suivante
+
+---
+
+## Défi 3b
+
+Si React n'existait pas, pourrait-on réécrire le code pour que cela ressemble à l'approche de React?
+
+Commencez par la méthode updateDOM
+
+<Sandpack>
+
+```js index.js active
+let firstName = 'Jane';
+let lastName = 'Jacobs';
+let isEditing = false;
+
+function handleFormSubmit(e) {
+  e.preventDefault();
+  setIsEditing(!isEditing);
+}
+
+function handleFirstNameChange(e) {
+  setFirstName(e.target.value);
+}
+
+function handleLastNameChange(e) {
+  setLastName(e.target.value);
+}
+
+function setFirstName(value) {
+  firstName = value;
+  updateDOM();
+}
+
+function setLastName(value) {
+  lastName = value;
+  updateDOM();
+}
+
+function setIsEditing(value) {
+  isEditing = value;
+  updateDOM();
+}
+
+function updateDOM() {
+  if (isEditing) {
+    editButton.textContent = 'Save Profile';
+    // TODO: show inputs, hide content
+  } else {
+    editButton.textContent = 'Edit Profile';
+    // TODO: hide inputs, show content
+  }
+  // TODO: update text labels
+}
+
+function hide(el) {
+  el.style.display = 'none';
+}
+
+function show(el) {
+  el.style.display = '';
+}
+
+let form = document.getElementById('form');
+let editButton = document.getElementById('editButton');
+let firstNameInput = document.getElementById('firstNameInput');
+let firstNameText = document.getElementById('firstNameText');
+let lastNameInput = document.getElementById('lastNameInput');
+let lastNameText = document.getElementById('lastNameText');
+let helloText = document.getElementById('helloText');
+form.onsubmit = handleFormSubmit;
+firstNameInput.oninput = handleFirstNameChange;
+lastNameInput.oninput = handleLastNameChange;
+```
+
+```js sandbox.config.json hidden
+{
+  "hardReloadOnChange": true
+}
+```
+
+```html public/index.html
+<form id="form">
+  <label>
+    First name:
+    <b id="firstNameText">Jane</b>
+    <input id="firstNameInput" value="Jane" style="display: none" />
+  </label>
+  <label>
+    Last name:
+    <b id="lastNameText">Jacobs</b>
+    <input id="lastNameInput" value="Jacobs" style="display: none" />
+  </label>
+  <button type="submit" id="editButton">Edit Profile</button>
+  <p><i id="helloText">Hello, Jane Jacobs!</i></p>
+</form>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: sans-serif;
+    margin: 20px;
+    padding: 0;
+  }
+  label {
+    display: block;
+    margin-bottom: 20px;
+  }
+</style>
+```
+
+</Sandpack>
+
+[Solution](https://fr.react.dev/learn/reacting-to-input-with-state#challenges)
+
+---
+
+## Bien structurer l'état
+
+Bien structurer l'état, c'est la différence entre un composant qui est plaisant à modifier et déboguer, et un qui est la source de bogues.
+
+Quelles sont les bonnes pratiques de gérer l'état?
+
+---
+
+## Principes pour structurer l'état
+
+1. **Regrouper l'état commun.** Si on met à jour des variables d'état au même moment, fusionnez dans une seule variable d'état.
+2. **Éliminez les contradictions.** Des états qui peuvent se contredire pourrait mener à des erreurs et bogues.
+3. **Éliminez la redondance.** S'il est possible de calculer une valeur à partir de props ou de d'autres variables d'état, il n'est pas nécessaire de la stocker dans l'état.
+4. **Éliminer la duplication.** Si la même valeur est dupliquée entre différentes variables d'état, ou des objets imbriqués, c'est alors difficile de les garder tous synchronisés.
+5. **Éliminer les objets profondément imbriqués.** Un état profondément hierarchique n'est pas facile à mettre à jour. Privilégiez une structure plate ou peu profonde.
+
+Le but, c'est de _faciliter les mises à jour d'état et d'éviter les erreurs_. Éliminer la redondance assure la cohérence de l'état. (De la même façon qu'on "normalise" une structure de Base de Données). On pourrait modifier la citation d'Albert Einstein: **"Faites que votre état soit le plus simple possible — mais pas plus simple."**
+
+---
+
+## Regrouper l'état commun
+
+Deux approches possibles:
+
+<aside style={{display:'grid', gridTemplateColumns:"1fr 2fr", columnGap:10}}>
+
+<div>
+Deux variables d'états:
+
+```js
+const [x, setX] = useState(0);
+const [y, setY] = useState(0);
+```
 
 </div>
+<div>
+
+Une seule variable d'état:
+
+```js
+const [position, setPosition] = useState({ x: 0, y: 0 });
+//
+```
+
+</div>
+</aside>
+
+Les deux approches sont valables. Mais si des variables sont **toujours modifiées ensemble, on devrait les unifier dans une seule variable d'état.** Alors, on ne pourra pas oublier de les modifier ensemble.
+
+---
+
+## Exemple d'état unifié
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+export default function MovingDot() {
+  const [position, setPosition] = useState({
+    x: 0,
+    y: 0,
+  });
+  return (
+    <div
+      onPointerMove={(e) => {
+        setPosition({
+          x: e.clientX,
+          y: e.clientY,
+        });
+      }}
+      style={{
+        position: 'relative',
+        width: '100vw',
+        height: '100vh',
+      }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          backgroundColor: 'red',
+          borderRadius: '50%',
+          transform: `translate(${position.x}px, ${position.y}px)`,
+          left: -10,
+          top: -10,
+          width: 20,
+          height: 20,
+        }}
+      />
+    </div>
+  );
+}
+```
+
+```css
+body {
+  margin: 0;
+  padding: 0;
+  height: 250px;
+}
+```
+
+</Sandpack>
+
+Un autre exemple d'unification: un tableau pour stocker différentes valeurs d'état. Idéal pour stocker les données d'un formulaire où l'utilisateur ajoute des champs de saisie personalisés.
+
+---
+
+## Attention aux objets dans l'état
+
+Si la variable d'état est un objet, il faut cloner l'objet au complet.
+
+On ne pourrait faire `setPosition({ x: 100 })`, car on perdrait alors la valeur de y.
+
+Pour résoudre ce problème, il faut:
+
+- Soit cloner les autres valeurs:
+
+```js
+setPosition({ ...position, x: 100 });
+```
+
+- Soit séparer en deux variables d'états:
+
+```js
+setX(100);
+```
+
+---
+
+## Éliminez les contradictions
+
+Voici un formulaire de la satisfaction d'un séjour. `isSending` et `isSent` sont les variables d'état:
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+export default function FeedbackForm() {
+  const [text, setText] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const [isSent, setIsSent] = useState(false);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setIsSending(true);
+    await sendMessage(text);
+    setIsSending(false);
+    setIsSent(true);
+  }
+
+  if (isSent) {
+    return <h1>Thanks for feedback!</h1>;
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <p>How was your stay at The Prancing Pony?</p>
+      <textarea
+        disabled={isSending}
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+      />
+      <br />
+      <button disabled={isSending} type='submit'>
+        Send
+      </button>
+      {isSending && <p>Sending...</p>}
+    </form>
+  );
+}
+
+// Pretend to send a message.
+function sendMessage(text) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, 2000);
+  });
+}
+```
+
+</Sandpack>
+
+Ce code fonctionne. Mais il laisse la porte ouverte aux états impossibles: si on oublie d'appeler `setIsSent` et `setIsSending` ensemble, on pourrait se trouver dans un monde où `isSending` et `isSent` sont simultanément `true`.
+
+Plus le composant est complexe, plus c'est difficile à prévenir.
+
+---
+
+## Refactoriser pour éliminer la contradiction
+
+**Puisque `isSending` et `isSent` ne doivent jamais être simultanément à `true`, on devrait remplacer l'état par un `status` ayant l'un des 3 états valables** : `'typing'` (initial), `'sending'`, et `'sent'`:
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+export default function FeedbackForm() {
+  const [text, setText] = useState('');
+  const [status, setStatus] = useState('typing');
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setStatus('sending');
+    await sendMessage(text);
+    setStatus('sent');
+  }
+
+  const isSending = status === 'sending';
+  const isSent = status === 'sent';
+
+  if (isSent) {
+    return <h1>Thanks for feedback!</h1>;
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <p>How was your stay at The Prancing Pony?</p>
+      <textarea
+        disabled={isSending}
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+      />
+      <br />
+      <button disabled={isSending} type='submit'>
+        Send
+      </button>
+      {isSending && <p>Sending...</p>}
+    </form>
+  );
+}
+
+// Pretend to send a message.
+function sendMessage(text) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, 2000);
+  });
+}
+```
+
+</Sandpack>
+
+On peut déclarer des constantes pour aider la lecture:
+
+<aside style={{display:'grid', gridTemplateColumns:"1fr 1fr", columnGap:10}}>
+
+```jsx
+const isSending = status === 'sending';
+const isSent = status === 'sent';
+```
+
+Ce ne sont pas des variables d'état, nul besoin de craindre un état impossible.
+
+</aside>
+
+---
+
+## Éliminer la redondance
+
+S'il est possible de calculer une info à partir de props ou de l'état, cette info ne devrait **PAS** se trouver dans l'état.
+
+Le formulaire suivant fonctionne bien, mais possède un état redondant.
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+export default function Form() {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [fullName, setFullName] = useState('');
+
+  function handleFirstNameChange(e) {
+    setFirstName(e.target.value);
+    setFullName(e.target.value + ' ' + lastName);
+  }
+
+  function handleLastNameChange(e) {
+    setLastName(e.target.value);
+    setFullName(firstName + ' ' + e.target.value);
+  }
+
+  return (
+    <>
+      <h2>Let’s check you in</h2>
+      <label>
+        First name: <input value={firstName} onChange={handleFirstNameChange} />
+      </label>
+      <label>
+        Last name: <input value={lastName} onChange={handleLastNameChange} />
+      </label>
+      <p>
+        Your ticket will be issued to: <b>{fullName}</b>
+      </p>
+    </>
+  );
+}
+```
+
+```css
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+```
+
+</Sandpack>
+
+Ce fomulaire a 3 variable d'états: `firstName`, `lastName`, et `fullName`. Mais `fullName` est redondant. **On peut obtenir `fullName` en combinant `firstName` et `lastName` pendant le rendu. Il faut l'éliminer de l'état.**
+
+---
+
+## Exemple avec la redondance éliminée
+
+Le fomulaire précédent a 3 variable d'états: `firstName`, `lastName`, et `fullName`. Mais `fullName` est redondant. **On peut obtenir `fullName` en combinant `firstName` et `lastName` pendant le rendu.**
+
+Il faut éliminer `fullName` de l'état.
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+export default function Form() {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+
+  const fullName = firstName + ' ' + lastName;
+
+  function handleFirstNameChange(e) {
+    setFirstName(e.target.value);
+  }
+
+  function handleLastNameChange(e) {
+    setLastName(e.target.value);
+  }
+
+  return (
+    <>
+      <h2>Let’s check you in</h2>
+      <label>
+        First name: <input value={firstName} onChange={handleFirstNameChange} />
+      </label>
+      <label>
+        Last name: <input value={lastName} onChange={handleLastNameChange} />
+      </label>
+      <p>
+        Your ticket will be issued to: <b>{fullName}</b>
+      </p>
+    </>
+  );
+}
+```
+
+```css
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+```
+
+</Sandpack>
+
+<aside style={{display:'grid', gridTemplateColumns:"10fr 9fr", columnGap:10}}>
+
+```js
+const fullName = firstName + ' ' + lastName;
+```
+
+`fullName` n'est plus une variable d'état. Maintenant, on recalcule la variable à chaque rendu:
+
+ </aside>
+
+---
+
+## Ne pas recopier les props dans l'état
+
+Un exemple d'état redondant:
+
+```jsx
+function Message({ messageColor }) {
+  const [color, setColor] = useState(messageColor);
+```
+
+Ici, la variable d'état `color` est initialisé à la prop `messageColor`.
+
+**Problème :**
+
+Quand le parent pousse un `messageColor` différent (par exemple, de `'red'` à `'blue'`), l'état `color` n'est pas modifié!
+
+L'état n'est initialisé qu'au premier rendu.
+
+---
+
+## Éliminier l'état provenant des props
+
+Utilisez la prop plutôt que l'état.
+
+On pourrait lui donner un nom plus court avec une constante:
+
+```js
+function Message({ messageColor }) {
+  const color = messageColor;
+```
+
+De cette façon, la couleur sera toujours synchronisé à la valeur passée par le parent.
+
+---
+
+## Dupliquer une prop dans l'état pour une valeur initiale
+
+Dupliquer une prop dans l'état, ça pourrait être utile quand il faut ignorer les mises à jour de ce prop. Par convention, on ajoute alors au prop le préfixe `initial` or `default`.
+
+```js
+function Message({ initialColor }) {
+  // La variable d'état `color` contient la *première* valeur de `initialColor`.
+  // Les changements apportés à la prop `initialColor` sont ignorés.
+  const [color, setColor] = useState(initialColor);
+  ...
+}
+```
+
+---
+
+## Évitez la duplication
+
+Cette liste de menu permet de choisir un seul snack de cette collection.
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+const initialItems = [
+  { title: 'pretzels', id: 0 },
+  { title: 'crispy seaweed', id: 1 },
+  { title: 'granola bar', id: 2 },
+];
+
+export default function Menu() {
+  const [items, setItems] = useState(initialItems);
+  const [selectedItem, setSelectedItem] = useState(items[0]);
+
+  return (
+    <>
+      <h2>What's your travel snack?</h2>
+      <ul>
+        {items.map((item) => (
+          <li key={item.id}>
+            {item.title}{' '}
+            <button
+              onClick={() => {
+                setSelectedItem(item);
+              }}
+            >
+              Choose
+            </button>
+          </li>
+        ))}
+      </ul>
+      <p>You picked {selectedItem.title}.</p>
+    </>
+  );
+}
+```
+
+```css
+button {
+  margin-top: 10px;
+}
+```
+
+</Sandpack>
+
+Présentement, on stocke la sélection en tant qu'objet dans la variable d'état `selectedItem`. Mais c'est problématique. Le contenu de `selectedItem` est le même que celui contenu dans la liste. Nous avons une duplication d'information.
+
+---
+
+## Description du problème
+
+Pourquoi est-ce un problème? C'est clair en ajoutant l'édition :
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+const initialItems = [
+  { title: 'pretzels', id: 0 },
+  { title: 'crispy seaweed', id: 1 },
+  { title: 'granola bar', id: 2 },
+];
+
+export default function Menu() {
+  const [items, setItems] = useState(initialItems);
+  const [selectedItem, setSelectedItem] = useState(items[0]);
+
+  function handleItemChange(id, e) {
+    setItems(
+      items.map((item) => {
+        if (item.id === id) {
+          return {
+            ...item,
+            title: e.target.value,
+          };
+        } else {
+          return item;
+        }
+      })
+    );
+  }
+
+  return (
+    <>
+      <h2>What's your travel snack?</h2>
+      <ul>
+        {items.map((item, index) => (
+          <li key={item.id}>
+            <input
+              value={item.title}
+              onChange={(e) => {
+                handleItemChange(item.id, e);
+              }}
+            />{' '}
+            <button
+              onClick={() => {
+                setSelectedItem(item);
+              }}
+            >
+              Choose
+            </button>
+          </li>
+        ))}
+      </ul>
+      <p>You picked {selectedItem.title}.</p>
+    </>
+  );
+}
+```
+
+```css
+button {
+  margin-top: 10px;
+}
+```
+
+</Sandpack>
+
+Si on clique "Choose" sur un item, et qu'on le modifie par la suite, l'item de la liste est mis à jour, mais l'item sélectionné en bas de la liste demeure le même. Nous avons avons un état dupliqué, et nous mettons à jour la liste, mais pas `selectedItem`.
+
+On pourrait mettre à jour `selectedItem`, mais c'est mieux d'éliminer la duplication.
+
+---
+
+## Éliminer la duplication
+
+Dans cet exemple, plutôt que de stocker un objet `selectedItem` (qui duplique un objet de la liste), nous stockons un `selectedId` dans l'état. Nous obtenons le `selectedItem` en utilisant la méthode `.find()` pour trouver le bon item de la liste.
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+const initialItems = [
+  { title: 'pretzels', id: 0 },
+  { title: 'crispy seaweed', id: 1 },
+  { title: 'granola bar', id: 2 },
+];
+
+export default function Menu() {
+  const [items, setItems] = useState(initialItems);
+  const [selectedId, setSelectedId] = useState(0);
+
+  const selectedItem = items.find((item) => item.id === selectedId);
+
+  function handleItemChange(id, e) {
+    setItems(
+      items.map((item) => {
+        if (item.id === id) {
+          return {
+            ...item,
+            title: e.target.value,
+          };
+        } else {
+          return item;
+        }
+      })
+    );
+  }
+
+  return (
+    <>
+      <h2>What's your travel snack?</h2>
+      <ul>
+        {items.map((item, index) => (
+          <li key={item.id}>
+            <input
+              value={item.title}
+              onChange={(e) => {
+                handleItemChange(item.id, e);
+              }}
+            />{' '}
+            <button
+              onClick={() => {
+                setSelectedId(item.id);
+              }}
+            >
+              Choose
+            </button>
+          </li>
+        ))}
+      </ul>
+      <p>You picked {selectedItem.title}.</p>
+    </>
+  );
+}
+```
+
+```css
+button {
+  margin-top: 10px;
+}
+```
+
+</Sandpack>
+
+(Alternative, on utilise `selectedIndex` plutôt que `selectedId`, pour retrouver l'item par sa position dans la liste.)
+
+---
+
+## Après la modification
+
+L'état dupliqué
+
+- `items = [{ id: 0, title: 'pretzels'}, ...]`
+- `selectedItem = {id: 0, title: 'pretzels'}`
+
+L'état optimal:
+
+- `items = [{ id: 0, title: 'pretzels'}, ...]`
+- `selectedId = 0`
+
+Il n'y a plus de duplication, on ne garde que l'état essentiel.
+
+Après la modification de l'item sélectionné, le message en bas est mis à jour immédiatement. C'est qu'avec le re-render, la méthode `items.find(...)` trouve l'item modifié.
+
+Inutile de stocker l'objet sélectionné quand **seul l'id sélectionné suffit**. Le reste de l'objet est retrouvé pendant le rendu.
+
+---
+
+## Éliminer les objets profondémment imbrqués
+
+Imaginez une planification de voyage constitué de planètes, continents et pays. On pourrait structurer l'état en utilisant des objets et tableaux imbriqués multi-niveaux:
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+import { initialTravelPlan } from './places.js';
+
+function PlaceTree({ place }) {
+  const childPlaces = place.childPlaces;
+  return (
+    <li>
+      {place.title}
+      {childPlaces.length > 0 && (
+        <ol>
+          {childPlaces.map((place) => (
+            <PlaceTree key={place.id} place={place} />
+          ))}
+        </ol>
+      )}
+    </li>
+  );
+}
+
+export default function TravelPlan() {
+  const [plan, setPlan] = useState(initialTravelPlan);
+  const planets = plan.childPlaces;
+  return (
+    <>
+      <h2>Places to visit</h2>
+      <ol>
+        {planets.map((place) => (
+          <PlaceTree key={place.id} place={place} />
+        ))}
+      </ol>
+    </>
+  );
+}
+```
+
+```js places.js active
+export const initialTravelPlan = {
+  id: 0,
+  title: '(Root)',
+  childPlaces: [
+    {
+      id: 1,
+      title: 'Earth',
+      childPlaces: [
+        {
+          id: 2,
+          title: 'Africa',
+          childPlaces: [
+            {
+              id: 3,
+              title: 'Botswana',
+              childPlaces: [],
+            },
+            {
+              id: 4,
+              title: 'Egypt',
+              childPlaces: [],
+            },
+            {
+              id: 5,
+              title: 'Kenya',
+              childPlaces: [],
+            },
+            {
+              id: 6,
+              title: 'Madagascar',
+              childPlaces: [],
+            },
+            {
+              id: 7,
+              title: 'Morocco',
+              childPlaces: [],
+            },
+            {
+              id: 8,
+              title: 'Nigeria',
+              childPlaces: [],
+            },
+            {
+              id: 9,
+              title: 'South Africa',
+              childPlaces: [],
+            },
+          ],
+        },
+        {
+          id: 10,
+          title: 'Americas',
+          childPlaces: [
+            {
+              id: 11,
+              title: 'Argentina',
+              childPlaces: [],
+            },
+            {
+              id: 12,
+              title: 'Brazil',
+              childPlaces: [],
+            },
+            {
+              id: 13,
+              title: 'Barbados',
+              childPlaces: [],
+            },
+            {
+              id: 14,
+              title: 'Canada',
+              childPlaces: [],
+            },
+            {
+              id: 15,
+              title: 'Jamaica',
+              childPlaces: [],
+            },
+            {
+              id: 16,
+              title: 'Mexico',
+              childPlaces: [],
+            },
+            {
+              id: 17,
+              title: 'Trinidad and Tobago',
+              childPlaces: [],
+            },
+            {
+              id: 18,
+              title: 'Venezuela',
+              childPlaces: [],
+            },
+          ],
+        },
+        {
+          id: 19,
+          title: 'Asia',
+          childPlaces: [
+            {
+              id: 20,
+              title: 'China',
+              childPlaces: [],
+            },
+            {
+              id: 21,
+              title: 'India',
+              childPlaces: [],
+            },
+            {
+              id: 22,
+              title: 'Singapore',
+              childPlaces: [],
+            },
+            {
+              id: 23,
+              title: 'South Korea',
+              childPlaces: [],
+            },
+            {
+              id: 24,
+              title: 'Thailand',
+              childPlaces: [],
+            },
+            {
+              id: 25,
+              title: 'Vietnam',
+              childPlaces: [],
+            },
+          ],
+        },
+        {
+          id: 26,
+          title: 'Europe',
+          childPlaces: [
+            {
+              id: 27,
+              title: 'Croatia',
+              childPlaces: [],
+            },
+            {
+              id: 28,
+              title: 'France',
+              childPlaces: [],
+            },
+            {
+              id: 29,
+              title: 'Germany',
+              childPlaces: [],
+            },
+            {
+              id: 30,
+              title: 'Italy',
+              childPlaces: [],
+            },
+            {
+              id: 31,
+              title: 'Portugal',
+              childPlaces: [],
+            },
+            {
+              id: 32,
+              title: 'Spain',
+              childPlaces: [],
+            },
+            {
+              id: 33,
+              title: 'Turkey',
+              childPlaces: [],
+            },
+          ],
+        },
+        {
+          id: 34,
+          title: 'Oceania',
+          childPlaces: [
+            {
+              id: 35,
+              title: 'Australia',
+              childPlaces: [],
+            },
+            {
+              id: 36,
+              title: 'Bora Bora (French Polynesia)',
+              childPlaces: [],
+            },
+            {
+              id: 37,
+              title: 'Easter Island (Chile)',
+              childPlaces: [],
+            },
+            {
+              id: 38,
+              title: 'Fiji',
+              childPlaces: [],
+            },
+            {
+              id: 39,
+              title: 'Hawaii (the USA)',
+              childPlaces: [],
+            },
+            {
+              id: 40,
+              title: 'New Zealand',
+              childPlaces: [],
+            },
+            {
+              id: 41,
+              title: 'Vanuatu',
+              childPlaces: [],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: 42,
+      title: 'Moon',
+      childPlaces: [
+        {
+          id: 43,
+          title: 'Rheita',
+          childPlaces: [],
+        },
+        {
+          id: 44,
+          title: 'Piccolomini',
+          childPlaces: [],
+        },
+        {
+          id: 45,
+          title: 'Tycho',
+          childPlaces: [],
+        },
+      ],
+    },
+    {
+      id: 46,
+      title: 'Mars',
+      childPlaces: [
+        {
+          id: 47,
+          title: 'Corn Town',
+          childPlaces: [],
+        },
+        {
+          id: 48,
+          title: 'Green Hill',
+          childPlaces: [],
+        },
+      ],
+    },
+  ],
+};
+```
+
+</Sandpack>
+
+Imaginez qu'on ajoute un bouton pour éliminer un endroit déjà visité. Comment faire? Mettre à jour notre état imbriqué signifie qu'il faut cloner les différents niveaux d'objets touchés par la modification pour générer de nouvelles références. C'est une copie qui affecte la chaine d'imbrication. C'est du code complexe.
+
+---
+
+## Aplatir la structure
+
+**Si l'état est complexe à mettre à jour, on peut modifier l'imbrication et rendre la structure "plate".**
+
+Plutôt qu'une structure d'arborescence où chaque place a un tableau de _places_, on pourrait remplacer par un tableau de _place ID_.
+
+Ce genre de structure sans imbrication (plate) fait penser à une base de données relationnelle.
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+import { initialTravelPlan } from './places.js';
+
+function PlaceTree({ id, placesById }) {
+  const place = placesById[id];
+  const childIds = place.childIds;
+  return (
+    <li>
+      {place.title}
+      {childIds.length > 0 && (
+        <ol>
+          {childIds.map((childId) => (
+            <PlaceTree key={childId} id={childId} placesById={placesById} />
+          ))}
+        </ol>
+      )}
+    </li>
+  );
+}
+
+export default function TravelPlan() {
+  const [plan, setPlan] = useState(initialTravelPlan);
+  const root = plan[0];
+  const planetIds = root.childIds;
+  return (
+    <>
+      <h2>Places to visit</h2>
+      <ol>
+        {planetIds.map((id) => (
+          <PlaceTree key={id} id={id} placesById={plan} />
+        ))}
+      </ol>
+    </>
+  );
+}
+```
+
+```js places.js active
+export const initialTravelPlan = {
+  0: {
+    id: 0,
+    title: '(Root)',
+    childIds: [1, 42, 46],
+  },
+  1: {
+    id: 1,
+    title: 'Earth',
+    childIds: [2, 10, 19, 26, 34],
+  },
+  2: {
+    id: 2,
+    title: 'Africa',
+    childIds: [3, 4, 5, 6, 7, 8, 9],
+  },
+  3: {
+    id: 3,
+    title: 'Botswana',
+    childIds: [],
+  },
+  4: {
+    id: 4,
+    title: 'Egypt',
+    childIds: [],
+  },
+  5: {
+    id: 5,
+    title: 'Kenya',
+    childIds: [],
+  },
+  6: {
+    id: 6,
+    title: 'Madagascar',
+    childIds: [],
+  },
+  7: {
+    id: 7,
+    title: 'Morocco',
+    childIds: [],
+  },
+  8: {
+    id: 8,
+    title: 'Nigeria',
+    childIds: [],
+  },
+  9: {
+    id: 9,
+    title: 'South Africa',
+    childIds: [],
+  },
+  10: {
+    id: 10,
+    title: 'Americas',
+    childIds: [11, 12, 13, 14, 15, 16, 17, 18],
+  },
+  11: {
+    id: 11,
+    title: 'Argentina',
+    childIds: [],
+  },
+  12: {
+    id: 12,
+    title: 'Brazil',
+    childIds: [],
+  },
+  13: {
+    id: 13,
+    title: 'Barbados',
+    childIds: [],
+  },
+  14: {
+    id: 14,
+    title: 'Canada',
+    childIds: [],
+  },
+  15: {
+    id: 15,
+    title: 'Jamaica',
+    childIds: [],
+  },
+  16: {
+    id: 16,
+    title: 'Mexico',
+    childIds: [],
+  },
+  17: {
+    id: 17,
+    title: 'Trinidad and Tobago',
+    childIds: [],
+  },
+  18: {
+    id: 18,
+    title: 'Venezuela',
+    childIds: [],
+  },
+  19: {
+    id: 19,
+    title: 'Asia',
+    childIds: [20, 21, 22, 23, 24, 25],
+  },
+  20: {
+    id: 20,
+    title: 'China',
+    childIds: [],
+  },
+  21: {
+    id: 21,
+    title: 'India',
+    childIds: [],
+  },
+  22: {
+    id: 22,
+    title: 'Singapore',
+    childIds: [],
+  },
+  23: {
+    id: 23,
+    title: 'South Korea',
+    childIds: [],
+  },
+  24: {
+    id: 24,
+    title: 'Thailand',
+    childIds: [],
+  },
+  25: {
+    id: 25,
+    title: 'Vietnam',
+    childIds: [],
+  },
+  26: {
+    id: 26,
+    title: 'Europe',
+    childIds: [27, 28, 29, 30, 31, 32, 33],
+  },
+  27: {
+    id: 27,
+    title: 'Croatia',
+    childIds: [],
+  },
+  28: {
+    id: 28,
+    title: 'France',
+    childIds: [],
+  },
+  29: {
+    id: 29,
+    title: 'Germany',
+    childIds: [],
+  },
+  30: {
+    id: 30,
+    title: 'Italy',
+    childIds: [],
+  },
+  31: {
+    id: 31,
+    title: 'Portugal',
+    childIds: [],
+  },
+  32: {
+    id: 32,
+    title: 'Spain',
+    childIds: [],
+  },
+  33: {
+    id: 33,
+    title: 'Turkey',
+    childIds: [],
+  },
+  34: {
+    id: 34,
+    title: 'Oceania',
+    childIds: [35, 36, 37, 38, 39, 40, 41],
+  },
+  35: {
+    id: 35,
+    title: 'Australia',
+    childIds: [],
+  },
+  36: {
+    id: 36,
+    title: 'Bora Bora (French Polynesia)',
+    childIds: [],
+  },
+  37: {
+    id: 37,
+    title: 'Easter Island (Chile)',
+    childIds: [],
+  },
+  38: {
+    id: 38,
+    title: 'Fiji',
+    childIds: [],
+  },
+  39: {
+    id: 40,
+    title: 'Hawaii (the USA)',
+    childIds: [],
+  },
+  40: {
+    id: 40,
+    title: 'New Zealand',
+    childIds: [],
+  },
+  41: {
+    id: 41,
+    title: 'Vanuatu',
+    childIds: [],
+  },
+  42: {
+    id: 42,
+    title: 'Moon',
+    childIds: [43, 44, 45],
+  },
+  43: {
+    id: 43,
+    title: 'Rheita',
+    childIds: [],
+  },
+  44: {
+    id: 44,
+    title: 'Piccolomini',
+    childIds: [],
+  },
+  45: {
+    id: 45,
+    title: 'Tycho',
+    childIds: [],
+  },
+  46: {
+    id: 46,
+    title: 'Mars',
+    childIds: [47, 48],
+  },
+  47: {
+    id: 47,
+    title: 'Corn Town',
+    childIds: [],
+  },
+  48: {
+    id: 48,
+    title: 'Green Hill',
+    childIds: [],
+  },
+};
+```
+
+</Sandpack>
+
+**Avec une structure "plate" (ou normalisée), les mises à jours sont plus simples.**
+
+---
+
+## La mise à jour est simplifiée
+
+Maitenant, pour enlever une place, on n'a besoin que de mettre à jour deux choses:
+
+- Nous créons un clone du _parent_ qui exclut l'ID à éliminer du tableau `childIds`.
+- On intègre cet objet dans l'objet "table" racine.
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+import { initialTravelPlan } from './places.js';
+
+export default function TravelPlan() {
+  const [plan, setPlan] = useState(initialTravelPlan);
+
+  function handleComplete(parentId, childId) {
+    const parent = plan[parentId];
+    // Create a new version of the parent place
+    // that doesn't include this child ID.
+    const nextParent = {
+      ...parent,
+      childIds: parent.childIds.filter((id) => id !== childId),
+    };
+    // Update the root state object...
+    setPlan({
+      ...plan,
+      // ...so that it has the updated parent.
+      [parentId]: nextParent,
+    });
+  }
+
+  const root = plan[0];
+  const planetIds = root.childIds;
+  return (
+    <>
+      <h2>Places to visit</h2>
+      <ol>
+        {planetIds.map((id) => (
+          <PlaceTree
+            key={id}
+            id={id}
+            parentId={0}
+            placesById={plan}
+            onComplete={handleComplete}
+          />
+        ))}
+      </ol>
+    </>
+  );
+}
+
+function PlaceTree({ id, parentId, placesById, onComplete }) {
+  const place = placesById[id];
+  const childIds = place.childIds;
+  return (
+    <li>
+      {place.title}
+      <button
+        onClick={() => {
+          onComplete(parentId, id);
+        }}
+      >
+        Complete
+      </button>
+      {childIds.length > 0 && (
+        <ol>
+          {childIds.map((childId) => (
+            <PlaceTree
+              key={childId}
+              id={childId}
+              parentId={id}
+              placesById={placesById}
+              onComplete={onComplete}
+            />
+          ))}
+        </ol>
+      )}
+    </li>
+  );
+}
+```
+
+```js places.js
+export const initialTravelPlan = {
+  0: {
+    id: 0,
+    title: '(Root)',
+    childIds: [1, 42, 46],
+  },
+  1: {
+    id: 1,
+    title: 'Earth',
+    childIds: [2, 10, 19, 26, 34],
+  },
+  2: {
+    id: 2,
+    title: 'Africa',
+    childIds: [3, 4, 5, 6, 7, 8, 9],
+  },
+  3: {
+    id: 3,
+    title: 'Botswana',
+    childIds: [],
+  },
+  4: {
+    id: 4,
+    title: 'Egypt',
+    childIds: [],
+  },
+  5: {
+    id: 5,
+    title: 'Kenya',
+    childIds: [],
+  },
+  6: {
+    id: 6,
+    title: 'Madagascar',
+    childIds: [],
+  },
+  7: {
+    id: 7,
+    title: 'Morocco',
+    childIds: [],
+  },
+  8: {
+    id: 8,
+    title: 'Nigeria',
+    childIds: [],
+  },
+  9: {
+    id: 9,
+    title: 'South Africa',
+    childIds: [],
+  },
+  10: {
+    id: 10,
+    title: 'Americas',
+    childIds: [11, 12, 13, 14, 15, 16, 17, 18],
+  },
+  11: {
+    id: 11,
+    title: 'Argentina',
+    childIds: [],
+  },
+  12: {
+    id: 12,
+    title: 'Brazil',
+    childIds: [],
+  },
+  13: {
+    id: 13,
+    title: 'Barbados',
+    childIds: [],
+  },
+  14: {
+    id: 14,
+    title: 'Canada',
+    childIds: [],
+  },
+  15: {
+    id: 15,
+    title: 'Jamaica',
+    childIds: [],
+  },
+  16: {
+    id: 16,
+    title: 'Mexico',
+    childIds: [],
+  },
+  17: {
+    id: 17,
+    title: 'Trinidad and Tobago',
+    childIds: [],
+  },
+  18: {
+    id: 18,
+    title: 'Venezuela',
+    childIds: [],
+  },
+  19: {
+    id: 19,
+    title: 'Asia',
+    childIds: [20, 21, 22, 23, 24, 25],
+  },
+  20: {
+    id: 20,
+    title: 'China',
+    childIds: [],
+  },
+  21: {
+    id: 21,
+    title: 'India',
+    childIds: [],
+  },
+  22: {
+    id: 22,
+    title: 'Singapore',
+    childIds: [],
+  },
+  23: {
+    id: 23,
+    title: 'South Korea',
+    childIds: [],
+  },
+  24: {
+    id: 24,
+    title: 'Thailand',
+    childIds: [],
+  },
+  25: {
+    id: 25,
+    title: 'Vietnam',
+    childIds: [],
+  },
+  26: {
+    id: 26,
+    title: 'Europe',
+    childIds: [27, 28, 29, 30, 31, 32, 33],
+  },
+  27: {
+    id: 27,
+    title: 'Croatia',
+    childIds: [],
+  },
+  28: {
+    id: 28,
+    title: 'France',
+    childIds: [],
+  },
+  29: {
+    id: 29,
+    title: 'Germany',
+    childIds: [],
+  },
+  30: {
+    id: 30,
+    title: 'Italy',
+    childIds: [],
+  },
+  31: {
+    id: 31,
+    title: 'Portugal',
+    childIds: [],
+  },
+  32: {
+    id: 32,
+    title: 'Spain',
+    childIds: [],
+  },
+  33: {
+    id: 33,
+    title: 'Turkey',
+    childIds: [],
+  },
+  34: {
+    id: 34,
+    title: 'Oceania',
+    childIds: [35, 36, 37, 38, 39, 40, 41],
+  },
+  35: {
+    id: 35,
+    title: 'Australia',
+    childIds: [],
+  },
+  36: {
+    id: 36,
+    title: 'Bora Bora (French Polynesia)',
+    childIds: [],
+  },
+  37: {
+    id: 37,
+    title: 'Easter Island (Chile)',
+    childIds: [],
+  },
+  38: {
+    id: 38,
+    title: 'Fiji',
+    childIds: [],
+  },
+  39: {
+    id: 39,
+    title: 'Hawaii (the USA)',
+    childIds: [],
+  },
+  40: {
+    id: 40,
+    title: 'New Zealand',
+    childIds: [],
+  },
+  41: {
+    id: 41,
+    title: 'Vanuatu',
+    childIds: [],
+  },
+  42: {
+    id: 42,
+    title: 'Moon',
+    childIds: [43, 44, 45],
+  },
+  43: {
+    id: 43,
+    title: 'Rheita',
+    childIds: [],
+  },
+  44: {
+    id: 44,
+    title: 'Piccolomini',
+    childIds: [],
+  },
+  45: {
+    id: 45,
+    title: 'Tycho',
+    childIds: [],
+  },
+  46: {
+    id: 46,
+    title: 'Mars',
+    childIds: [47, 48],
+  },
+  47: {
+    id: 47,
+    title: 'Corn Town',
+    childIds: [],
+  },
+  48: {
+    id: 48,
+    title: 'Green Hill',
+    childIds: [],
+  },
+};
+```
+
+```css
+button {
+  margin: 10px;
+}
+```
+
+</Sandpack>
+
+On peut imbriquer les objets d'état autant qu'on veut, mais aplatir peut résoudre bien des problèmes. Ça rend l'état plus simple à mettre à jour, et ça évite la duplication de parties de nos objets imbriqués.
+
+---
+
+## Optimiser la consommation de la mémoire
+
+Idéalement, on élimine les items effacés (et leurs enfants!) de la "table" pour optimiser la consommation de la mémoire.
+
+On utilise Immer pour simplifier les mises à jour.
+
+<Sandpack>
+
+```js
+import { useImmer } from 'use-immer';
+import { initialTravelPlan } from './places.js';
+
+export default function TravelPlan() {
+  const [plan, updatePlan] = useImmer(initialTravelPlan);
+
+  function handleComplete(parentId, childId) {
+    updatePlan((draft) => {
+      // Remove from the parent place's child IDs.
+      const parent = draft[parentId];
+      parent.childIds = parent.childIds.filter((id) => id !== childId);
+
+      // Forget this place and all its subtree.
+      deleteAllChildren(childId);
+      function deleteAllChildren(id) {
+        const place = draft[id];
+        place.childIds.forEach(deleteAllChildren);
+        delete draft[id];
+      }
+    });
+  }
+
+  const root = plan[0];
+  const planetIds = root.childIds;
+  return (
+    <>
+      <h2>Places to visit</h2>
+      <ol>
+        {planetIds.map((id) => (
+          <PlaceTree
+            key={id}
+            id={id}
+            parentId={0}
+            placesById={plan}
+            onComplete={handleComplete}
+          />
+        ))}
+      </ol>
+    </>
+  );
+}
+
+function PlaceTree({ id, parentId, placesById, onComplete }) {
+  const place = placesById[id];
+  const childIds = place.childIds;
+  return (
+    <li>
+      {place.title}
+      <button
+        onClick={() => {
+          onComplete(parentId, id);
+        }}
+      >
+        Complete
+      </button>
+      {childIds.length > 0 && (
+        <ol>
+          {childIds.map((childId) => (
+            <PlaceTree
+              key={childId}
+              id={childId}
+              parentId={id}
+              placesById={placesById}
+              onComplete={onComplete}
+            />
+          ))}
+        </ol>
+      )}
+    </li>
+  );
+}
+```
+
+```js places.js
+export const initialTravelPlan = {
+  0: {
+    id: 0,
+    title: '(Root)',
+    childIds: [1, 42, 46],
+  },
+  1: {
+    id: 1,
+    title: 'Earth',
+    childIds: [2, 10, 19, 26, 34],
+  },
+  2: {
+    id: 2,
+    title: 'Africa',
+    childIds: [3, 4, 5, 6, 7, 8, 9],
+  },
+  3: {
+    id: 3,
+    title: 'Botswana',
+    childIds: [],
+  },
+  4: {
+    id: 4,
+    title: 'Egypt',
+    childIds: [],
+  },
+  5: {
+    id: 5,
+    title: 'Kenya',
+    childIds: [],
+  },
+  6: {
+    id: 6,
+    title: 'Madagascar',
+    childIds: [],
+  },
+  7: {
+    id: 7,
+    title: 'Morocco',
+    childIds: [],
+  },
+  8: {
+    id: 8,
+    title: 'Nigeria',
+    childIds: [],
+  },
+  9: {
+    id: 9,
+    title: 'South Africa',
+    childIds: [],
+  },
+  10: {
+    id: 10,
+    title: 'Americas',
+    childIds: [11, 12, 13, 14, 15, 16, 17, 18],
+  },
+  11: {
+    id: 11,
+    title: 'Argentina',
+    childIds: [],
+  },
+  12: {
+    id: 12,
+    title: 'Brazil',
+    childIds: [],
+  },
+  13: {
+    id: 13,
+    title: 'Barbados',
+    childIds: [],
+  },
+  14: {
+    id: 14,
+    title: 'Canada',
+    childIds: [],
+  },
+  15: {
+    id: 15,
+    title: 'Jamaica',
+    childIds: [],
+  },
+  16: {
+    id: 16,
+    title: 'Mexico',
+    childIds: [],
+  },
+  17: {
+    id: 17,
+    title: 'Trinidad and Tobago',
+    childIds: [],
+  },
+  18: {
+    id: 18,
+    title: 'Venezuela',
+    childIds: [],
+  },
+  19: {
+    id: 19,
+    title: 'Asia',
+    childIds: [20, 21, 22, 23, 24, 25],
+  },
+  20: {
+    id: 20,
+    title: 'China',
+    childIds: [],
+  },
+  21: {
+    id: 21,
+    title: 'India',
+    childIds: [],
+  },
+  22: {
+    id: 22,
+    title: 'Singapore',
+    childIds: [],
+  },
+  23: {
+    id: 23,
+    title: 'South Korea',
+    childIds: [],
+  },
+  24: {
+    id: 24,
+    title: 'Thailand',
+    childIds: [],
+  },
+  25: {
+    id: 25,
+    title: 'Vietnam',
+    childIds: [],
+  },
+  26: {
+    id: 26,
+    title: 'Europe',
+    childIds: [27, 28, 29, 30, 31, 32, 33],
+  },
+  27: {
+    id: 27,
+    title: 'Croatia',
+    childIds: [],
+  },
+  28: {
+    id: 28,
+    title: 'France',
+    childIds: [],
+  },
+  29: {
+    id: 29,
+    title: 'Germany',
+    childIds: [],
+  },
+  30: {
+    id: 30,
+    title: 'Italy',
+    childIds: [],
+  },
+  31: {
+    id: 31,
+    title: 'Portugal',
+    childIds: [],
+  },
+  32: {
+    id: 32,
+    title: 'Spain',
+    childIds: [],
+  },
+  33: {
+    id: 33,
+    title: 'Turkey',
+    childIds: [],
+  },
+  34: {
+    id: 34,
+    title: 'Oceania',
+    childIds: [35, 36, 37, 38, 39, 40, , 41],
+  },
+  35: {
+    id: 35,
+    title: 'Australia',
+    childIds: [],
+  },
+  36: {
+    id: 36,
+    title: 'Bora Bora (French Polynesia)',
+    childIds: [],
+  },
+  37: {
+    id: 37,
+    title: 'Easter Island (Chile)',
+    childIds: [],
+  },
+  38: {
+    id: 38,
+    title: 'Fiji',
+    childIds: [],
+  },
+  39: {
+    id: 39,
+    title: 'Hawaii (the USA)',
+    childIds: [],
+  },
+  40: {
+    id: 40,
+    title: 'New Zealand',
+    childIds: [],
+  },
+  41: {
+    id: 41,
+    title: 'Vanuatu',
+    childIds: [],
+  },
+  42: {
+    id: 42,
+    title: 'Moon',
+    childIds: [43, 44, 45],
+  },
+  43: {
+    id: 43,
+    title: 'Rheita',
+    childIds: [],
+  },
+  44: {
+    id: 44,
+    title: 'Piccolomini',
+    childIds: [],
+  },
+  45: {
+    id: 45,
+    title: 'Tycho',
+    childIds: [],
+  },
+  46: {
+    id: 46,
+    title: 'Mars',
+    childIds: [47, 48],
+  },
+  47: {
+    id: 47,
+    title: 'Corn Town',
+    childIds: [],
+  },
+  48: {
+    id: 48,
+    title: 'Green Hill',
+    childIds: [],
+  },
+};
+```
+
+```css
+button {
+  margin: 10px;
+}
+```
+
+```json package.json
+{
+  "dependencies": {
+    "immer": "1.7.3",
+    "react": "latest",
+    "react-dom": "latest",
+    "react-scripts": "latest",
+    "use-immer": "0.5.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}
+```
+
+</Sandpack>
+
+On peut aussi réduire l'imbrication profonde en déplaçant cet état dans des composants enfants. Ça fonctionne bien pour les états éphémères de l'interface. Ex: un item sur le lequel on place le curseur (hover) provoque un
+
+Sometimes, you can also reduce state nesting by moving some of the nested state into the child components. This works well for ephemeral UI state that doesn't need to be stored, like whether an item is hovered.
+
+---
+
+## Défi: Réparer la mise à jour
+
+This `Clock` component receives two props: `color` and `time`. When you select a different color in the select box, the `Clock` component receives a different `color` prop from its parent component. However, for some reason, the displayed color doesn't update. Why? Fix the problem.
+
+<Sandpack>
+
+```js Clock.js active
+import { useState } from 'react';
+
+export default function Clock(props) {
+  const [color, setColor] = useState(props.color);
+  return <h1 style={{ color: color }}>{props.time}</h1>;
+}
+```
+
+```js App.js hidden
+import { useState, useEffect } from 'react';
+import Clock from './Clock.js';
+
+function useTime() {
+  const [time, setTime] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => {
+      setTime(new Date());
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+  return time;
+}
+
+export default function App() {
+  const time = useTime();
+  const [color, setColor] = useState('lightcoral');
+  return (
+    <div>
+      <p>
+        Pick a color:{' '}
+        <select value={color} onChange={(e) => setColor(e.target.value)}>
+          <option value='lightcoral'>lightcoral</option>
+          <option value='midnightblue'>midnightblue</option>
+          <option value='rebeccapurple'>rebeccapurple</option>
+        </select>
+      </p>
+      <Clock color={color} time={time.toLocaleTimeString()} />
+    </div>
+  );
+}
+```
+
+</Sandpack>
+
+---
+
+## Défi: Réparer une liste
+
+This packing list has a footer that shows how many items are packed, and how many items there are overall. It seems to work at first, but it is buggy. For example, if you mark an item as packed and then delete it, the counter will not be updated correctly. Fix the counter so that it's always correct.
+
+Is any state in this example redundant?
+
+<Sandpack>
+
+```js App.js
+import { useState } from 'react';
+import AddItem from './AddItem.js';
+import PackingList from './PackingList.js';
+
+let nextId = 3;
+const initialItems = [
+  { id: 0, title: 'Warm socks', packed: true },
+  { id: 1, title: 'Travel journal', packed: false },
+  { id: 2, title: 'Watercolors', packed: false },
+];
+
+export default function TravelPlan() {
+  const [items, setItems] = useState(initialItems);
+  const [total, setTotal] = useState(3);
+  const [packed, setPacked] = useState(1);
+
+  function handleAddItem(title) {
+    setTotal(total + 1);
+    setItems([
+      ...items,
+      {
+        id: nextId++,
+        title: title,
+        packed: false,
+      },
+    ]);
+  }
+
+  function handleChangeItem(nextItem) {
+    if (nextItem.packed) {
+      setPacked(packed + 1);
+    } else {
+      setPacked(packed - 1);
+    }
+    setItems(
+      items.map((item) => {
+        if (item.id === nextItem.id) {
+          return nextItem;
+        } else {
+          return item;
+        }
+      })
+    );
+  }
+
+  function handleDeleteItem(itemId) {
+    setTotal(total - 1);
+    setItems(items.filter((item) => item.id !== itemId));
+  }
+
+  return (
+    <>
+      <AddItem onAddItem={handleAddItem} />
+      <PackingList
+        items={items}
+        onChangeItem={handleChangeItem}
+        onDeleteItem={handleDeleteItem}
+      />
+      <hr />
+      <b>
+        {packed} out of {total} packed!
+      </b>
+    </>
+  );
+}
+```
+
+```js AddItem.js hidden
+import { useState } from 'react';
+
+export default function AddItem({ onAddItem }) {
+  const [title, setTitle] = useState('');
+  return (
+    <>
+      <input
+        placeholder='Add item'
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <button
+        onClick={() => {
+          setTitle('');
+          onAddItem(title);
+        }}
+      >
+        Add
+      </button>
+    </>
+  );
+}
+```
+
+```js PackingList.js hidden
+import { useState } from 'react';
+
+export default function PackingList({ items, onChangeItem, onDeleteItem }) {
+  return (
+    <ul>
+      {items.map((item) => (
+        <li key={item.id}>
+          <label>
+            <input
+              type='checkbox'
+              checked={item.packed}
+              onChange={(e) => {
+                onChangeItem({
+                  ...item,
+                  packed: e.target.checked,
+                });
+              }}
+            />{' '}
+            {item.title}
+          </label>
+          <button onClick={() => onDeleteItem(item.id)}>Delete</button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+```css
+button {
+  margin: 5px;
+}
+li {
+  list-style-type: none;
+}
+ul,
+li {
+  margin: 0;
+  padding: 0;
+}
+```
+
+</Sandpack>
+
+---
+
+## Défi : Réparer la sélection qui disparait
+
+There is a list of `letters` in state. When you hover or focus a particular letter, it gets highlighted. The currently highlighted letter is stored in the `highlightedLetter` state variable. You can "star" and "unstar" individual letters, which updates the `letters` array in state.
+
+This code works, but there is a minor UI glitch. When you press "Star" or "Unstar", the highlighting disappears for a moment. However, it reappears as soon as you move your pointer or switch to another letter with keyboard. Why is this happening? Fix it so that the highlighting doesn't disappear after the button click.
+
+<Sandpack>
+
+```js App.js
+import { useState } from 'react';
+import { initialLetters } from './data.js';
+import Letter from './Letter.js';
+
+export default function MailClient() {
+  const [letters, setLetters] = useState(initialLetters);
+  const [highlightedLetter, setHighlightedLetter] = useState(null);
+
+  function handleHover(letter) {
+    setHighlightedLetter(letter);
+  }
+
+  function handleStar(starred) {
+    setLetters(
+      letters.map((letter) => {
+        if (letter.id === starred.id) {
+          return {
+            ...letter,
+            isStarred: !letter.isStarred,
+          };
+        } else {
+          return letter;
+        }
+      })
+    );
+  }
+
+  return (
+    <>
+      <h2>Inbox</h2>
+      <ul>
+        {letters.map((letter) => (
+          <Letter
+            key={letter.id}
+            letter={letter}
+            isHighlighted={letter === highlightedLetter}
+            onHover={handleHover}
+            onToggleStar={handleStar}
+          />
+        ))}
+      </ul>
+    </>
+  );
+}
+```
+
+```js Letter.js
+export default function Letter({
+  letter,
+  isHighlighted,
+  onHover,
+  onToggleStar,
+}) {
+  return (
+    <li
+      className={isHighlighted ? 'highlighted' : ''}
+      onFocus={() => {
+        onHover(letter);
+      }}
+      onPointerMove={() => {
+        onHover(letter);
+      }}
+    >
+      <button
+        onClick={() => {
+          onToggleStar(letter);
+        }}
+      >
+        {letter.isStarred ? 'Unstar' : 'Star'}
+      </button>
+      {letter.subject}
+    </li>
+  );
+}
+```
+
+```js data.js
+export const initialLetters = [
+  {
+    id: 0,
+    subject: 'Ready for adventure?',
+    isStarred: true,
+  },
+  {
+    id: 1,
+    subject: 'Time to check in!',
+    isStarred: false,
+  },
+  {
+    id: 2,
+    subject: 'Festival Begins in Just SEVEN Days!',
+    isStarred: false,
+  },
+];
+```
+
+```css
+button {
+  margin: 5px;
+}
+li {
+  border-radius: 5px;
+}
+.highlighted {
+  background: #d2eaff;
+}
+```
+
+</Sandpack>
+
+---
+
+## Défi Implanter une séléction multiple
+
+In this example, each `Letter` has an `isSelected` prop and an `onToggle` handler that marks it as selected. This works, but the state is stored as a `selectedId` (either `null` or an ID), so only one letter can get selected at any given time.
+
+Change the state structure to support multiple selection. (How would you structure it? Think about this before writing the code.) Each checkbox should become independent from the others. Clicking a selected letter should uncheck it. Finally, the footer should show the correct number of the selected items.
+
+Instead of a single selected ID, you might want to hold an array or a [Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set) of selected IDs in state.
+
+<Sandpack>
+
+```js App.js
+import { useState } from 'react';
+import { letters } from './data.js';
+import Letter from './Letter.js';
+
+export default function MailClient() {
+  const [selectedId, setSelectedId] = useState(null);
+
+  // TODO: allow multiple selection
+  const selectedCount = 1;
+
+  function handleToggle(toggledId) {
+    // TODO: allow multiple selection
+    setSelectedId(toggledId);
+  }
+
+  return (
+    <>
+      <h2>Inbox</h2>
+      <ul>
+        {letters.map((letter) => (
+          <Letter
+            key={letter.id}
+            letter={letter}
+            isSelected={
+              // TODO: allow multiple selection
+              letter.id === selectedId
+            }
+            onToggle={handleToggle}
+          />
+        ))}
+        <hr />
+        <p>
+          <b>You selected {selectedCount} letters</b>
+        </p>
+      </ul>
+    </>
+  );
+}
+```
+
+```js Letter.js
+export default function Letter({ letter, onToggle, isSelected }) {
+  return (
+    <li className={isSelected ? 'selected' : ''}>
+      <label>
+        <input
+          type='checkbox'
+          checked={isSelected}
+          onChange={() => {
+            onToggle(letter.id);
+          }}
+        />
+        {letter.subject}
+      </label>
+    </li>
+  );
+}
+```
+
+```js data.js
+export const letters = [
+  {
+    id: 0,
+    subject: 'Ready for adventure?',
+    isStarred: true,
+  },
+  {
+    id: 1,
+    subject: 'Time to check in!',
+    isStarred: false,
+  },
+  {
+    id: 2,
+    subject: 'Festival Begins in Just SEVEN Days!',
+    isStarred: false,
+  },
+];
+```
+
+```css
+input {
+  margin: 5px;
+}
+li {
+  border-radius: 5px;
+}
+label {
+  width: 100%;
+  padding: 5px;
+  display: inline-block;
+}
+.selected {
+  background: #d2eaff;
+}
+```
+
+</Sandpack>
+
+---
