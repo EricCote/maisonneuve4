@@ -2889,15 +2889,13 @@ button {
 
 </Sandpack>
 
-On peut aussi réduire l'imbrication profonde en déplaçant cet état dans des composants enfants. Ça fonctionne bien pour les états éphémères de l'interface. Ex: un item sur le lequel on place le curseur (hover) provoque un
-
-Sometimes, you can also reduce state nesting by moving some of the nested state into the child components. This works well for ephemeral UI state that doesn't need to be stored, like whether an item is hovered.
+On peut aussi réduire l'imbrication profonde en déplaçant des morceaux de l'état dans des composants enfants. Ça fonctionne bien pour les états éphémères de l'interface. Ex: un item sur le lequel on place le curseur (hover) qui affiche alors une boîte d'explication (tooltip).
 
 ---
 
 ## Défi: Réparer la mise à jour
 
-This `Clock` component receives two props: `color` and `time`. When you select a different color in the select box, the `Clock` component receives a different `color` prop from its parent component. However, for some reason, the displayed color doesn't update. Why? Fix the problem.
+La composante `Clock` deçoit deux props: `color` et `time`. Quand on sélectionne une nouvelle couleur, la composante `Clock` reçoit une nouvelle prop `color`. Mais la nouvelle couleur ne s'affiche pas. Pourquoi? Réparez.
 
 <Sandpack>
 
@@ -2950,9 +2948,11 @@ export default function App() {
 
 ## Défi: Réparer une liste
 
-This packing list has a footer that shows how many items are packed, and how many items there are overall. It seems to work at first, but it is buggy. For example, if you mark an item as packed and then delete it, the counter will not be updated correctly. Fix the counter so that it's always correct.
+Cette liste d'affaires affiche un pied de page qui indique le nombre d'items dans les bagages, et le nombre d'items total.
 
-Is any state in this example redundant?
+Il y a un bogue: Si on marque un item "packed" et qu'on le "delete" après, le compteur sera incorrect.
+
+Y aurait-il un état redondant?
 
 <Sandpack>
 
@@ -3098,9 +3098,9 @@ li {
 
 ## Défi : Réparer la sélection qui disparait
 
-There is a list of `letters` in state. When you hover or focus a particular letter, it gets highlighted. The currently highlighted letter is stored in the `highlightedLetter` state variable. You can "star" and "unstar" individual letters, which updates the `letters` array in state.
+L'état contient une liste de `letters`. Quand on flotte ou focus sur une lettre, elle est mise en évidence en surligné (highlight). C'est stocké dans la variable d'état `highlightedLetter`. On peut aussi ajouter une "star" et enlever avec "unstar" des lettres individuelles.
 
-This code works, but there is a minor UI glitch. When you press "Star" or "Unstar", the highlighting disappears for a moment. However, it reappears as soon as you move your pointer or switch to another letter with keyboard. Why is this happening? Fix it so that the highlighting doesn't disappear after the button click.
+Le code fonctionne, mais avec un un petit problème: si on clique sur "Star" ou "Unstar", le surlignage disparait un moment. Il réapparaît dès qu'on déplace le curseur ou qu'on déplace le focus avec le clavier. Pourquoi?? Réparez pour que le surlignage ne disparaisse plus.
 
 <Sandpack>
 
@@ -3217,13 +3217,13 @@ li {
 
 ---
 
-## Défi Implanter une séléction multiple
+## Défi: Implanter une séléction multiple
 
-In this example, each `Letter` has an `isSelected` prop and an `onToggle` handler that marks it as selected. This works, but the state is stored as a `selectedId` (either `null` or an ID), so only one letter can get selected at any given time.
+Chaque `Letter` possède une prop `isSelected` et un gestionnaire `onToggle` pour basculer. L'état est conservé dans `selectedId` (soit `null` ou un ID), une seule lettre est sélectionnée à la fois.
 
-Change the state structure to support multiple selection. (How would you structure it? Think about this before writing the code.) Each checkbox should become independent from the others. Clicking a selected letter should uncheck it. Finally, the footer should show the correct number of the selected items.
+Changez la structure de l'étate pour permettre la sélection multiple. (Quelle serait la structure? réfléchssez avant de coder.) Chaque boite est indépendante des autres. Cliquer un élément sélectionné enlève la sélection. Le pied de page doit afficher le nombre d'éléments.
 
-Instead of a single selected ID, you might want to hold an array or a [Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set) of selected IDs in state.
+**Indice:** plutôt que de stocker un ID, on pourrait stocker un tableau ou un [Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set) dans l'état.
 
 <Sandpack>
 
@@ -3327,3 +3327,4082 @@ label {
 </Sandpack>
 
 ---
+
+## Partager l'état entre les composants
+
+Pour partager l'état entre deux composants,
+
+- Enlever l'état local
+- Remonter l'état au parent commun
+- passer cette valeur via les props
+
+Ça se nomme _remonter l'état_
+
+---
+
+## L'état non-partagé
+
+Voici un exemple d'un composant `Accordion` parent qui affiche deux `Panel`s:
+
+- `Accordion`
+  - `Panel`
+  - `Panel`
+
+Chaque composant `Panel` possède un état booléen `isActive` qui détermine la visibilité.
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+function Panel({ title, children }) {
+  const [isActive, setIsActive] = useState(false);
+  return (
+    <section className='panel'>
+      <h3>{title}</h3>
+      {isActive ? (
+        <p>{children}</p>
+      ) : (
+        <button onClick={() => setIsActive(true)}>Show</button>
+      )}
+    </section>
+  );
+}
+
+export default function Accordion() {
+  return (
+    <>
+      <h2>Almaty, Kazakhstan</h2>
+      <Panel title='About'>
+        With a population of about 2 million, Almaty is Kazakhstan's largest
+        city. From 1929 to 1997, it was its capital city.
+      </Panel>
+      <Panel title='Etymology'>
+        The name comes from <span lang='kk-KZ'>алма</span>, the Kazakh word for
+        "apple" and is often translated as "full of apples". In fact, the region
+        surrounding Almaty is thought to be the ancestral home of the apple, and
+        the wild <i lang='la'>Malus sieversii</i> is considered a likely
+        candidate for the ancestor of the modern domestic apple.
+      </Panel>
+    </>
+  );
+}
+```
+
+```css
+h3,
+p {
+  margin: 5px 0px;
+}
+.panel {
+  padding: 10px;
+  border: 1px solid #aaa;
+}
+```
+
+</Sandpack>
+
+---
+
+## États indépendants
+
+Les deux états sont indépendants. Cliquer l'un n'affecte pas l'autre.
+
+<aside style={{display:'grid', gridTemplateColumns:"1fr 1fr", columnGap:10}}>
+<Diagram name="sharing_state_child" height={367} width={477} alt="Diagram showing a tree of three components, one parent labeled Accordion and two children labeled Panel. Both Panel components contain isActive with value false.">
+
+Initially, each `Panel`'s `isActive` state is `false`, so they both appear collapsed
+
+</Diagram>
+
+<Diagram name="sharing_state_child_clicked" height={367} width={480} alt="The same diagram as the previous, with the isActive of the first child Panel component highlighted indicating a click with the isActive value set to true. The second Panel component still contains value false." >
+
+Clicking either `Panel`'s button will only update that `Panel`'s `isActive` state alone
+
+</Diagram>
+</aside>
+
+---
+
+## Un seul panel visible à la fois
+
+Pour n'avoir qu'un seul panel visible à la fois, que faire? (Sélectionner un second panel, enlèvera la sélection précédente.)
+
+Pour coordonner les 2 panels, il faut "remonter l'état" vers un composant parent:
+
+1. **Enlever** l'état des composants enfants.
+2. **Passer** des données du parent commun.
+3. **Ajouter** l'état au parent commun et passer cette valeur et les gestionnaires d'états vers les enfants
+
+La composante `Accordion` pourra gérer l'état pour n'en avoir qu'un seul `Panel` visible.
+
+---
+
+## Étape 1: Enlever l'état des composants enfants
+
+Dans les `Panel`s, l'état `isActive` devient la prop `isActive`.
+
+On doit remplacer l'état du `Panel`:
+
+```js
+const [isActive, setIsActive] = useState(false);
+```
+
+Par une prop:
+
+```js
+function Panel({ title, children, isActive }) {
+```
+
+Le parent du `Panel` pourra controller `isActive` en passant des Props. La composante `Panel` n'a plus de contrôle sur la valeur de `isActive`. C'est maintenant géré par le parent.
+
+---
+
+## Étape 2: Passer des données du parent commun.
+
+Pour remonter l'état, il faut trouver le parent commun des deux composants enfants à synchroniser.
+
+- `Accordion` _(parent commun le plus proche)_
+  - `Panel`
+  - `Panel`
+
+Dans cet exemple, c'est la composante `Accordion`.
+
+---
+
+## Pousser des données statiques
+
+On peut passer, du composant `Accordion`, des données statiques pour `isActive` (par exemple: `true`) vers les 2 `Panels`:
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+export default function Accordion() {
+  return (
+    <>
+      <h2>Almaty, Kazakhstan</h2>
+      <Panel title='About' isActive={true}>
+        With a population of about 2 million, Almaty is Kazakhstan's largest
+        city. From 1929 to 1997, it was its capital city.
+      </Panel>
+      <Panel title='Etymology' isActive={true}>
+        The name comes from <span lang='kk-KZ'>алма</span>, the Kazakh word for
+        "apple" and is often translated as "full of apples". In fact, the region
+        surrounding Almaty is thought to be the ancestral home of the apple, and
+        the wild <i lang='la'>Malus sieversii</i> is considered a likely
+        candidate for the ancestor of the modern domestic apple.
+      </Panel>
+    </>
+  );
+}
+
+function Panel({ title, children, isActive }) {
+  return (
+    <section className='panel'>
+      <h3>{title}</h3>
+      {isActive ? (
+        <p>{children}</p>
+      ) : (
+        <button onClick={() => setIsActive(true)}>Show</button>
+      )}
+    </section>
+  );
+}
+```
+
+```css
+h3,
+p {
+  margin: 5px 0px;
+}
+.panel {
+  padding: 10px;
+  border: 1px solid #aaa;
+}
+```
+
+</Sandpack>
+
+Modifiez les valeurs de `isActive` dans `Accordion` et validez l'affichage sur l'écran.
+
+---
+
+## Étape 3: Ajouter l'état au parent commun
+
+Remonter l'état peut modifier la structure des données.
+
+Dans ce cas, il n'y a qu'un seul paneau de visble. Plutôt qu'une valeur booléene, un nombre pourrait stocker l'index du paneau visible.
+
+```js
+const [activeIndex, setActiveIndex] = useState(0);
+```
+
+---
+
+## Gestionnaires d'événements sont poussés
+
+Cliquer le bouton "Show" dans un `Panel` modifie l'index actif d'`Accordion`. Un `Panel` ne peut modifier `activeIndex` directement, car cet état se trouve dans `Accordion`. La composante `Accordion` doit _explicitement permettre_ la modification de l'état en passant un [gestionnaire d'état en tant que prop](/learn/responding-to-events#passing-event-handlers-as-props):
+
+```js
+<>
+  <Panel isActive={activeIndex === 0} onShow={() => setActiveIndex(0)}>
+    ...
+  </Panel>
+  <Panel isActive={activeIndex === 1} onShow={() => setActiveIndex(1)}>
+    ...
+  </Panel>
+</>
+```
+
+---
+
+## Exemple avec état partagé
+
+Le `<button>` dans le `Panel` utilise la prop `onShow` pour gérer le click:
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+export default function Accordion() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  return (
+    <>
+      <h2>Almaty, Kazakhstan</h2>
+      <Panel
+        title='About'
+        isActive={activeIndex === 0}
+        onShow={() => setActiveIndex(0)}
+      >
+        With a population of about 2 million, Almaty is Kazakhstan's largest
+        city. From 1929 to 1997, it was its capital city.
+      </Panel>
+      <Panel
+        title='Etymology'
+        isActive={activeIndex === 1}
+        onShow={() => setActiveIndex(1)}
+      >
+        The name comes from <span lang='kk-KZ'>алма</span>, the Kazakh word for
+        "apple" and is often translated as "full of apples". In fact, the region
+        surrounding Almaty is thought to be the ancestral home of the apple, and
+        the wild <i lang='la'>Malus sieversii</i> is considered a likely
+        candidate for the ancestor of the modern domestic apple.
+      </Panel>
+    </>
+  );
+}
+
+function Panel({ title, children, isActive, onShow }) {
+  return (
+    <section className='panel'>
+      <h3>{title}</h3>
+      {isActive ? <p>{children}</p> : <button onClick={onShow}>Show</button>}
+    </section>
+  );
+}
+```
+
+```css
+h3,
+p {
+  margin: 5px 0px;
+}
+.panel {
+  padding: 10px;
+  border: 1px solid #aaa;
+}
+```
+
+</Sandpack>
+ 
+---
+
+## Diagramme de l'état remonté
+
+- Utiliser l'index actif (plutôt que des valeurs booléenes) assure qu'un seul panneau est affiché à la fois.
+
+- Passer le gestonnaire d'événements aux enfants permet à ces derniers de modifier l'état du parent.
+
+<aside style={{display:'grid', gridTemplateColumns:"1fr 1fr", columnGap:10}}>
+<Diagram name="sharing_state_parent" height={385} width={487} alt="Diagram showing a tree of three components, one parent labeled Accordion and two children labeled Panel. Accordion contains an activeIndex value of zero which turns into isActive value of true passed to the first Panel, and isActive value of false passed to the second Panel." >
+
+Initially, `Accordion`'s `activeIndex` is `0`, so the first `Panel` receives `isActive = true`
+
+</Diagram>
+
+<Diagram name="sharing_state_parent_clicked" height={385} width={521} alt="The same diagram as the previous, with the activeIndex value of the parent Accordion component highlighted indicating a click with the value changed to one. The flow to both of the children Panel components is also highlighted, and the isActive value passed to each child is set to the opposite: false for the first Panel and true for the second one." >
+
+When `Accordion`'s `activeIndex` state changes to `1`, the second `Panel` receives `isActive = true` instead
+
+</Diagram>
+</aside >
+
+---
+
+## Composants controllés vs. composants non-controllés
+
+Il est commun d'appeler un composant avec un état interne "non-contollé". (Par exemple, le composant `Panel` original, avec son état booléen `ìsActive`, est non-controllée. Le parent ne peut influencer si le `Panel` est affiché ou non.)
+
+Un composant est "controllé" quand l'information importante est gérée par ses props plutôt que son état interne. C'est le parent qui gère le comportement global. (ex: le composant `Panel` final, avec une prop `isActive` controllée par le composant `Accordion`)
+
+| Composants non-controllés                   | Composants controllés                                             |
+| ------------------------------------------- | ----------------------------------------------------------------- |
+| - Plus simples                              | - Nécessitent l'état dans un parent                               |
+| - Moins de props à passer                   | - Doivent utiliser des props                                      |
+| - Ne peuvent se coordonner entre composants | - Flexibles, car le parent peut coordorner les composants enfants |
+
+---
+
+## La distinction controllée et non-controllée est floue
+
+Les termes "controllés" et "non-controllés" ne sont pas des termes techniques stricts. La plupart des composants ont un mélange des deux approches, avec de l'état interne, ainsi que des props. Ces termes permettent de décrire comment les composants sont conçus et les capacités qu'ils offrent.
+
+Quand on écrit un composant, il faut réfléchir: quelle information devrait être controllée (via les props) et quelle information devrait être non-controllée (via l'état)?
+
+Il est toujours possible de changer d'idée plus tard, en refactorisant les composants.
+
+---
+
+## Une source de vérité pour chaque composant
+
+L'état peut soit être stocké près des composants en bas de l'arborescence (ex: un champ de saisie "input"), soit être stocké en haut de l'arborescence (ex: le routage client).
+
+**Pour chaque état unique, il faut choisir quelle composante la stocke.** C'est le principe de la ["source de vérité unique".](https://en.wikipedia.org/wiki/Single_source_of_truth)
+
+Ça ne signifie pas que tout l'état est stocké à un seul endroit. Ça signifie plutôt que pour chaque morceau d'état, il y a une composante spécifique qui stocke l'information. Plutôt que de dupliquer l'état partagé entre les composants, remontez l'état vers un parent commun, et passez l'info vers les enfants via des props.
+
+L'application évolue à mesure que l'on programme. L'état se déplacera à mesure que l'on complète la solution.
+
+Consultez [Thinking in React.](https://react.dev/learn/thinking-in-react)
+
+---
+
+## Résumé
+
+- Pour coordoner deux composants, déplacez leur état vers un parent commun
+- Passez l'info du parent aux enfants via les props
+- Passez des gestionnaires d'événement pour que les enfants puissent modifier l'état du parent
+- Il y deux approches aux composants:
+  - Composants controllés (gérés par des props)
+  - Composants non-controllés (gérés par l'état)
+
+---
+
+## Défi: Inputs synchronisés
+
+Ces deux champs de saisis (inputs) sont indépendants. Il faudrait qu'ils soient synchronisés (modifier l'un devrait modifier l'autre) .
+
+**Indice:** Il faudra remonter l'état dans le parent.
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+export default function SyncedInputs() {
+  return (
+    <>
+      <Input label='First input' />
+      <Input label='Second input' />
+    </>
+  );
+}
+
+function Input({ label }) {
+  const [text, setText] = useState('');
+
+  function handleChange(e) {
+    setText(e.target.value);
+  }
+
+  return (
+    <label>
+      {label} <input value={text} onChange={handleChange} />
+    </label>
+  );
+}
+```
+
+```css
+input {
+  margin: 5px;
+}
+label {
+  display: block;
+}
+```
+
+</Sandpack>
+
+---
+
+## Défi: Filtrer une liste
+
+Dans cet exemple, le `SearchBar` a un état `query` controllant le champ de saisie. Le composant parent `FilterableList` affiche une `List` d'items, mais ignore le `query`.
+
+Avec la fonction `filterItems(foods, query)`, filtrez la liste d'après la requête `query`. Pour tester, validez que taper "s" va filtrer "Sushi", "Shish kebab", and "Dim sum".
+
+**Indice:** Il faudra remonter `query` et `handleChange`. Notez que `filterItems` est déjà correctement écrit.
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+import { foods, filterItems } from './data.js';
+
+export default function FilterableList() {
+  return (
+    <>
+      <SearchBar />
+      <hr />
+      <List items={foods} />
+    </>
+  );
+}
+
+function SearchBar() {
+  const [query, setQuery] = useState('');
+
+  function handleChange(e) {
+    setQuery(e.target.value);
+  }
+
+  return (
+    <label>
+      Search: <input value={query} onChange={handleChange} />
+    </label>
+  );
+}
+
+function List({ items }) {
+  return (
+    <table>
+      <tbody>
+        {items.map((food) => (
+          <tr key={food.id}>
+            <td>{food.name}</td>
+            <td>{food.description}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+```
+
+```js data.js
+export function filterItems(items, query) {
+  query = query.toLowerCase();
+  return items.filter((item) =>
+    item.name.split(' ').some((word) => word.toLowerCase().startsWith(query))
+  );
+}
+
+export const foods = [
+  {
+    id: 0,
+    name: 'Sushi',
+    description:
+      'Sushi is a traditional Japanese dish of prepared vinegared rice',
+  },
+  {
+    id: 1,
+    name: 'Dal',
+    description:
+      'The most common way of preparing dal is in the form of a soup to which onions, tomatoes and various spices may be added',
+  },
+  {
+    id: 2,
+    name: 'Pierogi',
+    description:
+      'Pierogi are filled dumplings made by wrapping unleavened dough around a savoury or sweet filling and cooking in boiling water',
+  },
+  {
+    id: 3,
+    name: 'Shish kebab',
+    description:
+      'Shish kebab is a popular meal of skewered and grilled cubes of meat.',
+  },
+  {
+    id: 4,
+    name: 'Dim sum',
+    description:
+      'Dim sum is a large range of small dishes that Cantonese people traditionally enjoy in restaurants for breakfast and lunch',
+  },
+];
+```
+
+</Sandpack>
+
+---
+
+## Préserver et réinitialiser l'état
+
+L'état est isolé entre les composants.
+
+React conserve l'état de chaque composant d'après sa position dans l'arborescence.
+
+Il est possible de controller quand conserver l'état et quand la réinitialiser pour chaque re-rendu.
+
+---
+
+## Contenu
+
+- Comment React conserve et réinitialise l'état
+- Comment forcer React à réinitialiser son état
+- Comment la conservation de l'état est affecté par la clé et le type.
+
+---
+
+## L'état est lié à une position dans l'arborescence du rendu
+
+React génère une arborescence du rendu pour la structure de vos composants.
+
+Quand un composant possède un état, on pourrait croire que cet état est stocké dans le composant. Mais en fait, l'état est stocké par React.
+
+React associe chaque état avec son compoosant dans l'arborescence, dépendant de sa position.
+
+---
+
+## Exemple
+
+Dans cet exemple, il n'y a qu'une seule balise JSX `<Counter />`, mais la composante est rendue dans deux endroits différents de l'arborescence. Il y a donc deux états stockés.
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+export default function App() {
+  const counter = <Counter />;
+  return (
+    <div>
+      {counter}
+      {counter}
+    </div>
+  );
+}
+
+function Counter() {
+  const [score, setScore] = useState(0);
+  const [hover, setHover] = useState(false);
+
+  let className = 'counter';
+  if (hover) {
+    className += ' hover';
+  }
+
+  return (
+    <div
+      className={className}
+      onPointerEnter={() => setHover(true)}
+      onPointerLeave={() => setHover(false)}
+    >
+      <h1>{score}</h1>
+      <button onClick={() => setScore(score + 1)}>Add one</button>
+    </div>
+  );
+}
+```
+
+```css
+label {
+  display: block;
+  clear: both;
+}
+
+.counter {
+  width: 100px;
+  text-align: center;
+  border: 1px solid gray;
+  border-radius: 4px;
+  padding: 20px;
+  margin: 0 20px 20px 0;
+  float: left;
+}
+
+.hover {
+  background: #ffffd8;
+}
+```
+
+</Sandpack>
+
+---
+
+## Explications
+
+Voici l'arborescence:
+
+<Diagram name="preserving_state_tree" height={248} width={395} alt="Diagram of a tree of React components. The root node is labeled 'div' and has two children. Each of the children are labeled 'Counter' and both contain a state bubble labeled 'count' with value 0.">
+
+React tree
+
+</Diagram>
+
+Ce sont deux compteurs indépendants, car chacun est rendu à sa propre position dans l'arborescence.
+
+Chaque composant conserve son propre état isolé. Par exemple, chaque `Counter` possède son propre état `score` et `hover`.
+
+---
+
+## L'état des composants est isolé
+
+Cliquez les deux compteurs, ils ne s'affectent pas l'un l'autre.
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+export default function App() {
+  return (
+    <div>
+      <Counter />
+      <Counter />
+    </div>
+  );
+}
+
+function Counter() {
+  const [score, setScore] = useState(0);
+  const [hover, setHover] = useState(false);
+
+  let className = 'counter';
+  if (hover) {
+    className += ' hover';
+  }
+
+  return (
+    <div
+      className={className}
+      onPointerEnter={() => setHover(true)}
+      onPointerLeave={() => setHover(false)}
+    >
+      <h1>{score}</h1>
+      <button onClick={() => setScore(score + 1)}>Add one</button>
+    </div>
+  );
+}
+```
+
+```css
+.counter {
+  width: 100px;
+  text-align: center;
+  border: 1px solid gray;
+  border-radius: 4px;
+  padding: 20px;
+  margin: 0 20px 20px 0;
+  float: left;
+}
+
+.hover {
+  background: #ffffd8;
+}
+```
+
+</Sandpack>
+
+---
+
+## Explications
+
+Quand un `Counter` est mis à jour, seul son état est affecté.
+
+<Diagram name="preserving_state_increment" height={248} width={441} alt="Diagram of a tree of React components. The root node is labeled 'div' and has two children. The left child is labeled 'Counter' and contains a state bubble labeled 'count' with value 0. The right child is labeled 'Counter' and contains a state bubble labeled 'count' with value 1. The state bubble of the right child is highlighted in yellow to indicate its value has updated.">
+
+Updating state
+
+</Diagram>
+
+React conserve l'état tant que la composante est générée à la même position dans l'arborescence. Si un composant n'est plus rendu, l'état est éliminé.
+
+---
+
+## Perdre l'état en enlevant le composant
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+export default function App() {
+  const [showB, setShowB] = useState(true);
+  return (
+    <div>
+      <Counter />
+      {showB && <Counter />}
+      <label>
+        <input
+          type='checkbox'
+          checked={showB}
+          onChange={(e) => {
+            setShowB(e.target.checked);
+          }}
+        />
+        Render the second counter
+      </label>
+    </div>
+  );
+}
+
+function Counter() {
+  const [score, setScore] = useState(0);
+  const [hover, setHover] = useState(false);
+
+  let className = 'counter';
+  if (hover) {
+    className += ' hover';
+  }
+
+  return (
+    <div
+      className={className}
+      onPointerEnter={() => setHover(true)}
+      onPointerLeave={() => setHover(false)}
+    >
+      <h1>{score}</h1>
+      <button onClick={() => setScore(score + 1)}>Add one</button>
+    </div>
+  );
+}
+```
+
+```css
+label {
+  display: block;
+  clear: both;
+}
+
+.counter {
+  width: 100px;
+  text-align: center;
+  border: 1px solid gray;
+  border-radius: 4px;
+  padding: 20px;
+  margin: 0 20px 20px 0;
+  float: left;
+}
+
+.hover {
+  background: #ffffd8;
+}
+```
+
+</Sandpack>
+
+Quand qu'on arrête le rendu du second compteur, son état disparait. Dès que que React enlève un composant, il enlève son état.
+
+---
+
+## Diagramme de perte de l'état
+
+<aside style={{display:'grid', gridTemplateColumns:"1fr 1fr", columnGap:10}}>
+<div>
+<Diagram name="preserving_state_remove_component" height={253} width={422} alt="Diagram of a tree of React components. The root node is labeled 'div' and has two children. The left child is labeled 'Counter' and contains a state bubble labeled 'count' with value 0. The right child is missing, and in its place is a yellow 'poof' image, highlighting the component being deleted from the tree.">
+
+Deleting a component
+
+</Diagram>
+
+React conserve l'état d'un composant tant qu'il est rendu dans l'arborescence. Dès qu'il est enlevé (ou déplacé ailleurs), React perd l'état associé.
+
+</div>
+<div>
+<Diagram name="preserving_state_add_component" height={258} width={500} alt="Diagram of a tree of React components. The root node is labeled 'div' and has two children. The left child is labeled 'Counter' and contains a state bubble labeled 'count' with value 0. The right child is labeled 'Counter' and contains a state bubble labeled 'count' with value 0. The entire right child node is highlighted in yellow, indicating that it was just added to the tree.">
+
+Adding a component
+
+</Diagram>
+
+Quand on coche "Render the second counter", un nouveau `Counter` est créé, et son état est initialisé (`score = 0`).
+
+</div>
+</aside>
+
+---
+
+## Un même composant à la même position conserve l'état
+
+Dans cet exemple, il y a deux balises `Counter`:
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+export default function App() {
+  const [isFancy, setIsFancy] = useState(false);
+  return (
+    <div>
+      {isFancy ? <Counter isFancy={true} /> : <Counter isFancy={false} />}
+      <label>
+        <input
+          type='checkbox'
+          checked={isFancy}
+          onChange={(e) => {
+            setIsFancy(e.target.checked);
+          }}
+        />
+        Use fancy styling
+      </label>
+    </div>
+  );
+}
+
+function Counter({ isFancy }) {
+  const [score, setScore] = useState(0);
+  const [hover, setHover] = useState(false);
+
+  let className = 'counter';
+  if (hover) {
+    className += ' hover';
+  }
+  if (isFancy) {
+    className += ' fancy';
+  }
+
+  return (
+    <div
+      className={className}
+      onPointerEnter={() => setHover(true)}
+      onPointerLeave={() => setHover(false)}
+    >
+      <h1>{score}</h1>
+      <button onClick={() => setScore(score + 1)}>Add one</button>
+    </div>
+  );
+}
+```
+
+```css
+label {
+  display: block;
+  clear: both;
+}
+
+.counter {
+  width: 100px;
+  text-align: center;
+  border: 1px solid gray;
+  border-radius: 4px;
+  padding: 20px;
+  margin: 0 20px 20px 0;
+  float: left;
+}
+
+.fancy {
+  border: 5px solid gold;
+  color: #ff6767;
+}
+
+.hover {
+  background: #ffffd8;
+}
+```
+
+</Sandpack>
+
+Quand on bascule le checkbox, le compteur n'est pas réinitialisé. Que `isFancy` soit à `true` ou `false`, c'est toujours un `<Counter>` qui est le premier enfant du `div`.
+
+---
+
+## Diagramme de la conservation
+
+<Diagram name="preserving_state_same_component" height={461} width={600} alt="Diagram with two sections separated by an arrow transitioning between them. Each section contains a layout of components with a parent labeled 'App' containing a state bubble labeled isFancy. This component has one child labeled 'div', which leads to a prop bubble containing isFancy (highlighted in purple) passed down to the only child. The last child is labeled 'Counter' and contains a state bubble with label 'count' and value 3 in both diagrams. In the left section of the diagram, nothing is highlighted and the isFancy parent state value is false. In the right section of the diagram, the isFancy parent state value has changed to true and it is highlighted in yellow, and so is the props bubble below, which has also changed its isFancy value to true.">
+
+Updating the `App` state does not reset the `Counter` because `Counter` stays in the same position
+
+</Diagram>
+
+C'est le même composant à la même position. Du point de vue de React, c'est donc le même compteur.
+
+---
+
+## Attention
+
+C'est la position dans l'arborescence qui importe pour React, pas la position dans le JSX. Ce composant a deux `return` avec des `<Counter>` différents.
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+export default function App() {
+  const [isFancy, setIsFancy] = useState(false);
+  if (isFancy) {
+    return (
+      <div>
+        <Counter isFancy={true} />
+        <label>
+          <input
+            type='checkbox'
+            checked={isFancy}
+            onChange={(e) => {
+              setIsFancy(e.target.checked);
+            }}
+          />
+          Use fancy styling
+        </label>
+      </div>
+    );
+  }
+  return (
+    <div>
+      <Counter isFancy={false} />
+      <label>
+        <input
+          type='checkbox'
+          checked={isFancy}
+          onChange={(e) => {
+            setIsFancy(e.target.checked);
+          }}
+        />
+        Use fancy styling
+      </label>
+    </div>
+  );
+}
+
+function Counter({ isFancy }) {
+  const [score, setScore] = useState(0);
+  const [hover, setHover] = useState(false);
+
+  let className = 'counter';
+  if (hover) {
+    className += ' hover';
+  }
+  if (isFancy) {
+    className += ' fancy';
+  }
+
+  return (
+    <div
+      className={className}
+      onPointerEnter={() => setHover(true)}
+      onPointerLeave={() => setHover(false)}
+    >
+      <h1>{score}</h1>
+      <button onClick={() => setScore(score + 1)}>Add one</button>
+    </div>
+  );
+}
+```
+
+```css
+label {
+  display: block;
+  clear: both;
+}
+
+.counter {
+  width: 100px;
+  text-align: center;
+  border: 1px solid gray;
+  border-radius: 4px;
+  padding: 20px;
+  margin: 0 20px 20px 0;
+  float: left;
+}
+
+.fancy {
+  border: 5px solid gold;
+  color: #ff6767;
+}
+
+.hover {
+  background: #ffffd8;
+}
+```
+
+</Sandpack>
+
+Parce que les deux `<Counter>` sont rendus à la même position, react conserve le state. React ne saisi pas que ces blocks ont été générés dans des blocs `if` séparés.
+
+---
+
+## Différents composants à la même position réinitialisent l'état
+
+Dans cet exemple, cliquer la boîte d'option remplace le `<Counter>` par un `<p>`:
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+export default function App() {
+  const [isPaused, setIsPaused] = useState(false);
+  return (
+    <div>
+      {isPaused ? <p>See you later!</p> : <Counter />}
+      <label>
+        <input
+          type='checkbox'
+          checked={isPaused}
+          onChange={(e) => {
+            setIsPaused(e.target.checked);
+          }}
+        />
+        Take a break
+      </label>
+    </div>
+  );
+}
+
+function Counter() {
+  const [score, setScore] = useState(0);
+  const [hover, setHover] = useState(false);
+
+  let className = 'counter';
+  if (hover) {
+    className += ' hover';
+  }
+
+  return (
+    <div
+      className={className}
+      onPointerEnter={() => setHover(true)}
+      onPointerLeave={() => setHover(false)}
+    >
+      <h1>{score}</h1>
+      <button onClick={() => setScore(score + 1)}>Add one</button>
+    </div>
+  );
+}
+```
+
+```css
+label {
+  display: block;
+  clear: both;
+}
+
+.counter {
+  width: 100px;
+  text-align: center;
+  border: 1px solid gray;
+  border-radius: 4px;
+  padding: 20px;
+  margin: 0 20px 20px 0;
+  float: left;
+}
+
+.hover {
+  background: #ffffd8;
+}
+```
+
+</Sandpack>
+
+Ici, on bascule entre différents types de composants à la même position. Le premier enfant du `<div>` passe de `<Counter>` à `<p>`, ce qui entraine la perte de l'état du compteur.
+
+---
+
+## Diagramme du changement du type de composant
+
+<Diagram name="preserving_state_diff_pt1" height={250} width={690} alt="Diagram with three sections, with an arrow transitioning each section in between. The first section contains a React component labeled 'div' with a single child labeled 'Counter' containing a state bubble labeled 'count' with value 3. The middle section has the same 'div' parent, but the child component has now been deleted, indicated by a yellow 'proof' image. The third section has the same 'div' parent again, now with a new child labeled 'p', highlighted in yellow.">
+
+Quand `Counter` change vers `p`, le `Counter` est effacé et `p` est ajouté
+
+</Diagram>
+
+<Diagram name="preserving_state_diff_pt2" height={290} width={753} alt="Diagram with three sections, with an arrow transitioning each section in between. The first section contains a React component labeled 'p'. The middle section has the same 'div' parent, but the child component has now been deleted, indicated by a yellow 'proof' image. The third section has the same 'div' parent again, now with a new child labeled 'Counter' containing a state bubble labeled 'count' with value 0, highlighted in yellow.">
+
+When switching back, the `p` is deleted and the `Counter` is added
+
+</Diagram>
+
+---
+
+## Regénérer la sous-arborescence
+
+Quand on génère le rendu d'un composant différent à la même position, cela réinitialise aussi tous les enfants de la sous-arborescence
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+export default function App() {
+  const [isFancy, setIsFancy] = useState(false);
+  return (
+    <div>
+      {isFancy ? (
+        <div>
+          <Counter isFancy={true} />
+        </div>
+      ) : (
+        <section>
+          <Counter isFancy={false} />
+        </section>
+      )}
+      <label>
+        <input
+          type='checkbox'
+          checked={isFancy}
+          onChange={(e) => {
+            setIsFancy(e.target.checked);
+          }}
+        />
+        Use fancy styling
+      </label>
+    </div>
+  );
+}
+
+function Counter({ isFancy }) {
+  const [score, setScore] = useState(0);
+  const [hover, setHover] = useState(false);
+
+  let className = 'counter';
+  if (hover) {
+    className += ' hover';
+  }
+  if (isFancy) {
+    className += ' fancy';
+  }
+
+  return (
+    <div
+      className={className}
+      onPointerEnter={() => setHover(true)}
+      onPointerLeave={() => setHover(false)}
+    >
+      <h1>{score}</h1>
+      <button onClick={() => setScore(score + 1)}>Add one</button>
+    </div>
+  );
+}
+```
+
+```css
+label {
+  display: block;
+  clear: both;
+}
+
+.counter {
+  width: 100px;
+  text-align: center;
+  border: 1px solid gray;
+  border-radius: 4px;
+  padding: 20px;
+  margin: 0 20px 20px 0;
+  float: left;
+}
+
+.fancy {
+  border: 5px solid gold;
+  color: #ff6767;
+}
+
+.hover {
+  background: #ffffd8;
+}
+```
+
+</Sandpack>
+
+L'état de `Counter` est réinitialisé quand on clique la case à cocher. Quand on change du `div` à une `section`, les enfants de l'arborescence en dessous sont détruits aussi.
+
+---
+
+## Diagramme de la génération de la sous-arborescence
+
+<aside style={{display:'grid', gridTemplateColumns:"1fr 1fr", columnGap:10}}>
+
+<div>
+
+<Diagram name="preserving_state_diff_same_pt1" height={280} width={660} alt=
+"Diagram with three sections, with an arrow transitioning each section in between. The first section contains a React component labeled 'div' with a single child labeled 'section', which has a single child labeled 'Counter' containing a state bubble labeled 'count' with value 3. The middle section has the same 'div' parent, but the child components have now been deleted, indicated by a yellow 'proof' image. The third section has the same 'div' parent again, now with a new child labeled 'div', highlighted in yellow, also with a new child labeled 'Counter' containing a state bubble labeled 'count' with value 0, all highlighted in yellow."
+>
+
+When `section` changes to `div`, the `section` is deleted and the new `div` is added
+
+</Diagram>
+
+<Diagram name="preserving_state_diff_same_pt2" height={280} width={660} alt="Diagram with three sections, with an arrow transitioning each section in between. The first section contains a React component labeled 'div' with a single child labeled 'div', which has a single child labeled 'Counter' containing a state bubble labeled 'count' with value 0. The middle section has the same 'div' parent, but the child components have now been deleted, indicated by a yellow 'proof' image. The third section has the same 'div' parent again, now with a new child labeled 'section', highlighted in yellow, also with a new child labeled 'Counter' containing a state bubble labeled 'count' with value 0, all highlighted in yellow.">
+
+When switching back, the `div` is deleted and the new `section` is added
+
+</Diagram>
+</div>
+En général, **pour conserver les états entre les re-rendus, la structure de l'arboresence doit correspondre** d'un rendu à l'autre. Si la structure est différente, l'état est perdu quand React détruit un composant de l'arborescence
+
+</aside >
+
+---
+
+## Ne pas imbriquer des composants
+
+Ici, le composant `MyTextField` est défini _dans_ `MyComponent`:
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+export default function MyComponent() {
+  const [counter, setCounter] = useState(0);
+
+  function MyTextField() {
+    const [text, setText] = useState('');
+
+    return <input value={text} onChange={(e) => setText(e.target.value)} />;
+  }
+
+  return (
+    <>
+      <MyTextField />
+      <button
+        onClick={() => {
+          setCounter(counter + 1);
+        }}
+      >
+        Clicked {counter} times
+      </button>
+    </>
+  );
+}
+```
+
+</Sandpack>
+
+Chaque fois qu'on clique le bouton, la valeur du champ est perdue. C'est qu'une nouvelle fonction `MyTextField` est créée à chaque rendu de `MyComponent`. Parce que c'est un nouveau composant à la même position, on perd l'état. Ceci entraine des bogues et des problèmes de performances.
+
+Pour éviter ce problème, **déclarez vos composants au top niveau, sans imbriquer dans des fonctions**.
+
+---
+
+## Réinitialiser l'état à la même position
+
+React conserve l'état d'un composant lorsqu'il reste à la même position. Que faire si on veut réinitaliser l'état?
+Considérons une app qui conserve le pointage:
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+export default function Scoreboard() {
+  const [isPlayerA, setIsPlayerA] = useState(true);
+  return (
+    <div>
+      {isPlayerA ? <Counter person='Taylor' /> : <Counter person='Sarah' />}
+      <button
+        onClick={() => {
+          setIsPlayerA(!isPlayerA);
+        }}
+      >
+        Next player!
+      </button>
+    </div>
+  );
+}
+
+function Counter({ person }) {
+  const [score, setScore] = useState(0);
+  const [hover, setHover] = useState(false);
+
+  let className = 'counter';
+  if (hover) {
+    className += ' hover';
+  }
+
+  return (
+    <div
+      className={className}
+      onPointerEnter={() => setHover(true)}
+      onPointerLeave={() => setHover(false)}
+    >
+      <h1>
+        {person}'s score: {score}
+      </h1>
+      <button onClick={() => setScore(score + 1)}>Add one</button>
+    </div>
+  );
+}
+```
+
+```css
+h1 {
+  font-size: 18px;
+}
+
+.counter {
+  width: 100px;
+  text-align: center;
+  border: 1px solid gray;
+  border-radius: 4px;
+  padding: 20px;
+  margin: 0 20px 20px 0;
+}
+
+.hover {
+  background: #ffffd8;
+}
+```
+
+</Sandpack>
+
+Présentement, quand on change de joueur, le pointage est conservé. Les deux `Counter` apparaissent à la même position, donc React considère que c'est le même `Counter`, avec une prop `person` différente.
+
+Mais ça ne devrait pas être le cas. Il y a deux joueurs, donc deux pointages différents.
+
+---
+
+## Solutions pour réinitialiser un composant
+
+Il y a deux approches pour réinitialiser l'étate entre les deux joueurs:
+
+1. Afficher les composants dans des positions différentes
+2. Offrir un identité explicite au composant avec `key`
+
+---
+
+## Approche 1: Afficher les composants dans des positions différentes
+
+Si on désire que les 2 `Counter` soient indépendants, on pourrait faire le rendu dans deux position différentes:
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+export default function Scoreboard() {
+  const [isPlayerA, setIsPlayerA] = useState(true);
+  return (
+    <div>
+      {isPlayerA && <Counter person='Taylor' />}
+      {!isPlayerA && <Counter person='Sarah' />}
+      <button
+        onClick={() => {
+          setIsPlayerA(!isPlayerA);
+        }}
+      >
+        Next player!
+      </button>
+    </div>
+  );
+}
+
+function Counter({ person }) {
+  const [score, setScore] = useState(0);
+  const [hover, setHover] = useState(false);
+
+  let className = 'counter';
+  if (hover) {
+    className += ' hover';
+  }
+
+  return (
+    <div
+      className={className}
+      onPointerEnter={() => setHover(true)}
+      onPointerLeave={() => setHover(false)}
+    >
+      <h1>
+        {person}'s score: {score}
+      </h1>
+      <button onClick={() => setScore(score + 1)}>Add one</button>
+    </div>
+  );
+}
+```
+
+```css
+h1 {
+  font-size: 18px;
+}
+
+.counter {
+  width: 100px;
+  text-align: center;
+  border: 1px solid gray;
+  border-radius: 4px;
+  padding: 20px;
+  margin: 0 20px 20px 0;
+}
+
+.hover {
+  background: #ffffd8;
+}
+```
+
+</Sandpack>
+
+- Au départ, `isPlayerA` est `true`. La première position contient `Counter`, et la seconde est vide.
+- Quand on clique "Next player", la première position est vidée, et on ajoute un `Counter` à la seconde position.
+
+---
+
+## Détails du positionnement
+
+<aside style={{display:'grid', gridTemplateColumns:"1fr 1fr 1fr", columnGap:10}}>
+
+<Diagram name="preserving_state_diff_position_p1" height={250} width={350} alt="Diagram with a tree of React components. The parent is labeled 'Scoreboard' with a state bubble labeled isPlayerA with value 'true'. The only child, arranged to the left, is labeled Counter with a state bubble labeled 'count' and value 0. All of the left child is highlighted in yellow, indicating it was added.">
+
+Initial state
+
+</Diagram>
+
+<Diagram name="preserving_state_diff_position_p2" height={250} width={350} alt="Diagram with a tree of React components. The parent is labeled 'Scoreboard' with a state bubble labeled isPlayerA with value 'false'. The state bubble is highlighted in yellow, indicating that it has changed. The left child is replaced with a yellow 'poof' image indicating that it has been deleted and there is a new child on the right, highlighted in yellow indicating that it was added. The new child is labeled 'Counter' and contains a state bubble labeled 'count' with value 0.">
+
+Clicking "next"
+
+</Diagram>
+
+<Diagram name="preserving_state_diff_position_p3" height={250} width={350} alt="Diagram with a tree of React components. The parent is labeled 'Scoreboard' with a state bubble labeled isPlayerA with value 'true'. The state bubble is highlighted in yellow, indicating that it has changed. There is a new child on the left, highlighted in yellow indicating that it was added. The new child is labeled 'Counter' and contains a state bubble labeled 'count' with value 0. The right child is replaced with a yellow 'poof' image indicating that it has been deleted.">
+
+Clicking "next" again
+
+</Diagram>
+
+</aside >
+
+Chaque état du `Counter` se fait détruire chaque fois qu'il est retiré. C'est pourquoi cela réinitialise chaque fois que l'on clique le bouton,
+
+Cette solution est pratique quand on a quelques composants indépendants à afficher.
+
+---
+
+### Approche 2: Réinitialiser l'état avec une `key`
+
+Il y a une autre façon, plus générique, de réinitialiser l'état d'un composant.
+
+Les clés (keys) sont utiles pour le rendu de listes. Mais les clés ne sont pas seulement pour les listes. On peut utiliser des clés pour que React distingue entre les composants. Par défaut, React utilise le positionnement pour distinguer entre les composants. Mais les clés permettent plus. Plutôt que de distinguer entre le Counter de la première position et de la seconde position, on peut maintenant spécifier le counter dans la clé. Par exemple, la clé de _Justin_.
+
+---
+
+## Exemple avec `key`
+
+Dans cet exemple, les deux `<Counter />` ne partagent pas d'état, même s'ils ont la même position:
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+export default function Scoreboard() {
+  const [isPlayerA, setIsPlayerA] = useState(true);
+  return (
+    <div>
+      {isPlayerA ? (
+        <Counter key='Taylor' person='Taylor' />
+      ) : (
+        <Counter key='Sarah' person='Sarah' />
+      )}
+      <button
+        onClick={() => {
+          setIsPlayerA(!isPlayerA);
+        }}
+      >
+        Next player!
+      </button>
+    </div>
+  );
+}
+
+function Counter({ person }) {
+  const [score, setScore] = useState(0);
+  const [hover, setHover] = useState(false);
+
+  let className = 'counter';
+  if (hover) {
+    className += ' hover';
+  }
+
+  return (
+    <div
+      className={className}
+      onPointerEnter={() => setHover(true)}
+      onPointerLeave={() => setHover(false)}
+    >
+      <h1>
+        {person}'s score: {score}
+      </h1>
+      <button onClick={() => setScore(score + 1)}>Add one</button>
+    </div>
+  );
+}
+```
+
+```css
+h1 {
+  font-size: 18px;
+}
+
+.counter {
+  width: 100px;
+  text-align: center;
+  border: 1px solid gray;
+  border-radius: 4px;
+  padding: 20px;
+  margin: 0 20px 20px 0;
+}
+
+.hover {
+  background: #ffffd8;
+}
+```
+
+</Sandpack>
+
+---
+
+## Détails sur `key`
+
+Basculer entre les joueurs ne conserve pas l'état, car la clé `key` est différente
+
+```js
+{
+  isPlayerA ? (
+    <Counter key='Taylor' person='Taylor' />
+  ) : (
+    <Counter key='Sarah' person='Sarah' />
+  );
+}
+```
+
+Spécifier une clé indique à React d'utiliser la clé comme une partie de la position du composant. Quand la clé change, c'est comme une nouvelle position, et React créé un nouvel état (et perd l'ancien état du composant détruit).
+
+**Les clés n'ont pas besoin d'être globalement uniques. Elles doivent seulement spécifier la position _sous le parent_.**
+
+---
+
+## Réinitialiser un fomulaire avec une clé
+
+Réinitialiser l'état avec un clé est très pratique avec les formulaire
+
+Dans cette application, le composant `<Chat>` contient un champ de saisie controllé par l'état:
+
+<Sandpack>
+
+```js App.js
+import { useState } from 'react';
+import Chat from './Chat.js';
+import ContactList from './ContactList.js';
+
+export default function Messenger() {
+  const [to, setTo] = useState(contacts[0]);
+  return (
+    <div>
+      <ContactList
+        contacts={contacts}
+        selectedContact={to}
+        onSelect={(contact) => setTo(contact)}
+      />
+      <Chat contact={to} />
+    </div>
+  );
+}
+
+const contacts = [
+  { id: 0, name: 'Taylor', email: 'taylor@mail.com' },
+  { id: 1, name: 'Alice', email: 'alice@mail.com' },
+  { id: 2, name: 'Bob', email: 'bob@mail.com' },
+];
+```
+
+```js ContactList.js
+export default function ContactList({ selectedContact, contacts, onSelect }) {
+  return (
+    <section className='contact-list'>
+      <ul>
+        {contacts.map((contact) => (
+          <li key={contact.id}>
+            <button
+              onClick={() => {
+                onSelect(contact);
+              }}
+            >
+              {contact.name}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+```
+
+```js Chat.js
+import { useState } from 'react';
+
+export default function Chat({ contact }) {
+  const [text, setText] = useState('');
+  return (
+    <section className='chat'>
+      <textarea
+        value={text}
+        placeholder={'Chat to ' + contact.name}
+        onChange={(e) => setText(e.target.value)}
+      />
+      <br />
+      <button>Send to {contact.email}</button>
+    </section>
+  );
+}
+```
+
+```css
+.chat,
+.contact-list {
+  float: left;
+  margin-bottom: 20px;
+}
+ul,
+li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+li button {
+  width: 100px;
+  padding: 10px;
+  margin-right: 10px;
+}
+textarea {
+  height: 150px;
+}
+```
+
+</Sandpack>
+
+Mais il y a un bogue: si on change de destinataire, la valeur dans le formulaire est conservée.
+
+---
+
+## Réparer le bogue avec une clé
+
+```js
+<Chat key={to.id} contact={to} />
+```
+
+Ceci réinitialise l'état du `<Chat>`. Le re-rendu génère le composant `<Chat>` et toute l'arborescence en dessous.
+
+<Sandpack>
+
+```js App.js
+import { useState } from 'react';
+import Chat from './Chat.js';
+import ContactList from './ContactList.js';
+
+export default function Messenger() {
+  const [to, setTo] = useState(contacts[0]);
+  return (
+    <div>
+      <ContactList
+        contacts={contacts}
+        selectedContact={to}
+        onSelect={(contact) => setTo(contact)}
+      />
+      <Chat key={to.id} contact={to} />
+    </div>
+  );
+}
+
+const contacts = [
+  { id: 0, name: 'Taylor', email: 'taylor@mail.com' },
+  { id: 1, name: 'Alice', email: 'alice@mail.com' },
+  { id: 2, name: 'Bob', email: 'bob@mail.com' },
+];
+```
+
+```js ContactList.js
+export default function ContactList({ selectedContact, contacts, onSelect }) {
+  return (
+    <section className='contact-list'>
+      <ul>
+        {contacts.map((contact) => (
+          <li key={contact.id}>
+            <button
+              onClick={() => {
+                onSelect(contact);
+              }}
+            >
+              {contact.name}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+```
+
+```js Chat.js
+import { useState } from 'react';
+
+export default function Chat({ contact }) {
+  const [text, setText] = useState('');
+  return (
+    <section className='chat'>
+      <textarea
+        value={text}
+        placeholder={'Chat to ' + contact.name}
+        onChange={(e) => setText(e.target.value)}
+      />
+      <br />
+      <button>Send to {contact.email}</button>
+    </section>
+  );
+}
+```
+
+```css
+.chat,
+.contact-list {
+  float: left;
+  margin-bottom: 20px;
+}
+ul,
+li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+li button {
+  width: 100px;
+  padding: 10px;
+  margin-right: 10px;
+}
+textarea {
+  height: 150px;
+}
+```
+
+</Sandpack>
+
+---
+
+## Conserver l'état pour les composants enlevés
+
+Comment conserver l'état pour une composante qui n'est plus visible?
+
+- On fait un rendu de tous les `<Chat>`, on cache ceux-ci via CSS, sauf celui sélectionné. Les `<chat>` ne sont pas enlevés de l'arborescence, donc leur état local sera préservé. Cette solution fonctionne bien pour une petite interface, mais devient lourde avec une app plus complexe.
+- On prourrait remonter l'état et conserver le message de chaque destinataire dans la composante parent. Quand les composants enfants sont détruits, l'état n'est pas impacté car il est stocké dans le parent. C'est la solution la plus commune.
+- On pourrait stocker les données ailleurs, en plus du state. Par exemple, stocker dans le localStorage du navigateur.
+
+---
+
+## Résumé
+
+- React keeps state for as long as the same component is rendered at the same position.
+- State is not kept in JSX tags. It's associated with the tree position in which you put that JSX.
+- You can force a subtree to reset its state by giving it a different key.
+- Don't nest component definitions, or you'll reset state by accident.
+
+---
+
+## Défi: Réparer les champs de saisie
+
+Cet exemple affiche un message quand on clique le bouton. Mais, cela réinitialise aussi le champ de saisie. Réparez pour que le bouton ne réinitialise pas le champ de saisie.
+
+<Sandpack>
+
+```js App.js
+import { useState } from 'react';
+
+export default function App() {
+  const [showHint, setShowHint] = useState(false);
+  if (showHint) {
+    return (
+      <div>
+        <p>
+          <i>Hint: Your favorite city?</i>
+        </p>
+        <Form />
+        <button
+          onClick={() => {
+            setShowHint(false);
+          }}
+        >
+          Hide hint
+        </button>
+      </div>
+    );
+  }
+  return (
+    <div>
+      <Form />
+      <button
+        onClick={() => {
+          setShowHint(true);
+        }}
+      >
+        Show hint
+      </button>
+    </div>
+  );
+}
+
+function Form() {
+  const [text, setText] = useState('');
+  return <textarea value={text} onChange={(e) => setText(e.target.value)} />;
+}
+```
+
+```css
+textarea {
+  display: block;
+  margin: 10px 0;
+}
+```
+
+</Sandpack>
+
+---
+
+## Défi: Basculer entre deux champs de saisie
+
+This form lets you enter first and last name. It also has a checkbox controlling which field goes first. When you tick the checkbox, the "Last name" field will appear before the "First name" field.
+
+It almost works, but there is a bug. If you fill in the "First name" input and tick the checkbox, the text will stay in the first input (which is now "Last name"). Fix it so that the input text _also_ moves when you reverse the order.
+
+**Indice:** It seems like for these fields, their position within the parent is not enough. Is there some way to tell React how to match up the state between re-renders?
+
+<Sandpack>
+
+```js App.js
+import { useState } from 'react';
+
+export default function App() {
+  const [reverse, setReverse] = useState(false);
+  let checkbox = (
+    <label>
+      <input
+        type='checkbox'
+        checked={reverse}
+        onChange={(e) => setReverse(e.target.checked)}
+      />
+      Reverse order
+    </label>
+  );
+  if (reverse) {
+    return (
+      <>
+        <Field label='Last name' />
+        <Field label='First name' />
+        {checkbox}
+      </>
+    );
+  } else {
+    return (
+      <>
+        <Field label='First name' />
+        <Field label='Last name' />
+        {checkbox}
+      </>
+    );
+  }
+}
+
+function Field({ label }) {
+  const [text, setText] = useState('');
+  return (
+    <label>
+      {label}:{' '}
+      <input
+        type='text'
+        value={text}
+        placeholder={label}
+        onChange={(e) => setText(e.target.value)}
+      />
+    </label>
+  );
+}
+```
+
+```css
+label {
+  display: block;
+  margin: 10px 0;
+}
+```
+
+</Sandpack>
+
+---
+
+## Défi: Réinitialiser un formulaire de détails
+
+This is an editable contact list. You can edit the selected contact's details and then either press "Save" to update it, or "Reset" to undo your changes.
+
+When you select a different contact (for example, Alice), the state updates but the form keeps showing the previous contact's details. Fix it so that the form gets reset when the selected contact changes.
+
+<Sandpack>
+
+```js App.js
+import { useState } from 'react';
+import ContactList from './ContactList.js';
+import EditContact from './EditContact.js';
+
+export default function ContactManager() {
+  const [contacts, setContacts] = useState(initialContacts);
+  const [selectedId, setSelectedId] = useState(0);
+  const selectedContact = contacts.find((c) => c.id === selectedId);
+
+  function handleSave(updatedData) {
+    const nextContacts = contacts.map((c) => {
+      if (c.id === updatedData.id) {
+        return updatedData;
+      } else {
+        return c;
+      }
+    });
+    setContacts(nextContacts);
+  }
+
+  return (
+    <div>
+      <ContactList
+        contacts={contacts}
+        selectedId={selectedId}
+        onSelect={(id) => setSelectedId(id)}
+      />
+      <hr />
+      <EditContact initialData={selectedContact} onSave={handleSave} />
+    </div>
+  );
+}
+
+const initialContacts = [
+  { id: 0, name: 'Taylor', email: 'taylor@mail.com' },
+  { id: 1, name: 'Alice', email: 'alice@mail.com' },
+  { id: 2, name: 'Bob', email: 'bob@mail.com' },
+];
+```
+
+```js ContactList.js
+export default function ContactList({ contacts, selectedId, onSelect }) {
+  return (
+    <section>
+      <ul>
+        {contacts.map((contact) => (
+          <li key={contact.id}>
+            <button
+              onClick={() => {
+                onSelect(contact.id);
+              }}
+            >
+              {contact.id === selectedId ? <b>{contact.name}</b> : contact.name}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+```
+
+```js EditContact.js
+import { useState } from 'react';
+
+export default function EditContact({ initialData, onSave }) {
+  const [name, setName] = useState(initialData.name);
+  const [email, setEmail] = useState(initialData.email);
+  return (
+    <section>
+      <label>
+        Name:{' '}
+        <input
+          type='text'
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+      </label>
+      <label>
+        Email:{' '}
+        <input
+          type='email'
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </label>
+      <button
+        onClick={() => {
+          const updatedData = {
+            id: initialData.id,
+            name: name,
+            email: email,
+          };
+          onSave(updatedData);
+        }}
+      >
+        Save
+      </button>
+      <button
+        onClick={() => {
+          setName(initialData.name);
+          setEmail(initialData.email);
+        }}
+      >
+        Reset
+      </button>
+    </section>
+  );
+}
+```
+
+```css
+ul,
+li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+li {
+  display: inline-block;
+}
+li button {
+  padding: 10px;
+}
+label {
+  display: block;
+  margin: 10px 0;
+}
+button {
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+```
+
+</Sandpack>
+
+---
+
+## Défi: Effacer une image pendant qu'elle charge
+
+When you press "Next", the browser starts loading the next image. However, because it's displayed in the same `<img>` tag, by default you would still see the previous image until the next one loads. This may be undesirable if it's important for the text to always match the image. Change it so that the moment you press "Next", the previous image immediately clears.
+
+**Indice:** Is there a way to tell React to re-create the DOM instead of reusing it?
+
+<Sandpack>
+
+```js
+import { useState } from 'react';
+
+export default function Gallery() {
+  const [index, setIndex] = useState(0);
+  const hasNext = index < images.length - 1;
+
+  function handleClick() {
+    if (hasNext) {
+      setIndex(index + 1);
+    } else {
+      setIndex(0);
+    }
+  }
+
+  let image = images[index];
+  return (
+    <>
+      <button onClick={handleClick}>Next</button>
+      <h3>
+        Image {index + 1} of {images.length}
+      </h3>
+      <img src={image.src} />
+      <p>{image.place}</p>
+    </>
+  );
+}
+
+let images = [
+  {
+    place: 'Penang, Malaysia',
+    src: 'https://i.imgur.com/FJeJR8M.jpg',
+  },
+  {
+    place: 'Lisbon, Portugal',
+    src: 'https://i.imgur.com/dB2LRbj.jpg',
+  },
+  {
+    place: 'Bilbao, Spain',
+    src: 'https://i.imgur.com/z08o2TS.jpg',
+  },
+  {
+    place: 'Valparaíso, Chile',
+    src: 'https://i.imgur.com/Y3utgTi.jpg',
+  },
+  {
+    place: 'Schwyz, Switzerland',
+    src: 'https://i.imgur.com/JBbMpWY.jpg',
+  },
+  {
+    place: 'Prague, Czechia',
+    src: 'https://i.imgur.com/QwUKKmF.jpg',
+  },
+  {
+    place: 'Ljubljana, Slovenia',
+    src: 'https://i.imgur.com/3aIiwfm.jpg',
+  },
+];
+```
+
+```css
+img {
+  width: 150px;
+  height: 150px;
+}
+```
+
+</Sandpack>
+
+---
+
+## Défi: Réparer un état mal positionné
+
+In this list, each `Contact` has state that determines whether "Show email" has been pressed for it. Press "Show email" for Alice, and then tick the "Show in reverse order" checkbox. You will notice that it's _Taylor's_ email that is expanded now, but Alice's--which has moved to the bottom--appears collapsed.
+
+Fix it so that the expanded state is associated with each contact, regardless of the chosen ordering.
+
+<Sandpack>
+
+```js App.js
+import { useState } from 'react';
+import Contact from './Contact.js';
+
+export default function ContactList() {
+  const [reverse, setReverse] = useState(false);
+
+  const displayedContacts = [...contacts];
+  if (reverse) {
+    displayedContacts.reverse();
+  }
+
+  return (
+    <>
+      <label>
+        <input
+          type='checkbox'
+          value={reverse}
+          onChange={(e) => {
+            setReverse(e.target.checked);
+          }}
+        />{' '}
+        Show in reverse order
+      </label>
+      <ul>
+        {displayedContacts.map((contact, i) => (
+          <li key={i}>
+            <Contact contact={contact} />
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
+const contacts = [
+  { id: 0, name: 'Alice', email: 'alice@mail.com' },
+  { id: 1, name: 'Bob', email: 'bob@mail.com' },
+  { id: 2, name: 'Taylor', email: 'taylor@mail.com' },
+];
+```
+
+```js Contact.js
+import { useState } from 'react';
+
+export default function Contact({ contact }) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <>
+      <p>
+        <b>{contact.name}</b>
+      </p>
+      {expanded && (
+        <p>
+          <i>{contact.email}</i>
+        </p>
+      )}
+      <button
+        onClick={() => {
+          setExpanded(!expanded);
+        }}
+      >
+        {expanded ? 'Hide' : 'Show'} email
+      </button>
+    </>
+  );
+}
+```
+
+```css
+ul,
+li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+li {
+  margin-bottom: 20px;
+}
+label {
+  display: block;
+  margin: 10px 0;
+}
+button {
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+```
+
+</Sandpack>
+
+---
+
+## Extraire la logique d'état dans un réducteur
+
+Les composants avec des mises à jour éparpillées à travers de multiples gestionnaires d'événements, ça devient complexe. Dans ces cas, on peut consoloider toute la logique de mise à jour à l'extérieur du composant, dans une seule fonction appelée le **réducteur**.
+
+---
+
+## Concepts
+
+- Qu'est-ce qu'une fonction de réducteur
+- Comment refactoriser `useState` vers `useReducer`
+- Quand utiliser un réducteur
+- Comment écrire un bon réducteur
+
+---
+
+## La logique d'état peut devenir complexe
+
+Dans l'exemple suivant, le composant `TaskApp` contient, dans son état, un tableau de `tasks`. Il y a 3 gestionnaires d'événements pour ajouter, enlever et modifier les `tasks`:
+
+<Sandpack>
+
+```js App.js
+import { useState } from 'react';
+import AddTask from './AddTask.js';
+import TaskList from './TaskList.js';
+
+export default function TaskApp() {
+  const [tasks, setTasks] = useState(initialTasks);
+
+  function handleAddTask(text) {
+    setTasks([
+      ...tasks,
+      {
+        id: nextId++,
+        text: text,
+        done: false,
+      },
+    ]);
+  }
+
+  function handleChangeTask(task) {
+    setTasks(
+      tasks.map((t) => {
+        if (t.id === task.id) {
+          return task;
+        } else {
+          return t;
+        }
+      })
+    );
+  }
+
+  function handleDeleteTask(taskId) {
+    setTasks(tasks.filter((t) => t.id !== taskId));
+  }
+
+  return (
+    <>
+      <h1>Prague itinerary</h1>
+      <AddTask onAddTask={handleAddTask} />
+      <TaskList
+        tasks={tasks}
+        onChangeTask={handleChangeTask}
+        onDeleteTask={handleDeleteTask}
+      />
+    </>
+  );
+}
+
+let nextId = 3;
+const initialTasks = [
+  { id: 0, text: 'Visit Kafka Museum', done: true },
+  { id: 1, text: 'Watch a puppet show', done: false },
+  { id: 2, text: 'Lennon Wall pic', done: false },
+];
+```
+
+```js AddTask.js hidden
+import { useState } from 'react';
+
+export default function AddTask({ onAddTask }) {
+  const [text, setText] = useState('');
+  return (
+    <>
+      <input
+        placeholder='Add task'
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+      />
+      <button
+        onClick={() => {
+          setText('');
+          onAddTask(text);
+        }}
+      >
+        Add
+      </button>
+    </>
+  );
+}
+```
+
+```js TaskList.js hidden
+import { useState } from 'react';
+
+export default function TaskList({ tasks, onChangeTask, onDeleteTask }) {
+  return (
+    <ul>
+      {tasks.map((task) => (
+        <li key={task.id}>
+          <Task task={task} onChange={onChangeTask} onDelete={onDeleteTask} />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function Task({ task, onChange, onDelete }) {
+  const [isEditing, setIsEditing] = useState(false);
+  let taskContent;
+  if (isEditing) {
+    taskContent = (
+      <>
+        <input
+          value={task.text}
+          onChange={(e) => {
+            onChange({
+              ...task,
+              text: e.target.value,
+            });
+          }}
+        />
+        <button onClick={() => setIsEditing(false)}>Save</button>
+      </>
+    );
+  } else {
+    taskContent = (
+      <>
+        {task.text}
+        <button onClick={() => setIsEditing(true)}>Edit</button>
+      </>
+    );
+  }
+  return (
+    <label>
+      <input
+        type='checkbox'
+        checked={task.done}
+        onChange={(e) => {
+          onChange({
+            ...task,
+            done: e.target.checked,
+          });
+        }}
+      />
+      {taskContent}
+      <button onClick={() => onDelete(task.id)}>Delete</button>
+    </label>
+  );
+}
+```
+
+```css
+button {
+  margin: 5px;
+}
+li {
+  list-style-type: none;
+}
+ul,
+li {
+  margin: 0;
+  padding: 0;
+}
+```
+
+</Sandpack>
+
+Chacun des gestionnaires d'événements appelle `setTasks` dans le but de mettre à jour l'état. À mesure que le composant évolue, la complexité de la logique d'état se complexifie aussi.
+
+---
+
+## Consolider la logique d'état avec un réducteur
+
+Pour réduire la complexité et conserver toute la logique dans un seul endroit facile à maintenir, on doit déplacer toute cette logique dans une seule fonction à l'extérieur du composant. Ça se nomme un **réducteur**.
+
+Les réducteurs sont une façon différente de gérer l'état. On peut migrer de useState à useReducer en 3 étapes:
+
+1. **Passer** de l'écriture d'état au dispatch d'actions
+2. **Écrire** la fonction du réducteur
+3. **Utiliser** le reducteur du composant
+
+---
+
+## Étape 1: Passer de l'écriture d'état au dispatch d'actions
+
+Les gestionnaires d'événements spécifient comment modifier l'état:
+
+<aside style={{display:'grid', gridTemplateColumns:"1fr 1fr", columnGap:10, fontSize:"0.8em"}}>
+```js
+function handleAddTask(text) {
+  setTasks([
+    ...tasks,
+    {
+      id: nextId++,
+      text: text,
+      done: false,
+    },
+  ]);
+}
+
+````
+
+```js
+function handleChangeTask(task) {
+  setTasks(
+    tasks.map((t) => {
+      if (t.id === task.id) {
+        return task;
+      } else {
+        return t;
+      }
+    })
+  );
+}
+```
+</aside>
+
+```js
+function handleDeleteTask(taskId) {
+  setTasks(tasks.filter((t) => t.id !== taskId));
+}
+```
+
+---
+
+## Description des gestionnaires d'événements
+
+- `handleAddTask(text)` est appelée quand on clique "Add".
+- `handleChangeTask(task)` est appelée quand on tape la case à cocher, ou le bouton "Save".
+- `handleDeleteTask(taskId)` est appelée quant on clique "Delete".
+
+Gérer l'état avec un réducteur est légèrement différent de le gérer en modifiant l'état. Plutôt que de dire comment modifier l'état, on décrit "ce que l'utilisateur désire" en faisant un _dispatch_ d'action dans le gestionnaire d'événement. pltôt que de modifier les `tasks`dans le gestionnaire d'événement, on _dispatch_ une action "ajouter/changer/enlever une tâche". L'intention est plus claire.
+
+---
+
+## Code
+
+
+L'objet passé à `dispatch` est une "action".
+
+<aside style={{display:'grid', gridTemplateColumns:"1fr 1fr", columnGap:10}}>
+
+```js
+function handleAddTask(text) {
+  dispatch({
+    type: 'added',
+    id: nextId++,
+    text: text,
+  });
+}
+
+```
+
+```js
+function handleChangeTask(task) {
+  dispatch({
+    type: 'changed',
+    task: task,
+  });
+}
+
+function handleDeleteTask(taskId) {
+  dispatch({
+    type: 'deleted',
+    id: taskId,
+  });
+}
+```
+</aside>
+
+---
+
+## Action
+
+Une action est un objet JavaScript.  La structure de l'action n'est pas spécifique, elledécrit l'information miminale de ce qui change.
+
+**note:** L'objet action n'a pas de forme précise.
+
+Par convention, on lui donne un `type` qui décrit le type de modification, et les autres champs décrivent les détails de la modification.
+
+```js
+dispatch({
+  // specific to component
+  type: 'what_happened',
+  // other fields go here
+});
+```
+
+---
+
+### Étape 2: Écrire la fonction réducteur
+
+C'est dans la fonction reducteur que l'on place la logique d'état. Il y a deux arguments: l'état courant et l'objet action. Cela retourne l'état suivant.
+
+```js
+function yourReducer(state, action) {
+  // return next state for React to set
+}
+```
+
+React conserve l'état de ce qui est retourné du réducteur
+
+Dans notre exemple:
+To move your state setting logic from your event handlers to a reducer function in this example, you will:
+
+1. Déclarer l'état courant (`tasks`) comme premier argument
+2. Déclarer l'objet `action` comme second argment
+3. Retourner le prochain état du réducteur (que React conserve)
+
+
+---
+
+## Fonction réducteur
+
+<aside style={{display:'grid', gridTemplateColumns:"1fr 1fr", columnGap:10}}>
+
+```js
+function tasksReducer(tasks, action) {
+  if (action.type === 'added') {
+    return [
+      ...tasks,
+      {
+        id: action.id,
+        text: action.text,
+        done: false,
+      },
+    ];
+  } else if (action.type === 'deleted') {
+    return tasks.filter((t) => t.id !== action.id);
+  }
+
+```
+
+```js
+  //...
+  else if (action.type === 'changed') {
+    return tasks.map((t) => {
+      if (t.id === action.task.id) {
+        return action.task;
+      } else {
+        return t;
+      }
+    });
+  } else {
+    throw Error('Unknown action: ' + action.type);
+  }
+}
+```
+
+</aside>
+
+Parce que le réducteur prend l'état en argument, on peut le déclarer à l'extérieur du composant. C'est plus facile à lire et maintenir
+
+---
+
+## Convention du switch
+
+Le code précédent utilise `if/else`, mais la convention, c'est d'utiliser le `switch`.
+
+<aside style={{display:'grid', gridTemplateColumns:"1fr 1fr", columnGap:10, fontSize:"0.8em"}}>
+
+```js
+function tasksReducer(tasks, action) {
+  switch (action.type) {
+    case 'added': {
+      return [
+        ...tasks,
+        {
+          id: action.id,
+          text: action.text,
+          done: false,
+        },
+      ];
+    }
+    case 'deleted': {
+      return tasks.filter((t) => t.id !== action.id);
+    }
+    ```
+```js
+    case 'changed': {
+      return tasks.map((t) => {
+        if (t.id === action.task.id) {
+          return action.task;
+        } else {
+          return t;
+        }
+      });
+    }
+    default: {
+      throw Error('Unknown action: ' + action.type);
+    }
+  }
+}
+```
+</aside>
+
+On recommande de d'englober chaque block case entre des accolades `{` et `}`  pour que les variables des blocs soient isolées les unes des autres. De plus, chaque `case` se termine par `return` (ou `break`). Si on oublie le `return`, le code continue au prochain case, ce qui est une erreur.
+
+
+---
+
+## Pourquoi on appelle cela un réducteur?
+
+C'est à cause de l'opération `reduce()` des tableaux JS.
+
+L'opération `reduce()` Permet de prendre un tableau et d'"accumuler" une valeur unique à partir ce l'ensemble.
+
+```js
+const arr = [1, 2, 3, 4, 5];
+const sum = arr.reduce(
+  (result, number) => result + number
+); // 1 + 2 + 3 + 4 + 5
+```
+
+La fonction passée à `reduce` est le "réducteur". Cela prend deux arguments: le _résultat accumulé_ jusqu'à maintenant, et _l'item courant_. Cela retourne le nouveau résultat accumulé.
+
+Le réducteur React est similaire: on prend _l'état précédant_, et _l'action_. et l'on retourne _l'état suivant_.
+
+---
+
+## Exemple avec reduce
+
+
+On appelle `reduce()` avec un `initialState` et un tableau d' `actions` pour calculer l'état final, en passant la fonction du réducteur.
+
+<Sandpack>
+
+
+```js index.js active
+import tasksReducer from './tasksReducer.js';
+
+let initialState = [];
+let actions = [
+  { type: 'added', id: 1, text: 'Visit Kafka Museum' },
+  { type: 'added', id: 2, text: 'Watch a puppet show' },
+  { type: 'deleted', id: 1 },
+  { type: 'added', id: 3, text: 'Lennon Wall pic' },
+];
+
+let finalState = actions.reduce(tasksReducer, initialState);
+
+const output = document.getElementById('output');
+output.textContent = JSON.stringify(finalState, null, 2);
+```
+
+```js tasksReducer.js
+export default function tasksReducer(tasks, action) {
+  switch (action.type) {
+    case 'added': {
+      return [
+        ...tasks,
+        {
+          id: action.id,
+          text: action.text,
+          done: false,
+        },
+      ];
+    }
+    case 'changed': {
+      return tasks.map((t) => {
+        if (t.id === action.task.id) {
+          return action.task;
+        } else {
+          return t;
+        }
+      });
+    }
+    case 'deleted': {
+      return tasks.filter((t) => t.id !== action.id);
+    }
+    default: {
+      throw Error('Unknown action: ' + action.type);
+    }
+  }
+}
+```
+
+```html public/index.html
+<pre id="output"></pre>
+```
+
+</Sandpack>
+
+Pas besoin de React pour utiliser un réducteur.
+
+---
+
+## Étape 3: Utiliser le réducteur de votre composant
+
+Finally, you need to hook up the `tasksReducer` to your component. Import the `useReducer` Hook from React:
+
+```js
+import { useReducer } from 'react';
+```
+
+Then you can replace `useState`:
+
+```js
+const [tasks, setTasks] = useState(initialTasks);
+```
+
+with `useReducer` like so:
+
+```js
+const [tasks, dispatch] = useReducer(tasksReducer, initialTasks);
+```
+
+---
+
+## Détails de useReducer
+
+The `useReducer` Hook is similar to `useState`—you must pass it an initial state and it returns a stateful value and a way to set state (in this case, the dispatch function). But it's a little different.
+
+The `useReducer` Hook takes two arguments:
+
+1. A reducer function
+2. An initial state
+
+And it returns:
+
+1. A stateful value
+2. A dispatch function (to "dispatch" user actions to the reducer)
+
+---
+
+## Exemple avec un réducteur sous le composant
+
+
+Now it's fully wired up! Here, the reducer is declared at the bottom of the component file:
+
+<Sandpack>
+
+```js App.js
+import { useReducer } from 'react';
+import AddTask from './AddTask.js';
+import TaskList from './TaskList.js';
+
+export default function TaskApp() {
+  const [tasks, dispatch] = useReducer(tasksReducer, initialTasks);
+
+  function handleAddTask(text) {
+    dispatch({
+      type: 'added',
+      id: nextId++,
+      text: text,
+    });
+  }
+
+  function handleChangeTask(task) {
+    dispatch({
+      type: 'changed',
+      task: task,
+    });
+  }
+
+  function handleDeleteTask(taskId) {
+    dispatch({
+      type: 'deleted',
+      id: taskId,
+    });
+  }
+
+  return (
+    <>
+      <h1>Prague itinerary</h1>
+      <AddTask onAddTask={handleAddTask} />
+      <TaskList
+        tasks={tasks}
+        onChangeTask={handleChangeTask}
+        onDeleteTask={handleDeleteTask}
+      />
+    </>
+  );
+}
+
+function tasksReducer(tasks, action) {
+  switch (action.type) {
+    case 'added': {
+      return [
+        ...tasks,
+        {
+          id: action.id,
+          text: action.text,
+          done: false,
+        },
+      ];
+    }
+    case 'changed': {
+      return tasks.map((t) => {
+        if (t.id === action.task.id) {
+          return action.task;
+        } else {
+          return t;
+        }
+      });
+    }
+    case 'deleted': {
+      return tasks.filter((t) => t.id !== action.id);
+    }
+    default: {
+      throw Error('Unknown action: ' + action.type);
+    }
+  }
+}
+
+let nextId = 3;
+const initialTasks = [
+  { id: 0, text: 'Visit Kafka Museum', done: true },
+  { id: 1, text: 'Watch a puppet show', done: false },
+  { id: 2, text: 'Lennon Wall pic', done: false },
+];
+```
+
+```js AddTask.js hidden
+import { useState } from 'react';
+
+export default function AddTask({ onAddTask }) {
+  const [text, setText] = useState('');
+  return (
+    <>
+      <input
+        placeholder='Add task'
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+      />
+      <button
+        onClick={() => {
+          setText('');
+          onAddTask(text);
+        }}
+      >
+        Add
+      </button>
+    </>
+  );
+}
+```
+
+```js TaskList.js hidden
+import { useState } from 'react';
+
+export default function TaskList({ tasks, onChangeTask, onDeleteTask }) {
+  return (
+    <ul>
+      {tasks.map((task) => (
+        <li key={task.id}>
+          <Task task={task} onChange={onChangeTask} onDelete={onDeleteTask} />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function Task({ task, onChange, onDelete }) {
+  const [isEditing, setIsEditing] = useState(false);
+  let taskContent;
+  if (isEditing) {
+    taskContent = (
+      <>
+        <input
+          value={task.text}
+          onChange={(e) => {
+            onChange({
+              ...task,
+              text: e.target.value,
+            });
+          }}
+        />
+        <button onClick={() => setIsEditing(false)}>Save</button>
+      </>
+    );
+  } else {
+    taskContent = (
+      <>
+        {task.text}
+        <button onClick={() => setIsEditing(true)}>Edit</button>
+      </>
+    );
+  }
+  return (
+    <label>
+      <input
+        type='checkbox'
+        checked={task.done}
+        onChange={(e) => {
+          onChange({
+            ...task,
+            done: e.target.checked,
+          });
+        }}
+      />
+      {taskContent}
+      <button onClick={() => onDelete(task.id)}>Delete</button>
+    </label>
+  );
+}
+```
+
+```css
+button {
+  margin: 5px;
+}
+li {
+  list-style-type: none;
+}
+ul,
+li {
+  margin: 0;
+  padding: 0;
+}
+```
+
+</Sandpack>
+
+---
+
+## Exemple d'un réducteur dans son propre fichier séparé
+
+<Sandpack>
+
+```js App.js
+import { useReducer } from 'react';
+import AddTask from './AddTask.js';
+import TaskList from './TaskList.js';
+import tasksReducer from './tasksReducer.js';
+
+export default function TaskApp() {
+  const [tasks, dispatch] = useReducer(tasksReducer, initialTasks);
+
+  function handleAddTask(text) {
+    dispatch({
+      type: 'added',
+      id: nextId++,
+      text: text,
+    });
+  }
+
+  function handleChangeTask(task) {
+    dispatch({
+      type: 'changed',
+      task: task,
+    });
+  }
+
+  function handleDeleteTask(taskId) {
+    dispatch({
+      type: 'deleted',
+      id: taskId,
+    });
+  }
+
+  return (
+    <>
+      <h1>Prague itinerary</h1>
+      <AddTask onAddTask={handleAddTask} />
+      <TaskList
+        tasks={tasks}
+        onChangeTask={handleChangeTask}
+        onDeleteTask={handleDeleteTask}
+      />
+    </>
+  );
+}
+
+let nextId = 3;
+const initialTasks = [
+  { id: 0, text: 'Visit Kafka Museum', done: true },
+  { id: 1, text: 'Watch a puppet show', done: false },
+  { id: 2, text: 'Lennon Wall pic', done: false },
+];
+```
+
+```js tasksReducer.js
+export default function tasksReducer(tasks, action) {
+  switch (action.type) {
+    case 'added': {
+      return [
+        ...tasks,
+        {
+          id: action.id,
+          text: action.text,
+          done: false,
+        },
+      ];
+    }
+    case 'changed': {
+      return tasks.map((t) => {
+        if (t.id === action.task.id) {
+          return action.task;
+        } else {
+          return t;
+        }
+      });
+    }
+    case 'deleted': {
+      return tasks.filter((t) => t.id !== action.id);
+    }
+    default: {
+      throw Error('Unknown action: ' + action.type);
+    }
+  }
+}
+```
+
+```js AddTask.js hidden
+import { useState } from 'react';
+
+export default function AddTask({ onAddTask }) {
+  const [text, setText] = useState('');
+  return (
+    <>
+      <input
+        placeholder='Add task'
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+      />
+      <button
+        onClick={() => {
+          setText('');
+          onAddTask(text);
+        }}
+      >
+        Add
+      </button>
+    </>
+  );
+}
+```
+
+```js TaskList.js hidden
+import { useState } from 'react';
+
+export default function TaskList({ tasks, onChangeTask, onDeleteTask }) {
+  return (
+    <ul>
+      {tasks.map((task) => (
+        <li key={task.id}>
+          <Task task={task} onChange={onChangeTask} onDelete={onDeleteTask} />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function Task({ task, onChange, onDelete }) {
+  const [isEditing, setIsEditing] = useState(false);
+  let taskContent;
+  if (isEditing) {
+    taskContent = (
+      <>
+        <input
+          value={task.text}
+          onChange={(e) => {
+            onChange({
+              ...task,
+              text: e.target.value,
+            });
+          }}
+        />
+        <button onClick={() => setIsEditing(false)}>Save</button>
+      </>
+    );
+  } else {
+    taskContent = (
+      <>
+        {task.text}
+        <button onClick={() => setIsEditing(true)}>Edit</button>
+      </>
+    );
+  }
+  return (
+    <label>
+      <input
+        type='checkbox'
+        checked={task.done}
+        onChange={(e) => {
+          onChange({
+            ...task,
+            done: e.target.checked,
+          });
+        }}
+      />
+      {taskContent}
+      <button onClick={() => onDelete(task.id)}>Delete</button>
+    </label>
+  );
+}
+```
+
+```css
+button {
+  margin: 5px;
+}
+li {
+  list-style-type: none;
+}
+ul,
+li {
+  margin: 0;
+  padding: 0;
+}
+```
+
+</Sandpack>
+
+Component logic can be easier to read when you separate concerns like this. Now the event handlers only specify _what happened_ by dispatching actions, and the reducer function determines _how the state updates_ in response to them.
+
+---
+
+## Comparer `useState` et `useReducer`
+
+Reducers are not without downsides! Here's a few ways you can compare them:
+
+- **Code size:** Generally, with `useState` you have to write less code upfront. With `useReducer`, you have to write both a reducer function _and_ dispatch actions. However, `useReducer` can help cut down on the code if many event handlers modify state in a similar way.
+- **Readability:** `useState` is very easy to read when the state updates are simple. When they get more complex, they can bloat your component's code and make it difficult to scan. In this case, `useReducer` lets you cleanly separate the _how_ of update logic from the _what happened_ of event handlers.
+- **Debugging:** When you have a bug with `useState`, it can be difficult to tell _where_ the state was set incorrectly, and _why_. With `useReducer`, you can add a console log into your reducer to see every state update, and _why_ it happened (due to which `action`). If each `action` is correct, you'll know that the mistake is in the reducer logic itself. However, you have to step through more code than with `useState`.
+- **Testing:** A reducer is a pure function that doesn't depend on your component. This means that you can export and test it separately in isolation. While generally it's best to test components in a more realistic environment, for complex state update logic it can be useful to assert that your reducer returns a particular state for a particular initial state and action.
+- **Personal preference:** Some people like reducers, others don't. That's okay. It's a matter of preference. You can always convert between `useState` and `useReducer` back and forth: they are equivalent!
+
+We recommend using a reducer if you often encounter bugs due to incorrect state updates in some component, and want to introduce more structure to its code. You don't have to use reducers for everything: feel free to mix and match! You can even `useState` and `useReducer` in the same component.
+
+---
+
+## Bonne pratique pour écrire un réducteur
+
+Keep these two tips in mind when writing reducers:
+
+- **Reducers must be pure.** Similar to [state updater functions](/learn/queueing-a-series-of-state-updates), reducers run during rendering! (Actions are queued until the next render.) This means that reducers [must be pure](/learn/keeping-components-pure)—same inputs always result in the same output. They should not send requests, schedule timeouts, or perform any side effects (operations that impact things outside the component). They should update [objects](/learn/updating-objects-in-state) and [arrays](/learn/updating-arrays-in-state) without mutations.
+- **Each action describes a single user interaction, even if that leads to multiple changes in the data.** For example, if a user presses "Reset" on a form with five fields managed by a reducer, it makes more sense to dispatch one `reset_form` action rather than five separate `set_field` actions. If you log every action in a reducer, that log should be clear enough for you to reconstruct what interactions or responses happened in what order. This helps with debugging!
+
+---
+
+## Écrire des réducteurs concis avec Immer
+
+Just like with [updating objects](/learn/updating-objects-in-state#write-concise-update-logic-with-immer) and [arrays](/learn/updating-arrays-in-state#write-concise-update-logic-with-immer) in regular state, you can use the Immer library to make reducers more concise. Here, [`useImmerReducer`](https://github.com/immerjs/use-immer#useimmerreducer) lets you mutate the state with `push` or `arr[i] =` assignment:
+
+<Sandpack>
+
+```js App.js
+import { useImmerReducer } from 'use-immer';
+import AddTask from './AddTask.js';
+import TaskList from './TaskList.js';
+
+function tasksReducer(draft, action) {
+  switch (action.type) {
+    case 'added': {
+      draft.push({
+        id: action.id,
+        text: action.text,
+        done: false,
+      });
+      break;
+    }
+    case 'changed': {
+      const index = draft.findIndex((t) => t.id === action.task.id);
+      draft[index] = action.task;
+      break;
+    }
+    case 'deleted': {
+      return draft.filter((t) => t.id !== action.id);
+    }
+    default: {
+      throw Error('Unknown action: ' + action.type);
+    }
+  }
+}
+
+export default function TaskApp() {
+  const [tasks, dispatch] = useImmerReducer(tasksReducer, initialTasks);
+
+  function handleAddTask(text) {
+    dispatch({
+      type: 'added',
+      id: nextId++,
+      text: text,
+    });
+  }
+
+  function handleChangeTask(task) {
+    dispatch({
+      type: 'changed',
+      task: task,
+    });
+  }
+
+  function handleDeleteTask(taskId) {
+    dispatch({
+      type: 'deleted',
+      id: taskId,
+    });
+  }
+
+  return (
+    <>
+      <h1>Prague itinerary</h1>
+      <AddTask onAddTask={handleAddTask} />
+      <TaskList
+        tasks={tasks}
+        onChangeTask={handleChangeTask}
+        onDeleteTask={handleDeleteTask}
+      />
+    </>
+  );
+}
+
+let nextId = 3;
+const initialTasks = [
+  { id: 0, text: 'Visit Kafka Museum', done: true },
+  { id: 1, text: 'Watch a puppet show', done: false },
+  { id: 2, text: 'Lennon Wall pic', done: false },
+];
+```
+
+```js AddTask.js hidden
+import { useState } from 'react';
+
+export default function AddTask({ onAddTask }) {
+  const [text, setText] = useState('');
+  return (
+    <>
+      <input
+        placeholder='Add task'
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+      />
+      <button
+        onClick={() => {
+          setText('');
+          onAddTask(text);
+        }}
+      >
+        Add
+      </button>
+    </>
+  );
+}
+```
+
+```js TaskList.js hidden
+import { useState } from 'react';
+
+export default function TaskList({ tasks, onChangeTask, onDeleteTask }) {
+  return (
+    <ul>
+      {tasks.map((task) => (
+        <li key={task.id}>
+          <Task task={task} onChange={onChangeTask} onDelete={onDeleteTask} />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function Task({ task, onChange, onDelete }) {
+  const [isEditing, setIsEditing] = useState(false);
+  let taskContent;
+  if (isEditing) {
+    taskContent = (
+      <>
+        <input
+          value={task.text}
+          onChange={(e) => {
+            onChange({
+              ...task,
+              text: e.target.value,
+            });
+          }}
+        />
+        <button onClick={() => setIsEditing(false)}>Save</button>
+      </>
+    );
+  } else {
+    taskContent = (
+      <>
+        {task.text}
+        <button onClick={() => setIsEditing(true)}>Edit</button>
+      </>
+    );
+  }
+  return (
+    <label>
+      <input
+        type='checkbox'
+        checked={task.done}
+        onChange={(e) => {
+          onChange({
+            ...task,
+            done: e.target.checked,
+          });
+        }}
+      />
+      {taskContent}
+      <button onClick={() => onDelete(task.id)}>Delete</button>
+    </label>
+  );
+}
+```
+
+```css
+button {
+  margin: 5px;
+}
+li {
+  list-style-type: none;
+}
+ul,
+li {
+  margin: 0;
+  padding: 0;
+}
+```
+
+```json package.json
+{
+  "dependencies": {
+    "immer": "1.7.3",
+    "react": "latest",
+    "react-dom": "latest",
+    "react-scripts": "latest",
+    "use-immer": "0.5.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}
+```
+
+</Sandpack>
+
+Reducers must be pure, so they shouldn't mutate state. But Immer provides you with a special `draft` object which is safe to mutate. Under the hood, Immer will create a copy of your state with the changes you made to the `draft`. This is why reducers managed by `useImmerReducer` can mutate their first argument and don't need to return state.
+
+---
+
+## Résumé
+
+- To convert from `useState` to `useReducer`:
+  1. Dispatch actions from event handlers.
+  2. Write a reducer function that returns the next state for a given state and action.
+  3. Replace `useState` with `useReducer`.
+- Reducers require you to write a bit more code, but they help with debugging and testing.
+- Reducers must be pure.
+- Each action describes a single user interaction.
+- Use Immer if you want to write reducers in a mutating style.
+
+---
+
+## Défi: Dispatch actions from event handlers
+
+Currently, the event handlers in `ContactList.js` and `Chat.js` have `// TODO` comments. This is why typing into the input doesn't work, and clicking on the buttons doesn't change the selected recipient.
+
+Replace these two `// TODO`s with the code to `dispatch` the corresponding actions. To see the expected shape and the type of the actions, check the reducer in `messengerReducer.js`. The reducer is already written so you won't need to change it. You only need to dispatch the actions in `ContactList.js` and `Chat.js`.
+
+**Indice:**
+
+The `dispatch` function is already available in both of these components because it was passed as a prop. So you need to call `dispatch` with the corresponding action object.
+
+To check the action object shape, you can look at the reducer and see which `action` fields it expects to see. For example, the `changed_selection` case in the reducer looks like this:
+
+```js
+case 'changed_selection': {
+  return {
+    ...state,
+    selectedId: action.contactId
+  };
+}
+```
+
+This means that your action object should have a `type: 'changed_selection'`. You also see the `action.contactId` being used, so you need to include a `contactId` property into your action.
+
+<Sandpack>
+
+```js App.js
+import { useReducer } from 'react';
+import Chat from './Chat.js';
+import ContactList from './ContactList.js';
+import { initialState, messengerReducer } from './messengerReducer';
+
+export default function Messenger() {
+  const [state, dispatch] = useReducer(messengerReducer, initialState);
+  const message = state.message;
+  const contact = contacts.find((c) => c.id === state.selectedId);
+  return (
+    <div>
+      <ContactList
+        contacts={contacts}
+        selectedId={state.selectedId}
+        dispatch={dispatch}
+      />
+      <Chat
+        key={contact.id}
+        message={message}
+        contact={contact}
+        dispatch={dispatch}
+      />
+    </div>
+  );
+}
+
+const contacts = [
+  { id: 0, name: 'Taylor', email: 'taylor@mail.com' },
+  { id: 1, name: 'Alice', email: 'alice@mail.com' },
+  { id: 2, name: 'Bob', email: 'bob@mail.com' },
+];
+```
+
+```js messengerReducer.js
+export const initialState = {
+  selectedId: 0,
+  message: 'Hello',
+};
+
+export function messengerReducer(state, action) {
+  switch (action.type) {
+    case 'changed_selection': {
+      return {
+        ...state,
+        selectedId: action.contactId,
+        message: '',
+      };
+    }
+    case 'edited_message': {
+      return {
+        ...state,
+        message: action.message,
+      };
+    }
+    default: {
+      throw Error('Unknown action: ' + action.type);
+    }
+  }
+}
+```
+
+```js ContactList.js
+export default function ContactList({ contacts, selectedId, dispatch }) {
+  return (
+    <section className='contact-list'>
+      <ul>
+        {contacts.map((contact) => (
+          <li key={contact.id}>
+            <button
+              onClick={() => {
+                // TODO: dispatch changed_selection
+              }}
+            >
+              {selectedId === contact.id ? <b>{contact.name}</b> : contact.name}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+```
+
+```js Chat.js
+import { useState } from 'react';
+
+export default function Chat({ contact, message, dispatch }) {
+  return (
+    <section className='chat'>
+      <textarea
+        value={message}
+        placeholder={'Chat to ' + contact.name}
+        onChange={(e) => {
+          // TODO: dispatch edited_message
+          // (Read the input value from e.target.value)
+        }}
+      />
+      <br />
+      <button>Send to {contact.email}</button>
+    </section>
+  );
+}
+```
+
+```css
+.chat,
+.contact-list {
+  float: left;
+  margin-bottom: 20px;
+}
+ul,
+li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+li button {
+  width: 100px;
+  padding: 10px;
+  margin-right: 10px;
+}
+textarea {
+  height: 150px;
+}
+```
+
+</Sandpack>
+
+---
+
+## Défi : Clear the input on sending a message {/* clear-the-input-on-sending-a-message */}
+
+Currently, pressing "Send" doesn't do anything. Add an event handler to the "Send" button that will:
+
+1. Show an `alert` with the recipient's email and the message.
+2. Clear the message input.
+
+<Sandpack>
+
+```js App.js
+import { useReducer } from 'react';
+import Chat from './Chat.js';
+import ContactList from './ContactList.js';
+import { initialState, messengerReducer } from './messengerReducer';
+
+export default function Messenger() {
+  const [state, dispatch] = useReducer(messengerReducer, initialState);
+  const message = state.message;
+  const contact = contacts.find((c) => c.id === state.selectedId);
+  return (
+    <div>
+      <ContactList
+        contacts={contacts}
+        selectedId={state.selectedId}
+        dispatch={dispatch}
+      />
+      <Chat
+        key={contact.id}
+        message={message}
+        contact={contact}
+        dispatch={dispatch}
+      />
+    </div>
+  );
+}
+
+const contacts = [
+  { id: 0, name: 'Taylor', email: 'taylor@mail.com' },
+  { id: 1, name: 'Alice', email: 'alice@mail.com' },
+  { id: 2, name: 'Bob', email: 'bob@mail.com' },
+];
+```
+
+```js messengerReducer.js
+export const initialState = {
+  selectedId: 0,
+  message: 'Hello',
+};
+
+export function messengerReducer(state, action) {
+  switch (action.type) {
+    case 'changed_selection': {
+      return {
+        ...state,
+        selectedId: action.contactId,
+        message: '',
+      };
+    }
+    case 'edited_message': {
+      return {
+        ...state,
+        message: action.message,
+      };
+    }
+    default: {
+      throw Error('Unknown action: ' + action.type);
+    }
+  }
+}
+```
+
+```js ContactList.js
+export default function ContactList({ contacts, selectedId, dispatch }) {
+  return (
+    <section className='contact-list'>
+      <ul>
+        {contacts.map((contact) => (
+          <li key={contact.id}>
+            <button
+              onClick={() => {
+                dispatch({
+                  type: 'changed_selection',
+                  contactId: contact.id,
+                });
+              }}
+            >
+              {selectedId === contact.id ? <b>{contact.name}</b> : contact.name}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+```
+
+```js Chat.js active
+import { useState } from 'react';
+
+export default function Chat({ contact, message, dispatch }) {
+  return (
+    <section className='chat'>
+      <textarea
+        value={message}
+        placeholder={'Chat to ' + contact.name}
+        onChange={(e) => {
+          dispatch({
+            type: 'edited_message',
+            message: e.target.value,
+          });
+        }}
+      />
+      <br />
+      <button>Send to {contact.email}</button>
+    </section>
+  );
+}
+```
+
+```css
+.chat,
+.contact-list {
+  float: left;
+  margin-bottom: 20px;
+}
+ul,
+li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+li button {
+  width: 100px;
+  padding: 10px;
+  margin-right: 10px;
+}
+textarea {
+  height: 150px;
+}
+```
+
+</Sandpack>
+
+---
+
+## Défi: Restore input values when switching between tabs {/* restore-input-values-when-switching-between-tabs */}
+
+In this example, switching between different recipients always clears the text input:
+
+```js
+case 'changed_selection': {
+  return {
+    ...state,
+    selectedId: action.contactId,
+    message: '' // Clears the input
+  };
+```
+
+This is because you don't want to share a single message draft between several recipients. But it would be better if your app "remembered" a draft for each contact separately, restoring them when you switch contacts.
+
+Your task is to change the way the state is structured so that you remember a separate message draft _per contact_. You would need to make a few changes to the reducer, the initial state, and the components.
+
+**Indice:**
+
+You can structure your state like this:
+
+```js
+export const initialState = {
+  selectedId: 0,
+  messages: {
+    0: 'Hello, Taylor', // Draft for contactId = 0
+    1: 'Hello, Alice', // Draft for contactId = 1
+  },
+};
+```
+
+The `[key]: value` [computed property](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#computed_property_names) syntax can help you update the `messages` object:
+
+```js
+{
+  ...state.messages,
+  [id]: message
+}
+```
+
+<Sandpack>
+
+```js App.js
+import { useReducer } from 'react';
+import Chat from './Chat.js';
+import ContactList from './ContactList.js';
+import { initialState, messengerReducer } from './messengerReducer';
+
+export default function Messenger() {
+  const [state, dispatch] = useReducer(messengerReducer, initialState);
+  const message = state.message;
+  const contact = contacts.find((c) => c.id === state.selectedId);
+  return (
+    <div>
+      <ContactList
+        contacts={contacts}
+        selectedId={state.selectedId}
+        dispatch={dispatch}
+      />
+      <Chat
+        key={contact.id}
+        message={message}
+        contact={contact}
+        dispatch={dispatch}
+      />
+    </div>
+  );
+}
+
+const contacts = [
+  { id: 0, name: 'Taylor', email: 'taylor@mail.com' },
+  { id: 1, name: 'Alice', email: 'alice@mail.com' },
+  { id: 2, name: 'Bob', email: 'bob@mail.com' },
+];
+```
+
+```js messengerReducer.js
+export const initialState = {
+  selectedId: 0,
+  message: 'Hello',
+};
+
+export function messengerReducer(state, action) {
+  switch (action.type) {
+    case 'changed_selection': {
+      return {
+        ...state,
+        selectedId: action.contactId,
+        message: '',
+      };
+    }
+    case 'edited_message': {
+      return {
+        ...state,
+        message: action.message,
+      };
+    }
+    case 'sent_message': {
+      return {
+        ...state,
+        message: '',
+      };
+    }
+    default: {
+      throw Error('Unknown action: ' + action.type);
+    }
+  }
+}
+```
+
+```js ContactList.js
+export default function ContactList({ contacts, selectedId, dispatch }) {
+  return (
+    <section className='contact-list'>
+      <ul>
+        {contacts.map((contact) => (
+          <li key={contact.id}>
+            <button
+              onClick={() => {
+                dispatch({
+                  type: 'changed_selection',
+                  contactId: contact.id,
+                });
+              }}
+            >
+              {selectedId === contact.id ? <b>{contact.name}</b> : contact.name}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+```
+
+```js Chat.js
+import { useState } from 'react';
+
+export default function Chat({ contact, message, dispatch }) {
+  return (
+    <section className='chat'>
+      <textarea
+        value={message}
+        placeholder={'Chat to ' + contact.name}
+        onChange={(e) => {
+          dispatch({
+            type: 'edited_message',
+            message: e.target.value,
+          });
+        }}
+      />
+      <br />
+      <button
+        onClick={() => {
+          alert(`Sending "${message}" to ${contact.email}`);
+          dispatch({
+            type: 'sent_message',
+          });
+        }}
+      >
+        Send to {contact.email}
+      </button>
+    </section>
+  );
+}
+```
+
+```css
+.chat,
+.contact-list {
+  float: left;
+  margin-bottom: 20px;
+}
+ul,
+li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+li button {
+  width: 100px;
+  padding: 10px;
+  margin-right: 10px;
+}
+textarea {
+  height: 150px;
+}
+```
+
+</Sandpack>
+
+---
+
+## Défi: Implement `useReducer` from scratch {/* implement-usereducer-from-scratch */}
+
+In the earlier examples, you imported the `useReducer` Hook from React. This time, you will implement _the `useReducer` Hook itself!_ Here is a stub to get you started. It shouldn't take more than 10 lines of code.
+
+To test your changes, try typing into the input or select a contact.
+
+**Indice:**
+
+Here is a more detailed sketch of the implementation:
+
+```js
+export function useReducer(reducer, initialState) {
+  const [state, setState] = useState(initialState);
+
+  function dispatch(action) {
+    // ???
+  }
+
+  return [state, dispatch];
+}
+```
+
+Recall that a reducer function takes two arguments--the current state and the action object--and it returns the next state. What should your `dispatch` implementation do with it?
+
+<Sandpack>
+
+```js App.js
+import { useReducer } from './MyReact.js';
+import Chat from './Chat.js';
+import ContactList from './ContactList.js';
+import { initialState, messengerReducer } from './messengerReducer';
+
+export default function Messenger() {
+  const [state, dispatch] = useReducer(messengerReducer, initialState);
+  const message = state.messages[state.selectedId];
+  const contact = contacts.find((c) => c.id === state.selectedId);
+  return (
+    <div>
+      <ContactList
+        contacts={contacts}
+        selectedId={state.selectedId}
+        dispatch={dispatch}
+      />
+      <Chat
+        key={contact.id}
+        message={message}
+        contact={contact}
+        dispatch={dispatch}
+      />
+    </div>
+  );
+}
+
+const contacts = [
+  { id: 0, name: 'Taylor', email: 'taylor@mail.com' },
+  { id: 1, name: 'Alice', email: 'alice@mail.com' },
+  { id: 2, name: 'Bob', email: 'bob@mail.com' },
+];
+```
+
+```js messengerReducer.js
+export const initialState = {
+  selectedId: 0,
+  messages: {
+    0: 'Hello, Taylor',
+    1: 'Hello, Alice',
+    2: 'Hello, Bob',
+  },
+};
+
+export function messengerReducer(state, action) {
+  switch (action.type) {
+    case 'changed_selection': {
+      return {
+        ...state,
+        selectedId: action.contactId,
+      };
+    }
+    case 'edited_message': {
+      return {
+        ...state,
+        messages: {
+          ...state.messages,
+          [state.selectedId]: action.message,
+        },
+      };
+    }
+    case 'sent_message': {
+      return {
+        ...state,
+        messages: {
+          ...state.messages,
+          [state.selectedId]: '',
+        },
+      };
+    }
+    default: {
+      throw Error('Unknown action: ' + action.type);
+    }
+  }
+}
+```
+
+```js MyReact.js active
+import { useState } from 'react';
+
+export function useReducer(reducer, initialState) {
+  const [state, setState] = useState(initialState);
+
+  // ???
+
+  return [state, dispatch];
+}
+```
+
+```js ContactList.js hidden
+export default function ContactList({ contacts, selectedId, dispatch }) {
+  return (
+    <section className='contact-list'>
+      <ul>
+        {contacts.map((contact) => (
+          <li key={contact.id}>
+            <button
+              onClick={() => {
+                dispatch({
+                  type: 'changed_selection',
+                  contactId: contact.id,
+                });
+              }}
+            >
+              {selectedId === contact.id ? <b>{contact.name}</b> : contact.name}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+```
+
+```js Chat.js hidden
+import { useState } from 'react';
+
+export default function Chat({ contact, message, dispatch }) {
+  return (
+    <section className='chat'>
+      <textarea
+        value={message}
+        placeholder={'Chat to ' + contact.name}
+        onChange={(e) => {
+          dispatch({
+            type: 'edited_message',
+            message: e.target.value,
+          });
+        }}
+      />
+      <br />
+      <button
+        onClick={() => {
+          alert(`Sending "${message}" to ${contact.email}`);
+          dispatch({
+            type: 'sent_message',
+          });
+        }}
+      >
+        Send to {contact.email}
+      </button>
+    </section>
+  );
+}
+```
+
+```css
+.chat,
+.contact-list {
+  float: left;
+  margin-bottom: 20px;
+}
+ul,
+li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+li button {
+  width: 100px;
+  padding: 10px;
+  margin-right: 10px;
+}
+textarea {
+  height: 150px;
+}
+```
+
+</Sandpack>
+````
