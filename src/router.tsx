@@ -1,8 +1,31 @@
 import Home from './homepage/Home';
 import GotoPopup from './components/slides/GotoPopup';
+
+import Sandpack from './components/Sandpack';
+
+import Diagram from './components/slides/Diagram';
+
+import Illustration from './components/slides/Illustration';
 import { createBrowserRouter, Outlet, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import Status from './decks/6-manage-state.fr.mdx';
+
+const components = {
+  Sandpack,
+  Diagram,
+  Illustration,
+  Hint({ toggle, children }: any) {
+    let { lang } = useParams();
+    lang = lang ?? 'en';
+    toggle = toggle ?? lang === 'fr' ? 'Indice' : 'Hint';
+    return (
+      <details>
+        <summary className='btn-link link-info'>{toggle}</summary>
+        {children}
+      </details>
+    );
+  },
+};
 
 const router = createBrowserRouter([
   {
@@ -27,7 +50,10 @@ const router = createBrowserRouter([
           </>
         ),
         children: [
-          { path: 'status', element: <Status></Status> },
+          {
+            path: 'status',
+            element: <Status components={components} />,
+          },
           {
             path: 'decks/:lang/',
             element: <Language />,
@@ -48,16 +74,13 @@ export default router;
 
 function MyLoader() {
   const { id, lang } = useParams();
+  const MyMdx = lazy(() => import(`./decks/${id}.${lang}.mdx`));
 
-  const [jsx, setJsx] = useState(<></>);
-  useEffect(() => {
-    Loading();
-  }, []);
-  async function Loading() {
-    const Result = await import(`./decks/${id}.${lang}.mdx`);
-    setJsx(Result.default);
-  }
-  return jsx;
+  return (
+    <Suspense fallback={<div>Page is Loading...</div>}>
+      <MyMdx components={components} />
+    </Suspense>
+  );
 }
 
 function Language() {
