@@ -16,7 +16,7 @@
     "@codemirror/text": "^0.19.6",
     "@codesandbox/sandpack-react": "^2.8.0",
     "@headlessui/react": "^1.7.17",
-    "@mdx-js/rollup": "^2.3.0",
+    "@mdx-js/rollup": "^3.0.0",
     "bootstrap": "^5.3.0",
     "eslint": "^8.50.0",
     "eslint-plugin-react-hooks": "^4.6.0",
@@ -25,7 +25,7 @@
     "react-bootstrap": "^2.7.2",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.10.0",
-    "remark-gfm": "^3.0.1"
+    "remark-gfm": "^4.0.0"
   },
   "devDependencies": {
     "@types/hast": "^3.0.1",
