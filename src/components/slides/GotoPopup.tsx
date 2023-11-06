@@ -20,8 +20,8 @@ function GotoPopup() {
   function GotoPage(evt: FormEvent) {
     evt.preventDefault();
     const page = txtNombre.current!.value;
-    window.location.hash = `#${page}`;
     setShow(false);
+    location.hash = `#${page}`;
   }
 
   function handleKeyUp(evt: KeyboardEvent) {
@@ -35,6 +35,11 @@ function GotoPopup() {
   }
 
   useEffect(() => {
+    let results = document.querySelectorAll('article>*');
+    results.forEach((slide, idx) => {
+      slide.id = (idx + 1).toString();
+    });
+
     if (!isEventRegistered) {
       window.addEventListener('keydown', handleKeyUp, options);
     }

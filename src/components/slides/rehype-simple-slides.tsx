@@ -21,7 +21,7 @@ function elementsToSimpleSlides(rootNode: NodeWithChildren, options: Options) {
 
   const { slideSeparators, slideType, slideClass } = options;
   const slides = [];
-  let slideNumber = 1;
+
   if (
     !options.slideSeparators.includes(
       (rootNode.children[0] as Element)?.tagName
@@ -31,19 +31,21 @@ function elementsToSimpleSlides(rootNode: NodeWithChildren, options: Options) {
     slides.push({
       type: 'element',
       tagName: slideType,
-      properties: { class: slideClass, id: (slideNumber++).toString() },
+      properties: { class: slideClass },
       children: [],
     });
   }
 
+  let mdxImports: Array<String> = [];
+
   for (let node of rootNode.children as Element[]) {
+    //if this is a separator, let's add a slide
     if (slideSeparators.includes(node?.tagName)) {
       slides.push({
         type: 'element',
         tagName: slideType,
         properties: {
           class: slideClass,
-          id: (slideNumber++).toString(),
         },
         children: [],
       });
@@ -53,7 +55,29 @@ function elementsToSimpleSlides(rootNode: NodeWithChildren, options: Options) {
         slides[slides.length - 1].children.push(node as never);
       }
     } else {
-      slides[slides.length - 1].children.push(node as never);
+      //if this isn't a separator, let's add this content to the slide children.
+      //But first, let's detect if this is an mdx import with more slides
+      if (node.type.toString().includes('mdxjsEsm')) {
+        const rg = new RegExp(/import (?<name>.*) from .*\.mdx/);
+        const result = rg.exec(node.value);
+        if (result) {
+          mdxImports.push(result?.groups?.name);
+        }
+      }
+      //let's compare the node name with the mdx imports
+      //if its the case, then lets add those slides to the top level.
+      if (mdxImports.includes(node.name)) {
+        let temp = slides[slides.length - 1].children;
+        slides.pop();
+        temp.forEach((child) => {
+          node.children.push(child);
+        });
+        slides.push(node as never);
+      }
+      //Add the node as content to the current slide
+      else {
+        slides[slides.length - 1].children.push(node as never);
+      }
     }
   }
   return { type: 'root', children: slides } as Node;
@@ -70,7 +94,6 @@ export default function generateSlides(
   options: Options
 ) {
   options = { ...defaultOptions, ...options };
-
   return elementsToSimpleSlides(rootNode, options);
 }
 

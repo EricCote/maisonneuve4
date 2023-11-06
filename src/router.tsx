@@ -7,13 +7,37 @@ import Diagram from './components/slides/Diagram';
 
 import Illustration from './components/slides/Illustration';
 import { createBrowserRouter, Outlet, useParams } from 'react-router-dom';
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, memo, Suspense, useCallback, useMemo, useState } from 'react';
 import Status from './decks/6-manage-state.fr.mdx';
 
 const components = {
   Sandpack,
   Diagram,
   Illustration,
+  TwoColumns({ className, children, style }: any) {
+    return (
+      <aside
+        className={className}
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          columnGap: 10,
+          ...style,
+        }}
+      >
+        {children}
+      </aside>
+    );
+  },
+  // wrapper({ children }: any) {
+  //   useEffect(() => {
+  //     if (location.hash.length > 1) {
+  //       location.hash = '#120';
+  //     }
+  //   });
+  //   return <>{children}</>;
+  // },
+
   Hint({ toggle, children }: any) {
     let { lang } = useParams();
     lang = lang ?? 'en';
@@ -74,7 +98,11 @@ export default router;
 
 function MyLoader() {
   const { id, lang } = useParams();
-  const MyMdx = lazy(() => import(`./decks/${id}.${lang}.mdx`));
+
+  const MyMdx = useMemo(
+    () => lazy(() => import(`./decks/${id}.${lang}.mdx`)),
+    [id, lang]
+  );
 
   return (
     <Suspense fallback={<div>Page is Loading...</div>}>
