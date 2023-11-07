@@ -8,7 +8,7 @@ import Diagram from './components/slides/Diagram';
 import Illustration from './components/slides/Illustration';
 import { createBrowserRouter, Outlet, useParams } from 'react-router-dom';
 import { lazy, memo, Suspense, useCallback, useMemo, useState } from 'react';
-import Status from './decks/6-manage-state.fr.mdx';
+import Status from './decks/6-manage-state/5-context.fr.mdx';
 
 const components = {
   Sandpack,
