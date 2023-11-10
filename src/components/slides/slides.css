@@ -78,7 +78,7 @@ article > ::before {
 }
 
 /* This is a cover layout for the first slide */
-article > :first-child {
+article > .first-slide {
   display: grid;
   place-content: center;
   text-align: center;
@@ -140,6 +140,10 @@ article > :first-child > :first-child {
 
 code {
   color: darkslateblue;
+}
+
+.refractor-marker {
+  background-color: rgb(52, 58, 64);
 }
 
 .color1,

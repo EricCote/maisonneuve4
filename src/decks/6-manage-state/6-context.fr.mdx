@@ -1,4 +1,4 @@
-# le Contexte
+# Le Contexte
 
 ---
 
@@ -12,42 +12,44 @@ Le contexte permet à un parent de partager l'info à n'importe quel autre compo
 
 ## Concepts
 
-- What "prop drilling" is
-- How to replace repetitive prop passing with context
-- Common use cases for context
-- Common alternatives to context
+- Description du "prop drilling"
+- Comment remplacer le passage de props avec le contexte
+- Cas d'utilisation du contexte
+- Alternatives au contexte
 
 ---
 
-## The problème de passer des props
+## Le problème de passer des props
 
-[Passing props](/learn/passing-props-to-a-component) is a great way to explicitly pipe data through your UI tree to the components that use it.
+[Passer des props](/learn/passing-props-to-a-component) est une façon simple fournir les données d'un composant parent vers des composants enfants.
 
-But passing props can become verbose and inconvenient when you need to pass some prop deeply through the tree, or if many components need the same prop. The nearest common ancestor could be far removed from the components that need data, and [lifting state up](/learn/sharing-state-between-components) that high can lead to a situation called "prop drilling".
+Mais passer des props peut devenir lourd et répétitif quand on doit passer une prop profondément dans l'arborescence, ou quand plusieurs composant partagent la même prop. L'ancêtre commun entre deux composants pourrait être loin vers le haut, et "remonter l'état" entraîne alors la situation de "prop drilling" (forage de props),
 
-<aside style={{display:'grid', gridTemplateColumns:"1fr 1fr", columnGap:10}}>
+<TwoColumns>
 
-<Diagram name="passing_data_lifting_state" height={120} width={400} captionPosition="top" alt="Diagram with a tree of three components. The parent contains a bubble representing a value highlighted in purple. The value flows down to each of the two children, both highlighted in purple." >
+<Diagram name="passing_data_lifting_state" height={120} captionPosition="top" alt="Diagram with a tree of three components. The parent contains a bubble representing a value highlighted in purple. The value flows down to each of the two children, both highlighted in purple." >
 
 Lifting state up
 
 </Diagram>
 
-<Diagram name="passing_data_prop_drilling" height={350} width={400} captionPosition="top" alt="Diagram with a tree of ten nodes, each node with two children or less. The root node contains a bubble representing a value highlighted in purple. The value flows down through the two children, each of which pass the value but do not contain it. The left child passes the value down to two children which are both highlighted purple. The right child of the root passes the value through to one of its two children - the right one, which is highlighted purple. That child passed the value through its single child, which passes it down to both of its two children, which are highlighted purple.">
+<Diagram name="passing_data_prop_drilling" height={250}  captionPosition="top" alt="Diagram with a tree of ten nodes, each node with two children or less. The root node contains a bubble representing a value highlighted in purple. The value flows down through the two children, each of which pass the value but do not contain it. The left child passes the value down to two children which are both highlighted purple. The right child of the root passes the value through to one of its two children - the right one, which is highlighted purple. That child passed the value through its single child, which passes it down to both of its two children, which are highlighted purple.">
 
 Prop drilling
 
 </Diagram>
 
-</aside>
+</TwoColumns>
 
-Wouldn't it be great if there were a way to "teleport" data to the components in the tree that need it without passing props? With React's context feature, there is!
+Il y a un moyen de "téléporter" les données aux composants sans utiliser de props: le **Contexte**
 
 ---
 
-## Context: une alternative aux props
+## Le Contexte: une alternative aux props
 
-Context lets a parent component provide data to the entire tree below it. There are many uses for context. Here is one example. Consider this `Heading` component that accepts a `level` for its size:
+Le Contexte permet à un composant parent de fournir des données à l'arborescence en dessous.
+
+Imaginons le composant `Heading` qui accepte la prop `level` pour la taille:
 
 <Sandpack>
 
@@ -111,7 +113,7 @@ export default function Heading({ level, children }) {
 
 ## Beaucoup de props
 
-Let's say you want multiple headings within the same `Section` to always have the same size:
+Si on veut que les `Heading`s sous la même `Section` aient la même taille:
 
 <Sandpack>
 
@@ -185,9 +187,9 @@ export default function Heading({ level, children }) {
 
 ## Explications
 
-<TwoColumns>
+<TwoColumns style={{alignItems: "center"}}>
 
-```js
+```jsx
 <Section>
   <Heading level={3}>About</Heading>
   <Heading level={3}>Photos</Heading>
@@ -195,9 +197,9 @@ export default function Heading({ level, children }) {
 </Section>
 ```
 
-Currently, you pass the `level` prop to each `<Heading>` separately
+Ici, on passe le `level` à chaque `<Heading>`.
 
-```js
+```jsx
 <Section level={3}>
   <Heading>About</Heading>
   <Heading>Photos</Heading>
@@ -205,7 +207,7 @@ Currently, you pass the `level` prop to each `<Heading>` separately
 </Section>
 ```
 
-It would be nice if you could pass the `level` prop to the `<Section>` component instead and remove it from the `<Heading>`. This way you could enforce that all headings in the same section have the same size.
+Ici, on passe le `level` au composant `<Section>`, plutôt que `<Heading>`. C'est plus simple de s'assurer que tous les headings ont la même taille.
 
 </TwoColumns>
 
@@ -213,17 +215,17 @@ It would be nice if you could pass the `level` prop to the `<Section>` component
 
 ## Contexte
 
-But how can the `<Heading>` component know the level of its closest `<Section>`? **That would require some way for a child to "ask" for data from somewhere above in the tree.**
+Comment le composant `<Heading>` peut obtenir le `level` de la `<Section>` la plus proche? **Comme si un composant enfant pouvait "demander" pour les données quelque part en haut de l'arborescence**
 
-You can't do it with props alone. This is where context comes into play. You will do it in three steps:
+Impossible à faire avec des props. Il faut utiliser un Contexte.
 
-1. **Create** a context. (You can call it `LevelContext`, since it's for the heading level.)
-2. **Use** that context from the component that needs the data. (`Heading` will use `LevelContext`.)
-3. **Provide** that context from the component that specifies the data. (`Section` will provide `LevelContext`.)
+1. **Créer** un contexte. (Nommons le `LevelContext`, parce que c'est pour le `level`.)
+2. **Utiliser** ce contexte du composant qui désire la donnée. (`Heading` utilise `LevelContext`.)
+3. **Fournir** ce contexte du composant qui spécifie ces données. (`Section` fournit `LevelContext`.)
 
-Context lets a parent--even a distant one!--provide some data to the entire tree inside of it.
+Le contexte permet au parent de fournir des données dans l'arborescence dessous, même à travers plusieurs niveaux.
 
-<aside style={{display:'grid', gridTemplateColumns:"1fr 1fr", columnGap:10}}>
+<TwoColumns>
 
 <Diagram name="passing_data_context_close" height={100} width={400} captionPosition="top" alt="Diagram with a tree of three components. The parent contains a bubble representing a value highlighted in orange which projects down to the two children, each highlighted in orange." >
 
@@ -231,19 +233,19 @@ Using context in close children
 
 </Diagram>
 
-<Diagram name="passing_data_context_far" height={330} width={400} captionPosition="top" alt="Diagram with a tree of ten nodes, each node with two children or less. The root parent node contains a bubble representing a value highlighted in orange. The value projects down directly to four leaves and one intermediate component in the tree, which are all highlighted in orange. None of the other intermediate components are highlighted.">
+<Diagram name="passing_data_context_far" height={200} captionPosition="top" alt="Diagram with a tree of ten nodes, each node with two children or less. The root parent node contains a bubble representing a value highlighted in orange. The value projects down directly to four leaves and one intermediate component in the tree, which are all highlighted in orange. None of the other intermediate components are highlighted.">
 
 Using context in distant children
 
 </Diagram>
 
-</aside>
+</TwoColumns>
 
 ---
 
 ## Étape 1: Créer le contexte
 
-First, you need to create the context. You'll need to **export it from a file** so that your components can use it:
+Il faut créer le contexte et l'**exporter d'un fichier** pour que les composants puissent l'utiliser:
 
 <Sandpack>
 
@@ -319,20 +321,20 @@ export const LevelContext = createContext(1);
 
 </Sandpack>
 
-The only argument to `createContext` is the _default_ value. Here, `1` refers to the biggest heading level, but you could pass any kind of value (even an object). You will see the significance of the default value in the next step.
+Le seul argument à `createContext`, c'est la valeur par _défaut_. Ici, `1` réfère au niveau `<h1>`. Un défaut pourrait être n'importe type, incluant un objet.
 
 ---
 
 ## Étape 2: Utiliser le Contexte
 
-Import the `useContext` Hook from React and your context:
+On importe le hook `useContext` de React, ainsi que le contexte:
 
 ```js
 import { useContext } from 'react';
 import { LevelContext } from './LevelContext.js';
 ```
 
-Currently, the `Heading` component reads `level` from props:
+On ne devrait plus lire `level` des props:
 
 ```js
 export default function Heading({ level, children }) {
@@ -340,12 +342,11 @@ export default function Heading({ level, children }) {
 }
 ```
 
-Instead, remove the `level` prop and read the value from the context you just imported, `LevelContext`:
+On enlève la prop `level` et on lit la valeur provenant de `LevelContext`:
 
 ```js {2}
 export default function Heading({ children }) {
   const level = useContext(LevelContext);
-  // ...
 }
 ```
 
@@ -353,23 +354,19 @@ export default function Heading({ children }) {
 
 ## useContext
 
-`useContext` is a Hook. Just like `useState` and `useReducer`, you can only call a Hook immediately inside a React component (not inside loops or conditions). **`useContext` tells React that the `Heading` component wants to read the `LevelContext`.**
+`useContext` est un Hook. Tout comme `useState`et `useReducer`, on n'appelle le Hook que dans le top niveau d'un composant React (pas dans des boucles ou des conditions. **`useContext` indique à React quel composant `Heading` désire lire le `LevelContext`.**
 
-Now that the `Heading` component doesn't have a `level` prop, you don't need to pass the level prop to `Heading` in your JSX like this anymore:
+`Heading` n'utilise plus la prop `level`, on pourra réduire le code suivant:
 
-```js
+<TwoColumns style={{gridTemplateColumns: '1.2fr 1fr'}}>
+
+```jsx
 <Section>
   <Heading level={4}>Sub-sub-heading</Heading>
   <Heading level={4}>Sub-sub-heading</Heading>
   <Heading level={4}>Sub-sub-heading</Heading>
 </Section>
 ```
-
----
-
-## Jsx modifié
-
-Update the JSX so that it's the `Section` that receives it instead:
 
 ```jsx
 <Section level={4}>
@@ -379,11 +376,11 @@ Update the JSX so that it's the `Section` that receives it instead:
 </Section>
 ```
 
+</TwoColumns>
+
 ---
 
 ## Code
-
-As a reminder, this is the markup that you were trying to get working:
 
 <Sandpack>
 
@@ -463,37 +460,59 @@ export const LevelContext = createContext(1);
 
 </Sandpack>
 
-Notice this example doesn't quite work, yet! All the headings have the same size because **even though you're _using_ the context, you have not _provided_ it yet.** React doesn't know where to get it!
+Cet exemple ne fonctionne pas encore: toutes les entêtes ont la même taille. Les composants enfants utilisent le contexte, mais aucun composant parent ne fournit de contexte.
 
-If you don't provide the context, React will use the default value you've specified in the previous step. In this example, you specified `1` as the argument to `createContext`, so `useContext(LevelContext)` returns `1`, setting all those headings to `<h1>`. Let's fix this problem by having each `Section` provide its own context.
+Qaund on ne fournit pas de contexte, React utilise la valeur par défaut. Dans cet exemple, c'est `1`. (On répare ce problème avec `<Section>` qui fournit le contexte.)
 
 ---
 
 ## Étape 3: Fournir le contexte
 
-The `Section` component currently renders its children:
+Originalement, le composant `Section` ne fait qu'afficher ses children:
 
-```js
+```jsx
 export default function Section({ children }) {
   return <section className='section'>{children}</section>;
 }
 ```
 
-**Wrap them with a context provider** to provide the `LevelContext` to them:
+**Ajoutons un "context provider"** pour fournir le `LevelContext`:
 
-```js {1,6,8}
+{/* prettier-ignore */}
+```jsx {1,6,8}
 import { LevelContext } from './LevelContext.js';
 
 export default function Section({ level, children }) {
   return (
     <section className='section'>
-      <LevelContext.Provider value={level}>{children}</LevelContext.Provider>
+      <LevelContext.Provider value={level}>
+        {children}
+      </LevelContext.Provider>
     </section>
   );
 }
 ```
 
-This tells React: "if any component inside this `<Section>` asks for `LevelContext`, give them this `level`." The component will use the value of the nearest `<LevelContext.Provider>` in the UI tree above it.
+---
+
+## Explications
+
+{/* prettier-ignore */}
+```jsx {1,6,8}
+import { LevelContext } from './LevelContext.js';
+
+export default function Section({ level, children }) {
+  return (
+    <section className='section'>
+      <LevelContext.Provider value={level}>
+        {children}
+      </LevelContext.Provider>
+    </section>
+  );
+}
+```
+
+Ceci dit à React: "Si un composant dans cette `<Section>` demande `LevelContext`, alors fournit ce `level`". Un composant utilise toujours la valeur du `<LevelContext.Provider>` parent le plus proche.
 
 ---
 
@@ -583,17 +602,17 @@ export const LevelContext = createContext(1);
 
 </Sandpack>
 
-It's the same result as the original code, but you did not need to pass the `level` prop to each `Heading` component! Instead, it "figures out" its heading level by asking the closest `Section` above:
+C'est le même résultat qu'originalement, nous n'avons pas besoin de passer la prop `level` à chaque composant `Heading`. Ce dernier obtient l'information du contexte fournit par la `Section` parent la plus proche.
 
-1. You pass a `level` prop to the `<Section>`.
-2. `Section` wraps its children into `<LevelContext.Provider value={level}>`.
-3. `Heading` asks the closest value of `LevelContext` above with `useContext(LevelContext)`.
+1. On passe la prop `level` à la `<Section>`.
+2. `Section` fournit à ses enfants le contexte `<LevelContext.Provider value={level}>`.
+3. `Heading` obtient le `LevelContext` du parent le plus proche, en appelant `useContext(LevelContext)`.
 
 ---
 
 ## Utiliser et fournir le contexte du même composant
 
-Currently, you still have to specify each section's `level` manually:
+Ici, on spécifie chaque `level` manuellement:
 
 ```js
 export default function Page() {
@@ -608,9 +627,9 @@ export default function Page() {
 
 ---
 
-## la section
+## Relancer le contexte
 
-Since context lets you read information from a component above, each `Section` could read the `level` from the `Section` above, and pass `level + 1` down automatically. Here is how you could do it:
+Puisque le contexte permet de lire l'info d'un composant plus haut, chaque `Section` pourrait lire le `level` de la section plus haut, et passer `level + 1` vers le bas.
 
 ```js Section.js {5,8}
 import { useContext } from 'react';
@@ -632,7 +651,7 @@ export default function Section({ children }) {
 
 ## Code
 
-With this change, you don't need to pass the `level` prop _either_ to the `<Section>` or to the `<Heading>`:
+Avec ce changement, plus besoin de passer la prop level. Ni à la `<Section>`, ni au `<Heading>`:
 
 <Sandpack>
 
@@ -724,21 +743,21 @@ export const LevelContext = createContext(0);
 
 </Sandpack>
 
-Now both `Heading` and `Section` read the `LevelContext` to figure out how "deep" they are. And the `Section` wraps its children into the `LevelContext` to specify that anything inside of it is at a "deeper" level.
+Maintenant, `Heading` et `Section` lisent le `LevelContext` pour déterminer la profondeur. Et la `Section` relance vers ses enfants un `LevelContext` plus "profond".
 
 ---
 
-## Note
+## Usage multiple
 
-This example uses heading levels because they show visually how nested components can override context. But context is useful for many other use cases too. You can pass down any information needed by the entire subtree: the current color theme, the currently logged in user, and so on.
+L'exemple ici utilise des niveaux de heading car cela démontre visuellement l'utilisation du contexte. Mais il y a bien d'autres cas où c'est utile. On peut passer toutes sortes d'informations dans l'arborescence: le theme de couleur sélectionné, l'identité de l'usager connecté, etc.
 
 ---
 
 ## Le contexte passe à travers les composants intermédiaires
 
-You can insert as many components as you like between the component that provides context and the one that uses it. This includes both built-in components like `<div>` and components you might build yourself.
+On peut insérer autant de couches de composants entre le parent fournisseur de contexte et l'enfant qui consomme ce contexte.
 
-In this example, the same `Post` component (with a dashed border) is rendered at two different nesting levels. Notice that the `<Heading>` inside of it gets its level automatically from the closest `<Section>`:
+Dans cet exemple, le composant `<Post>` (avec une bordure hachurée) ajoute une couche entre la source et le consommateur du contexte. Notez que `<Heading>` reçoit l'onfo de la `<Section>` la plus proche:
 
 <Sandpack>
 
@@ -855,56 +874,54 @@ export const LevelContext = createContext(0);
 
 ## Explications
 
-You didn't do anything special for this to work. A `Section` specifies the context for the tree inside it, so you can insert a `<Heading>` anywhere, and it will have the correct size. Try it in the sandbox above!
+Rien de spécial à faire. La `Section` spécifie le contexte pour l'arborescence. On peut insérer le `<Heading>` n'importe où en dessous, et ça aura la bonne taille.
 
-**Context lets you write components that "adapt to their surroundings" and display themselves differently depending on _where_ (or, in other words, _in which context_) they are being rendered.**
+**Le contexte permet d'écrire des composants qui s'adaptent à leur environnement. Ils s'affichent différemment dépendant de leur position (car la position dicte le contexte reçu.)**
 
-How context works might remind you of [CSS property inheritance.](https://developer.mozilla.org/en-US/docs/Web/CSS/inheritance) In CSS, you can specify `color: blue` for a `<div>`, and any DOM node inside of it, no matter how deep, will inherit that color unless some other DOM node in the middle overrides it with `color: green`. Similarly, in React, the only way to override some context coming from above is to wrap children into a context provider with a different value.
+Ça pourrait faire penser à l'héritage des [propriétés CSS.](https://developer.mozilla.org/en-US/docs/Web/CSS/inheritance) En CSS, si on spécifie `color: blue` dans un `<div>`, tous les noeuds DOM en dessous, indépendant de la profondeur, héritera de cette couleur. À moins qu'un autre noeud DOM au milieu n'écrase cette couleur, avec `color: green`. En React, c'est similaire: le contexte provient d'en haut et un contexte en bas peut écraser le contexte parent.
 
-In CSS, different properties like `color` and `background-color` don't override each other. You can set all `<div>`'s `color` to red without impacting `background-color`. Similarly, **different React contexts don't override each other.** Each context that you make with `createContext()` is completely separate from other ones, and ties together components using and providing _that particular_ context. One component may use or provide many different contexts without a problem.
+En CSS, les différentes propriétés telles que `color` et `background-color` ne s'affectent pas entre elles. On peut mettre la `color` des `<div>` à rouge sans affecter `background-color`. Tout comme, **les contextes React ne s'affectent pas l'un l'autre.** Chaque contexte créé avec `createContext()` est complètement séparé des autres, cela relie les composants de ce contexte particulier. Un composant peut utiliser ou fournir plusieurs contextes sans problèmes.
 
 ---
 
 ## Avant d'utiliser le contexte
 
-Context is very tempting to use! However, this also means it's too easy to overuse it. **Just because you need to pass some props several levels deep doesn't mean you should put that information into context.**
+Le contexte est tentant à utiliser. Par contre, c'est facile à sur-utiliser. **Les props ne méritent pas toutes d'être mises en contexte.**
 
-Here's a few alternatives you should consider before using context:
+Voici des alternatives
 
-1. **Start by [passing props.](/learn/passing-props-to-a-component)** If your components are not trivial, it's not unusual to pass a dozen props down through a dozen components. It may feel like a slog, but it makes it very clear which components use which data! The person maintaining your code will be glad you've made the data flow explicit with props.
-2. **Extract components and [pass JSX as `children`](/learn/passing-props-to-a-component#passing-jsx-as-children) to them.** If you pass some data through many layers of intermediate components that don't use that data (and only pass it further down), this often means that you forgot to extract some components along the way. For example, maybe you pass data props like `posts` to visual components that don't use them directly, like `<Layout posts={posts} />`. Instead, make `Layout` take `children` as a prop, and render `<Layout><Posts posts={posts} /></Layout>`. This reduces the number of layers between the component specifying the data and the one that needs it.
+1. **Passer des props** Dans un composant complexe, on pourrait avoir des dizaines de props que l'on passe à des dizaines de composants. Cela peut sembler lourd, mais ça a le mérite d'être clair quand on lit le code. La personne qui maintient le code sera contente que le flot de données soit explicitement déclaré avec des props.
+2. **Extraire les composants et passer ce JSX en tant que `children`** Quand on passe certaines props à travers plusieurs couches de composants intermédiaires qui n'utilisent pas ces données (sauf pour les passer aux couches inférieures), cela signifie qu'on a oublié d'extraire certains composants. Par exemple, passer des props tels que `posts`, à des composants qui ne les utilisent pas directement, comme `<Layout posts={posts} />`. Alternativement, faites que `Layout` utilise la prop `children` et génère `<Layout><Posts posts={posts} /></Layout>`. Ceci réduit le nombre de couches entre les composants et les donneés.
 
-If neither of these approaches works well for you, consider context.
+Si ces approches ne fonctionnent pas pour vous, utilisez le contexte.
 
 ---
 
 ## Cas pour le contexte
 
-- **Theming:** If your app lets the user change its appearance (e.g. dark mode), you can put a context provider at the top of your app, and use that context in components that need to adjust their visual look.
-- **Current account:** Many components might need to know the currently logged in user. Putting it in context makes it convenient to read it anywhere in the tree. Some apps also let you operate multiple accounts at the same time (e.g. to leave a comment as a different user). In those cases, it can be convenient to wrap a part of the UI into a nested provider with a different current account value.
-- **Routing:** Most routing solutions use context internally to hold the current route. This is how every link "knows" whether it's active or not. If you build your own router, you might want to do it too.
-- **Managing state:** As your app grows, you might end up with a lot of state closer to the top of your app. Many distant components below may want to change it. It is common to [use a reducer together with context](/learn/scaling-up-with-reducer-and-context) to manage complex state and pass it down to distant components without too much hassle.
+- **Thème:** Permet à l'usager de changer l'apparence visuelle des composants (ex: dark mode)
+- **Compte courant:** Plusieurs composants ont besoin de savoir quelle est l'identité de l'usager.
+- **Routage:** Permet de gérer la route courante.
+- **Gestion d'état:** Les applications complexes gèrent beaucoup d'état. Cet état a tendance à remonter vers les composants du haut. Dans ces situations, utiliser un contexte peut aider, surtout quand on combine le contexte et le reducer.
 
-Context is not limited to static values. If you pass a different value on the next render, React will update all the components reading it below! This is why context is often used in combination with state.
+Le contexte n'est pas limité aux valeurs statiques. Si on passe une valeur différente au prochain rendu, ceci met à jour les composants dessous. Le contexte est souvent utilisé avec l'état.
 
-In general, if some information is needed by distant components in different parts of the tree, it's a good indication that context will help you.
-
----
+## En général, quand des données sont utilisées par différents composants dans différentes emplacements dans l'arborescence, c'est une indication que le contexte serait utile.
 
 ## Résumé
 
-- Context lets a component provide some information to the entire tree below it.
-- To pass context:
-  1. Create and export it with `export const MyContext = createContext(defaultValue)`.
-  2. Pass it to the `useContext(MyContext)` Hook to read it in any child component, no matter how deep.
-  3. Wrap children into `<MyContext.Provider value={...}>` to provide it from a parent.
-- Context passes through any components in the middle.
-- Context lets you write components that "adapt to their surroundings".
-- Before you use context, try passing props or passing JSX as `children`.
+- Le contexte permet à des composants de fournir des données à l'arborescence dessous.
+- Pour passer le contexte:
+  1. Créez et exportez `export const MyContext = createContext(defaultValue)`.
+  2. Utilisez le hook `useContext(MyContext)` pour lire le contexte dans n'importe quel composant enfant, quelle que soit la profondeur.
+  3. utilisez dans un composant parent `<MyContext.Provider value={...}>` pour fournir ce contexte aux composants enfants.
+- Le contexte passe à travers les composants intermédiaires.
+- Le contexte permet de créer des composants qui "s'adaptent à leur environnement".
+- Plutôt que d'utiliser un contexte, passez des props ou passez du JSX dans `children`.
 
 ---
 
-## Défi: Replace prop drilling with context
+## Défi: Remplacer le forage de props par un contexte
 
 In this example, toggling the checkbox changes the `imageSize` prop passed to each `<PlaceImage>`. The checkbox state is held in the top-level `App` component, but each `<PlaceImage>` needs to be aware of it.
 
@@ -1052,11 +1069,3 @@ li {
 ```
 
 </Sandpack>
-
----
-
-import Autre from './7-advanced.fr.mdx';
-
-Ceci est du contenu
-
-<Autre components={props.components} />

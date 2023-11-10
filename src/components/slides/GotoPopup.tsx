@@ -24,7 +24,7 @@ function GotoPopup() {
     location.hash = `#${page}`;
   }
 
-  function handleKeyUp(evt: KeyboardEvent) {
+  function handleKeyDown(evt: KeyboardEvent) {
     if ((evt.metaKey || evt.ctrlKey) && evt.key == 'g') {
       evt.stopImmediatePropagation();
       evt.stopPropagation();
@@ -35,16 +35,14 @@ function GotoPopup() {
   }
 
   useEffect(() => {
-    let results = document.querySelectorAll('article>*');
-    results.forEach((slide, idx) => {
-      slide.id = (idx + 1).toString();
-    });
-
     if (!isEventRegistered) {
-      window.addEventListener('keydown', handleKeyUp, options);
+      window.removeEventListener('keydown', handleKeyDown, options);
+      window.addEventListener('keydown', handleKeyDown, options);
+      isEventRegistered = true;
     }
     return () => {
-      window.removeEventListener('keydown', handleKeyUp, options);
+      window.removeEventListener('keydown', handleKeyDown, options);
+      isEventRegistered = false;
     };
   }, []);
 

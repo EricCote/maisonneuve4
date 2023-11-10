@@ -4,6 +4,8 @@ import { visit } from 'unist-util-visit';
 import { toString as nodeToString } from 'hast-util-to-string';
 import { refractor } from 'refractor';
 import jsx from 'refractor/lang/jsx';
+import rangeParser from 'parse-numeric-range';
+import addMarkers from './addMarkers';
 
 refractor.register(jsx);
 
@@ -55,7 +57,15 @@ export default function rehypePrism(options) {
       throw err;
     }
 
-    node.children = [result];
+    const contentsInCurly = /{(.*)}/g;
+    let r1 = undefined;
+
+    const markers = contentsInCurly.exec(node.data?.meta)?.[1];
+    if (markers) {
+      r1 = addMarkers(result, { markers: rangeParser(markers) });
+    }
+
+    node.children = r1 ?? [result];
   }
 }
 

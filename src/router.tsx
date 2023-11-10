@@ -1,14 +1,11 @@
 import Home from './homepage/Home';
 import GotoPopup from './components/slides/GotoPopup';
-
 import Sandpack from './components/Sandpack';
-
 import Diagram from './components/slides/Diagram';
-
 import Illustration from './components/slides/Illustration';
 import { createBrowserRouter, Outlet, useParams } from 'react-router-dom';
-import { lazy, memo, Suspense, useCallback, useMemo, useState } from 'react';
-import Status from './decks/6-manage-state/5-context.fr.mdx';
+import { lazy, Suspense, useEffect, useMemo } from 'react';
+import Status from './decks/6-manage-state/7-reducer-context.fr.mdx';
 
 const components = {
   Sandpack,
@@ -29,14 +26,25 @@ const components = {
       </aside>
     );
   },
-  // wrapper({ children }: any) {
-  //   useEffect(() => {
-  //     if (location.hash.length > 1) {
-  //       location.hash = '#120';
-  //     }
-  //   });
-  //   return <>{children}</>;
-  // },
+  wrapper({ children }: any) {
+    //layout function for mdx.
+    useEffect(() => {
+      //This will add slide numbers, from 1 to x
+      let results = document.querySelectorAll('article>*');
+      results.forEach((slide, idx) => {
+        slide.id = (idx + 1).toString();
+      });
+      if (location.hash) {
+        location.assign(location.hash);
+      }
+    });
+    return (
+      <>
+        <GotoPopup />
+        <>{children}</>
+      </>
+    );
+  },
 
   Hint({ toggle, children }: any) {
     let { lang } = useParams();
@@ -66,12 +74,9 @@ const router = createBrowserRouter([
       {
         index: false,
         element: (
-          <>
-            <GotoPopup />
-            <article>
-              <Outlet />
-            </article>
-          </>
+          <article>
+            <Outlet />
+          </article>
         ),
         children: [
           {

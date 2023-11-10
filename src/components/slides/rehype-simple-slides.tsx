@@ -28,11 +28,14 @@ function elementsToSimpleSlides(rootNode: Root, options: Options) {
       (rootNode.children[0] as Element)?.tagName
     )
   ) {
+    let firstSlide = '';
+    if ((rootNode.children[0] as Element).tagName === 'h1')
+      firstSlide = 'first-slide';
     // if not, lets add the initial slide
     slides.push({
       type: 'element',
       tagName: slideType,
-      properties: { class: slideClass },
+      properties: { className: `${slideClass ?? ''} ${firstSlide}` },
       children: [],
     });
   }
@@ -48,7 +51,7 @@ function elementsToSimpleSlides(rootNode: Root, options: Options) {
         type: 'element',
         tagName: slideType,
         properties: {
-          class: slideClass,
+          className: slideClass,
         },
         children: [],
       });
