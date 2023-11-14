@@ -987,7 +987,7 @@ export function TasksProvider({ children }) {
 
 ## Mettre le réducteur et le contexte dans un fichier séparé
 
-<Sandpack>
+<Sandpack  >
 
 ```js App.js
 import AddTask from './AddTask.js';
@@ -1425,30 +1425,34 @@ li {
 
 </Sandpack>
 
-You can think of `TasksProvider` as a part of the screen that knows how to deal with tasks, `useTasks` as a way to read them, and `useTasksDispatch` as a way to update them from any component below in the tree.
+- `TasksProvider` fournit les structures pour diffuser les tâches dans l'arborescence
+- `useTasks` permet de lire les tâches
+- `useTasksDispatch` permet la mise à jour des tâches
 
 ---
 
 ## Note
 
-Functions like `useTasks` and `useTasksDispatch` are called _[Custom Hooks.](/learn/reusing-logic-with-custom-hooks)_ Your function is considered a custom Hook if its name starts with `use`. This lets you use other Hooks, like `useContext`, inside it.
+`useTasks` et `useTasksDispatch` sont des _[Custom Hooks (Hooks personalisés).]_
+
+Une fonction est un hook personalisé quand son nom commence débute par `use`.
+
+Un hook personalisé permet d'appeler d'autres hooks, tel que useContext.
 
 ---
 
-## Other
-
-As your app grows, you may have many context-reducer pairs like this. This is a powerful way to scale your app and [lift state up](/learn/sharing-state-between-components) without too much work whenever you want to access the data deep in the tree.
+À mesure que notre app évolue, elle développera différentes paires de contexte-réducteur. C'est une façon puissante de remonter l'état et de dffuser le contexte à tous les autres composants.
 
 ---
 
 ## Révision
 
-- You can combine reducer with context to let any component read and update state above it.
-- To provide state and the dispatch function to components below:
-  1. Create two contexts (for state and for dispatch functions).
-  2. Provide both contexts from the component that uses the reducer.
-  3. Use either context from components that need to read them.
-- You can further declutter the components by moving all wiring into one file.
-  - You can export a component like `TasksProvider` that provides context.
-  - You can also export custom Hooks like `useTasks` and `useTasksDispatch` to read it.
-- You can have many context-reducer pairs like this in your app.
+- On peut combiner réducteur et contexte. Cela permet aux composants enfants de lire et modifier un état qui se trouve plus haut dans l'arborescence.
+- On fournit un état et un dispatch que l'on partage aux composants enfants
+  1. on créé 2 contextes (un pour l'état, l'autre pour le dispatch)
+  2. On fournit ces contextes au composant qui utilise le réducteur
+  3. On utilise ce contexte dans les composants enfants
+- On peut réduire la taille des composants en déplaçant du code dans d'autres composants.
+  - On créé un composant `TaskProvider` qui fournit le contexte
+  - On créé un Hook personalisé `useTasks` et `useTasksDispatch` pour lire ce contexte
+- Il peut avoir plusieurs paires de contexte-réducteur dans une application.

@@ -60,6 +60,146 @@ Offre de la formation depuis 2018.
 - Toutes les requêtes non-trouvées retournent `index.html` plutôt qu'une erreur **404**
 - C'est le rôle de la programation javascript de déterminer quoi afficher, d'après le contenu dans la barre d'adresse
 
+<Sandpack  options={{ showNavigator: true }} >
+
+```js App.js
+import Page1 from './Page1.js';
+import Menu from './Menu.js';
+
+/* ------------------------
+The way a web server is configured in SPA mode:
+- if a folder or page exists on disk, serve it
+- if it doesn't exist, serve the default page instead (index.html)
+  - unless there is an extension in the request (.png .css .js .html)
+    then serve a 404.
+---------------------------- */
+export default function App() {
+  return (
+    <>
+      <Menu />
+      <div className='container'>
+        <Page1 />
+      </div>
+    </>
+  );
+}
+```
+
+```js Menu.js
+export default function Menu() {
+  return (
+    <ul className='horizontal'>
+      <li>
+        <a href='/page1'>Page 1</a>
+      </li>
+      <li>
+        <a href='/page2'>Page 2</a>
+      </li>
+      <li>
+        <a href='/page3'>Page 3</a>
+      </li>
+    </ul>
+  );
+}
+```
+
+```js Page1.js
+import useMarvelMovies from './useMarvelMovies';
+
+export default function Page1() {
+  const [movies, refreshMovies] = useMarvelMovies();
+
+  return (
+    <div>
+      <h1>Page 1 </h1>
+      <ul>
+        {movies.map((movie) => {
+          return (
+            <li key={movie.id}>
+              {movie.title} ({movie.directed_by})
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+```
+
+```js useMarvelMovies.js
+import { useEffect, useState } from 'react';
+
+/*
+Browser API
+1. XmlHttpRequest (xhr Ajax)
+2. Fetch API (promise based)
+
+External Libraries:
+1. jQuery (ajax)
+2. Axios  (promise based)
+3. TanStack Query
+
+*/
+
+export default function useMarvelMovies() {
+  const [movies, setMovies] = useState([]);
+
+  useEffect(() => {
+    refreshMovies();
+  }, []);
+
+  async function refreshMovies() {
+    const res = await fetch(
+      'https://mcuapi.herokuapp.com/api/v1/movies?limit=50'
+    );
+    const data = await res.json();
+    setMovies(data.data);
+  }
+
+  return [movies, refreshMovies];
+}
+```
+
+```css
+body {
+  margin: 0;
+}
+
+.container {
+  margin: 10px 20px;
+}
+
+ul.horizontal {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+ul.horizontal li {
+  float: left;
+}
+
+ul.horizontal li a {
+  display: inline-block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+ul.horizontal li a:hover:not(.active) {
+  background-color: #000;
+}
+
+ul.horizontal li a.active {
+  background-color: #04aa6d;
+}
+```
+
+</Sandpack>
+
 ---
 
 ### Comment décortiquer le URL?
@@ -131,7 +271,7 @@ Le Fragment (hash) n'est pas envoyé avec la requête. Il reste sur le client. L
 
 ### Rendu conditionnel en React
 
-Avec du JavaScript, on peut changer le rendu de react. On afficher le composant en fonction de la page demandée.
+Avec du JavaScript, on peut changer le rendu de react. On affiche le composant en fonction de la page demandée.
 
 ```js
 const page = window.location.pathname;
@@ -152,6 +292,330 @@ switch (page) {
 
 ---
 
+## Code avec routage
+
+<Sandpack  options={{ showNavigator: true }} >
+
+```js App.js
+import Menu from './Menu';
+import Route from './Route';
+
+//the problem here: when we click on the menu,
+//the browser loads our app again, instead of hiding/showing
+//the current page/component.
+//But there's no need to reload, since a SPA loads all components at load time.
+
+export default function App() {
+  const currentPage = window.location.pathname;
+
+  return (
+    <>
+      <Menu />
+      <div className='container'>
+        <Route page={currentPage} />
+      </div>
+    </>
+  );
+}
+```
+
+```js Route.js
+import Page1 from './Page1';
+import Page2 from './Page2';
+import Page3 from './Page3';
+
+export default function Route({ page }) {
+  // Routes are managed here.
+  // Note that page3 will do a 404.
+  switch (page) {
+    case '/page1':
+    case '/':
+    case '':
+      return <Page1 />;
+    case '/page2':
+      return <Page2 />;
+    case '/page3':
+      return <Page3 />;
+    default:
+      return <h2>404 error</h2>;
+  }
+}
+```
+
+```js Menu.js
+export default function Menu() {
+  return (
+    <ul className='horizontal'>
+      <li>
+        <a href='/page1'>Page 1</a>
+      </li>
+      <li>
+        <a href='/page2'>Page 2</a>
+      </li>
+      <li>
+        <a href='/page3'>Page 3</a>
+      </li>
+    </ul>
+  );
+}
+```
+
+```js Page1.js
+import useMarvelMovies from './useMarvelMovies';
+
+export default function Page1() {
+  const [movies, refreshFilms] = useMarvelMovies();
+
+  return (
+    <div>
+      <h1>Page 1: Marvel Movies </h1>
+      <ul>
+        {movies.map((movie) => {
+          return (
+            <li key={movie.id}>
+              {movie.title} ({movie.directed_by})
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+```
+
+```js Page2.js
+import { useState } from 'react';
+
+const authorList = [
+  { id: 1, name: 'Hugo' },
+  { id: 2, name: 'Choi' },
+  { id: 3, name: 'Olivier' },
+  { id: 4, name: 'Lung' },
+  { id: 5, name: 'Mathieu' },
+];
+
+export default function Page2() {
+  const [filter, setFilter] = useState('');
+
+  return (
+    <div>
+      <h1>Page 2: Author list</h1>
+      <input
+        value={filter}
+        onChange={(evt) => {
+          setFilter(evt.currentTarget.value);
+        }}
+      />
+
+      <ul>
+        {authorList
+          .filter((author) => {
+            return author.name.toLowerCase().includes(filter.toLowerCase());
+          })
+          .map((autor) => (
+            <li key={autor.id}>{autor.name}</li>
+          ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+```js Page3.js
+import { useRef, useState } from 'react';
+
+export default function Page3() {
+  const [contact, setContact] = useState({
+    firstName: '',
+    lastName: '',
+    emails: [],
+  });
+  const [isAdding, setIsAdding] = useState(false);
+
+  const txtAddEmail = useRef();
+  if (txtAddEmail === null) console.log('noooo!');
+
+  return (
+    <>
+      <h1>Page 3: Email Form</h1>
+      <form
+        onSubmit={(evt) => {
+          evt.preventDefault();
+          let formData = new FormData(evt.currentTarget);
+          alert(JSON.stringify(Object.fromEntries(formData), null, 2));
+        }}
+      >
+        <div className='my-3'>
+          <label>
+            First Name
+            <input
+              name='firstName'
+              defaultValue={contact.firstName}
+              className='ms-3'
+            />
+          </label>
+        </div>
+        <div className='my-3'>
+          <label>
+            Last Name
+            <input
+              name='lastName'
+              defaultValue={contact.lastName}
+              className='ms-3'
+            />
+          </label>
+        </div>
+        {contact.emails.map((email, idx) => {
+          return (
+            <div key={email} className='my-3'>
+              <label>
+                Email {idx + 1}
+                <input
+                  name={`email${idx + 1}`}
+                  defaultValue={email}
+                  className='ms-3'
+                />
+                <button
+                  data-email={email}
+                  onClick={(evt) => {
+                    const emails = contact.emails.filter((email) => {
+                      return evt.currentTarget.dataset.email !== email;
+                    });
+                    setContact({
+                      ...contact,
+                      emails: emails,
+                    });
+                  }}
+                >
+                  Remove Email
+                </button>
+              </label>
+            </div>
+          );
+        })}
+
+        {isAdding ? (
+          <div className='my-3'>
+            <label>
+              <input className='' ref={txtAddEmail} placeholder='Add Email' />
+              <button
+                onClick={() => {
+                  setContact({
+                    ...contact,
+                    emails: [...contact.emails, txtAddEmail.current.value],
+                  });
+                  txtAddEmail.current.value = '';
+                  setIsAdding(false);
+                }}
+              >
+                Add Email
+              </button>
+            </label>
+          </div>
+        ) : (
+          <div className='my-3'>
+            <button
+              onClick={() => {
+                setIsAdding(true);
+              }}
+            >
+              Add Email
+            </button>
+          </div>
+        )}
+
+        <button type='submit'>Submit</button>
+      </form>
+    </>
+  );
+}
+```
+
+```js useMarvelMovies.js
+import { useEffect, useState } from 'react';
+
+/*
+Browser API
+1. XmlHttpRequest (xhr Ajax)
+2. Fetch API (promise based)
+
+External Libraries:
+1. jQuery (ajax)
+2. Axios  (promise based)
+3. TanStack Query
+
+*/
+
+export default function useMarvelMovies() {
+  const [movies, setMovies] = useState([]);
+
+  useEffect(() => {
+    refreshMovies();
+  }, []);
+
+  async function refreshMovies() {
+    const res = await fetch(
+      'https://mcuapi.herokuapp.com/api/v1/movies?limit=50'
+    );
+    const data = await res.json();
+    setMovies(data.data);
+  }
+
+  return [movies, refreshMovies];
+}
+```
+
+```css
+body {
+  margin: 0;
+}
+
+.container {
+  margin: 10px 20px;
+}
+
+ul.horizontal {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+ul.horizontal li {
+  float: left;
+}
+
+ul.horizontal li a {
+  display: inline-block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+ul.horizontal li a:hover:not(.active) {
+  background-color: #000;
+}
+
+ul.horizontal li a.active {
+  background-color: #04aa6d;
+}
+
+.my-3 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.ms-3 {
+  margin-left: 1rem;
+}
+```
+
+</Sandpack>
+
+---
+
 ### Mais...
 
 <div >
@@ -161,7 +625,7 @@ Le menu possède des liens réguliers: `<a href="page1">Page un</a>`
 
 À chaque clic, on fait un appel réseau pour (re)télécharger l'application pour la énième fois.
 
-Il faut donc remplacer les liens normaux par des liens qui ne téléchargent pas.
+Il faudrait donc remplacer les liens normaux par des liens qui ne téléchargent pas.
 
 </div>
 
@@ -214,6 +678,350 @@ window.addEventListener('hashchange', (evt) => {
 ```
 
 Ceci modifiant le DOM, il faut donc lier le gestionnaire d'événement dans un `useEffect(..., [])`.
+
+---
+
+## Code Navigation hash
+
+<Sandpack  options={{ showNavigator: true }} >
+
+```js App.js
+import { useState, useEffect } from 'react';
+import Menu from './Menu';
+import Route from './Route';
+
+export default function App() {
+  const [currentPage, setCurrentPage] = useState(window.location.hash);
+
+  useEffect(() => {
+    //Handle the "hashchange" event
+    window.addEventListener('hashchange', (evt) => {
+      setCurrentPage('/' + window.location.hash.slice(1));
+    });
+  }, []);
+
+  useEffect(() => {
+    //change the existing links to hashes
+    changeAllLinksToHashes();
+  }, [currentPage]);
+
+  return (
+    <>
+      <Menu />
+      <div className='container'>
+        <Route page={currentPage} />
+      </div>
+    </>
+  );
+}
+
+function changeAllLinksToHashes() {
+  // go through all links
+  for (const link of document.querySelectorAll(':link')) {
+    //create a new link from the existing one
+    const url = new URL(link.href);
+    //is the destination on the same hostname?
+    if (url.hostname === window.location.hostname) {
+      //replace the first '/' with '#'
+      //Workaround for strictMode: Correctly add the hash when called a second time.
+      link.href = '#' + url.pathname.slice(1) + url.hash.slice(1);
+    }
+  }
+}
+```
+
+```js Route.js
+import Page1 from './Page1';
+import Page2 from './Page2';
+import Page3 from './Page3';
+
+export default function Route({ page }) {
+  // Routes are managed here.
+  switch (page) {
+    case '/page1':
+    case '/':
+    case '':
+      return <Page1 />;
+    case '/page2':
+      return <Page2 />;
+    case '/page3':
+      return <Page3 />;
+    default:
+      return <h2>404 error</h2>;
+  }
+}
+```
+
+```js Menu.js
+export default function Menu() {
+  return (
+    <ul className='horizontal'>
+      <li>
+        <a href='/page1'>Page 1</a>
+      </li>
+      <li>
+        <a href='/page2'>Page 2</a>
+      </li>
+      <li>
+        <a href='/page3'>Page 3</a>
+      </li>
+    </ul>
+  );
+}
+```
+
+```js Page1.js
+import useMarvelMovies from './useMarvelMovies';
+
+export default function Page1() {
+  const [movies, refreshFilms] = useMarvelMovies();
+
+  return (
+    <div>
+      <h1>Page 1: Marvel Movies </h1>
+      <ul>
+        {movies.map((movie) => {
+          return (
+            <li key={movie.id}>
+              {movie.title} ({movie.directed_by})
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+```
+
+```js Page2.js
+import { useState } from 'react';
+
+const authorList = [
+  { id: 1, name: 'Hugo' },
+  { id: 2, name: 'Choi' },
+  { id: 3, name: 'Olivier' },
+  { id: 4, name: 'Lung' },
+  { id: 5, name: 'Mathieu' },
+];
+
+export default function Page2() {
+  const [filter, setFilter] = useState('');
+
+  return (
+    <div>
+      <h1>Page 2: Author list with filter</h1>
+      <input
+        value={filter}
+        onChange={(evt) => {
+          setFilter(evt.currentTarget.value);
+        }}
+      />
+
+      <ul>
+        {authorList
+          .filter((author) => {
+            return author.name.toLowerCase().includes(filter.toLowerCase());
+          })
+          .map((autor) => (
+            <li key={autor.id}>{autor.name}</li>
+          ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+```js Page3.js
+import { useRef, useState } from 'react';
+
+export default function Page3() {
+  const [contact, setContact] = useState({
+    firstName: '',
+    lastName: '',
+    emails: [],
+  });
+  const [isAdding, setIsAdding] = useState(false);
+
+  const txtAddEmail = useRef();
+
+  return (
+    <>
+      <h1>Page 3: Email Form</h1>
+      <form
+        onSubmit={(evt) => {
+          evt.preventDefault();
+          let formData = new FormData(evt.currentTarget);
+          alert(JSON.stringify(Object.fromEntries(formData), null, 2));
+        }}
+      >
+        <div className='my-3'>
+          <label>
+            First Name
+            <input
+              name='firstName'
+              defaultValue={contact.firstName}
+              className='ms-3'
+            />
+          </label>
+        </div>
+        <div className='my-3'>
+          <label>
+            Last Name
+            <input
+              name='lastName'
+              defaultValue={contact.lastName}
+              className='ms-3'
+            />
+          </label>
+        </div>
+        {contact.emails.map((email, idx) => {
+          return (
+            <div key={email} className='my-3'>
+              <label>
+                Email {idx + 1}
+                <input
+                  name={`email${idx + 1}`}
+                  defaultValue={email}
+                  className='ms-3'
+                />
+                <button
+                  data-email={email}
+                  onClick={(evt) => {
+                    const emails = contact.emails.filter((email) => {
+                      return evt.currentTarget.dataset.email !== email;
+                    });
+                    setContact({
+                      ...contact,
+                      emails: emails,
+                    });
+                  }}
+                >
+                  Remove Email
+                </button>
+              </label>
+            </div>
+          );
+        })}
+
+        {isAdding ? (
+          <div className='my-3'>
+            <label>
+              <input className='' ref={txtAddEmail} placeholder='Add Email' />
+              <button
+                onClick={() => {
+                  setContact({
+                    ...contact,
+                    emails: [...contact.emails, txtAddEmail.current.value],
+                  });
+                  txtAddEmail.current.value = '';
+                  setIsAdding(false);
+                }}
+              >
+                Add Email
+              </button>
+            </label>
+          </div>
+        ) : (
+          <div className='my-3'>
+            <button
+              onClick={() => {
+                setIsAdding(true);
+              }}
+            >
+              Add Email
+            </button>
+          </div>
+        )}
+
+        <button type='submit'>Submit</button>
+      </form>
+    </>
+  );
+}
+```
+
+```js useMarvelMovies.js
+import { useEffect, useState } from 'react';
+
+/*
+Browser API
+1. XmlHttpRequest (xhr Ajax)
+2. Fetch API (promise based)
+
+External Libraries:
+1. jQuery (ajax)
+2. Axios  (promise based)
+3. TanStack Query
+
+*/
+
+export default function useMarvelMovies() {
+  const [movies, setMovies] = useState([]);
+
+  useEffect(() => {
+    refreshMovies();
+  }, []);
+
+  async function refreshMovies() {
+    const res = await fetch(
+      'https://mcuapi.herokuapp.com/api/v1/movies?limit=50'
+    );
+    const data = await res.json();
+    setMovies(data.data);
+  }
+
+  return [movies, refreshMovies];
+}
+```
+
+```css
+body {
+  margin: 0;
+}
+
+.container {
+  margin: 10px 20px;
+}
+
+ul.horizontal {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+ul.horizontal li {
+  float: left;
+}
+
+ul.horizontal li a {
+  display: inline-block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+ul.horizontal li a:hover:not(.active) {
+  background-color: #000;
+}
+
+ul.horizontal li a.active {
+  background-color: #04aa6d;
+}
+
+.my-3 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.ms-3 {
+  margin-left: 1rem;
+}
+```
+
+</Sandpack>
 
 ---
 
@@ -277,6 +1085,361 @@ function clickHandler(evt, link) {
 
 ---
 
+## Code History Api
+
+<Sandpack  options={{ showNavigator: true }} >
+
+```js App.js
+import { useState, useEffect } from 'react';
+import Menu from './Menu';
+import Route from './Route';
+
+export default function App() {
+  const [currentPage, setCurrentPage] = useState(window.location.pathname);
+
+  useEffect(() => {
+    //handle the Back button!
+    window.addEventListener('popstate', (evt) => {
+      setCurrentPage(evt.state); //change state to re-render the right page
+    });
+  }, []); //bind this event on the first render.
+
+  useEffect(modifyLinksToAddClickHandler, []);
+
+  //Modify existing links, instead of using a <Link to="/dest" /> component
+  function modifyLinksToAddClickHandler() {
+    // Select all huperlinks
+    for (const link of document.querySelectorAll(':link')) {
+      //bind a click event handler
+      link.addEventListener('click', (evt) => {
+        clickHandler(evt, link);
+      });
+    }
+  }
+
+  //click handler that uses the history API instead of navigating
+  function clickHandler(evt, link) {
+    //create a url object from the link text
+    const url = new URL(link.href);
+    if (
+      //if hostname is the same, but with a different path,
+      //then handle the navigation
+      url.hostname === window.location.hostname &&
+      url.pathname !== window.location.pathname
+    ) {
+      evt.preventDefault(); //cancel the navigation
+      //Add destination in history API
+      window.history.pushState(url.pathname, '', url.pathname);
+      setCurrentPage(url.pathname); //set State to re-render the app.
+    }
+  }
+
+  return (
+    <>
+      <Menu />
+      <div className='container'>
+        <Route page={currentPage} />
+      </div>
+    </>
+  );
+}
+```
+
+```js Route.js
+import Page1 from './Page1';
+import Page2 from './Page2';
+import Page3 from './Page3';
+
+export default function Route({ page }) {
+  // Routes are managed here.
+  switch (page) {
+    case '/page1':
+    case '/':
+    case '':
+      return <Page1 />;
+    case '/page2':
+      return <Page2 />;
+    case '/page3':
+      return <Page3 />;
+    default:
+      return <h2>404 error</h2>;
+  }
+}
+```
+
+```js Menu.js
+export default function Menu() {
+  return (
+    <ul className='horizontal'>
+      <li>
+        <a href='/page1'>Page 1</a>
+      </li>
+      <li>
+        <a href='/page2'>Page 2</a>
+      </li>
+      <li>
+        <a href='/page3'>Page 3</a>
+      </li>
+    </ul>
+  );
+}
+```
+
+```js Page1.js
+import useMarvelMovies from './useMarvelMovies';
+
+export default function Page1() {
+  const [movies, refreshFilms] = useMarvelMovies();
+
+  return (
+    <div>
+      <h1>Page 1: Marvel Movies </h1>
+      <ul>
+        {movies.map((movie) => {
+          return (
+            <li key={movie.id}>
+              {movie.title} ({movie.directed_by})
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+```
+
+```js Page2.js
+import { useState } from 'react';
+
+const authorList = [
+  { id: 1, name: 'Hugo' },
+  { id: 2, name: 'Choi' },
+  { id: 3, name: 'Olivier' },
+  { id: 4, name: 'Lung' },
+  { id: 5, name: 'Mathieu' },
+];
+
+export default function Page2() {
+  const [filter, setFilter] = useState('');
+
+  return (
+    <div>
+      <h1>Page 2: Author list with filter</h1>
+      <input
+        value={filter}
+        onChange={(evt) => {
+          setFilter(evt.currentTarget.value);
+        }}
+      />
+
+      <ul>
+        {authorList
+          .filter((author) => {
+            return author.name.toLowerCase().includes(filter.toLowerCase());
+          })
+          .map((autor) => (
+            <li key={autor.id}>{autor.name}</li>
+          ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+```js Page3.js
+import { useRef, useState } from 'react';
+
+export default function Page3() {
+  const [contact, setContact] = useState({
+    firstName: '',
+    lastName: '',
+    emails: [],
+  });
+  const [isAdding, setIsAdding] = useState(false);
+
+  const txtAddEmail = useRef();
+
+  return (
+    <>
+      <h1>Page 3: Email Form</h1>
+      <form
+        onSubmit={(evt) => {
+          evt.preventDefault();
+          let formData = new FormData(evt.currentTarget);
+          alert(JSON.stringify(Object.fromEntries(formData), null, 2));
+        }}
+      >
+        <div className='my-3'>
+          <label>
+            First Name
+            <input
+              name='firstName'
+              defaultValue={contact.firstName}
+              className='ms-3'
+            />
+          </label>
+        </div>
+        <div className='my-3'>
+          <label>
+            Last Name
+            <input
+              name='lastName'
+              defaultValue={contact.lastName}
+              className='ms-3'
+            />
+          </label>
+        </div>
+        {contact.emails.map((email, idx) => {
+          return (
+            <div key={email} className='my-3'>
+              <label>
+                Email {idx + 1}
+                <input
+                  name={`email${idx + 1}`}
+                  defaultValue={email}
+                  className='ms-3'
+                />
+                <button
+                  data-email={email}
+                  onClick={(evt) => {
+                    const emails = contact.emails.filter((email) => {
+                      return evt.currentTarget.dataset.email !== email;
+                    });
+                    setContact({
+                      ...contact,
+                      emails: emails,
+                    });
+                  }}
+                >
+                  Remove Email
+                </button>
+              </label>
+            </div>
+          );
+        })}
+
+        {isAdding ? (
+          <div className='my-3'>
+            <label>
+              <input className='' ref={txtAddEmail} placeholder='Add Email' />
+              <button
+                onClick={() => {
+                  setContact({
+                    ...contact,
+                    emails: [...contact.emails, txtAddEmail.current.value],
+                  });
+                  txtAddEmail.current.value = '';
+                  setIsAdding(false);
+                }}
+              >
+                Add Email
+              </button>
+            </label>
+          </div>
+        ) : (
+          <div className='my-3'>
+            <button
+              onClick={() => {
+                setIsAdding(true);
+              }}
+            >
+              Add Email
+            </button>
+          </div>
+        )}
+
+        <button type='submit'>Submit</button>
+      </form>
+    </>
+  );
+}
+```
+
+```js useMarvelMovies.js
+import { useEffect, useState } from 'react';
+
+/*
+Browser API
+1. XmlHttpRequest (xhr Ajax)
+2. Fetch API (promise based)
+
+External Libraries:
+1. jQuery (ajax)
+2. Axios  (promise based)
+3. TanStack Query
+
+*/
+
+export default function useMarvelMovies() {
+  const [movies, setMovies] = useState([]);
+
+  useEffect(() => {
+    refreshMovies();
+  }, []);
+
+  async function refreshMovies() {
+    const res = await fetch(
+      'https://mcuapi.herokuapp.com/api/v1/movies?limit=50'
+    );
+    const data = await res.json();
+    setMovies(data.data);
+  }
+
+  return [movies, refreshMovies];
+}
+```
+
+```css
+body {
+  margin: 0;
+}
+
+.container {
+  margin: 10px 20px;
+}
+
+ul.horizontal {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+ul.horizontal li {
+  float: left;
+}
+
+ul.horizontal li a {
+  display: inline-block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+ul.horizontal li a:hover:not(.active) {
+  background-color: #000;
+}
+
+ul.horizontal li a.active {
+  background-color: #04aa6d;
+}
+
+.my-3 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.ms-3 {
+  margin-left: 1rem;
+}
+```
+
+</Sandpack>
+
+---
+
 ### Navigation API
 
 - Nouvel API, conçu pour les applis SPA.
@@ -308,6 +1471,345 @@ window.navigation.addEventListener('navigate', (evt) => {
   });
 });
 ```
+
+---
+
+## Code Navigation API
+
+<Sandpack  options={{ showNavigator: true }} >
+
+```js App.js
+import { useState, useEffect } from 'react';
+import Menu from './Menu';
+import Route from './Route';
+
+export default function App() {
+  const [currentPage, setCurrentPage] = useState(window.location.pathname);
+
+  //With the Navigation API, the code is simpler.
+  //No need for a <Link to="/dest"> component,
+  //nor to handle click events on hyperlinks.
+  //Note 1: doesn't show the proper url on this code sandbox.
+  //       (shows url on real browsers)
+  //Note 2: Is still not implemented by Safari and Firefox.
+
+  useEffect(() => {
+    //Manage the navigate event
+    window.navigation.addEventListener('navigate', (evt) => {
+      if (!evt.canIntercept) return; //is it a local page that we can intercept?
+      evt.intercept({
+        //in that case, intercept the navigation (cancels browser navigation)
+        handler: () => {
+          //setState to re-render
+          setCurrentPage(new URL(evt.destination.url).pathname);
+        },
+      });
+    });
+  }, []);
+
+  return (
+    <>
+      <Menu />
+      <div className='container'>
+        <Route page={currentPage} />
+      </div>
+    </>
+  );
+}
+```
+
+```js Route.js
+import Page1 from './Page1';
+import Page2 from './Page2';
+import Page3 from './Page3';
+
+export default function Route({ page }) {
+  // Routes are managed here.
+  switch (page) {
+    case '/page1':
+    case '/':
+    case '':
+      return <Page1 />;
+    case '/page2':
+      return <Page2 />;
+    case '/page3':
+      return <Page3 />;
+    default:
+      return <h2>404 error</h2>;
+  }
+}
+```
+
+```js Menu.js
+export default function Menu() {
+  return (
+    <ul className='horizontal'>
+      <li>
+        <a href='/page1'>Page 1</a>
+      </li>
+      <li>
+        <a href='/page2'>Page 2</a>
+      </li>
+      <li>
+        <a href='/page3'>Page 3</a>
+      </li>
+    </ul>
+  );
+}
+```
+
+```js Page1.js
+import useMarvelMovies from './useMarvelMovies';
+
+export default function Page1() {
+  const [movies, refreshFilms] = useMarvelMovies();
+
+  return (
+    <div>
+      <h1>Page 1: Marvel Movies </h1>
+      <ul>
+        {movies.map((movie) => {
+          return (
+            <li key={movie.id}>
+              {movie.title} ({movie.directed_by})
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+```
+
+```js Page2.js
+import { useState } from 'react';
+
+const authorList = [
+  { id: 1, name: 'Hugo' },
+  { id: 2, name: 'Choi' },
+  { id: 3, name: 'Olivier' },
+  { id: 4, name: 'Lung' },
+  { id: 5, name: 'Mathieu' },
+];
+
+export default function Page2() {
+  const [filter, setFilter] = useState('');
+
+  return (
+    <div>
+      <h1>Page 2: Author list with filter</h1>
+      <input
+        value={filter}
+        onChange={(evt) => {
+          setFilter(evt.currentTarget.value);
+        }}
+      />
+
+      <ul>
+        {authorList
+          .filter((author) => {
+            return author.name.toLowerCase().includes(filter.toLowerCase());
+          })
+          .map((autor) => (
+            <li key={autor.id}>{autor.name}</li>
+          ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+```js Page3.js
+import { useRef, useState } from 'react';
+
+export default function Page3() {
+  const [contact, setContact] = useState({
+    firstName: '',
+    lastName: '',
+    emails: [],
+  });
+  const [isAdding, setIsAdding] = useState(false);
+
+  const txtAddEmail = useRef();
+
+  return (
+    <>
+      <h1>Page 3: Email Form</h1>
+      <form
+        onSubmit={(evt) => {
+          evt.preventDefault();
+          let formData = new FormData(evt.currentTarget);
+          alert(JSON.stringify(Object.fromEntries(formData), null, 2));
+        }}
+      >
+        <div className='my-3'>
+          <label>
+            First Name
+            <input
+              name='firstName'
+              defaultValue={contact.firstName}
+              className='ms-3'
+            />
+          </label>
+        </div>
+        <div className='my-3'>
+          <label>
+            Last Name
+            <input
+              name='lastName'
+              defaultValue={contact.lastName}
+              className='ms-3'
+            />
+          </label>
+        </div>
+        {contact.emails.map((email, idx) => {
+          return (
+            <div key={email} className='my-3'>
+              <label>
+                Email {idx + 1}
+                <input
+                  name={`email${idx + 1}`}
+                  defaultValue={email}
+                  className='ms-3'
+                />
+                <button
+                  data-email={email}
+                  onClick={(evt) => {
+                    const emails = contact.emails.filter((email) => {
+                      return evt.currentTarget.dataset.email !== email;
+                    });
+                    setContact({
+                      ...contact,
+                      emails: emails,
+                    });
+                  }}
+                >
+                  Remove Email
+                </button>
+              </label>
+            </div>
+          );
+        })}
+
+        {isAdding ? (
+          <div className='my-3'>
+            <label>
+              <input className='' ref={txtAddEmail} placeholder='Add Email' />
+              <button
+                onClick={() => {
+                  setContact({
+                    ...contact,
+                    emails: [...contact.emails, txtAddEmail.current.value],
+                  });
+                  txtAddEmail.current.value = '';
+                  setIsAdding(false);
+                }}
+              >
+                Add Email
+              </button>
+            </label>
+          </div>
+        ) : (
+          <div className='my-3'>
+            <button
+              onClick={() => {
+                setIsAdding(true);
+              }}
+            >
+              Add Email
+            </button>
+          </div>
+        )}
+
+        <button type='submit'>Submit</button>
+      </form>
+    </>
+  );
+}
+```
+
+```js useMarvelMovies.js
+import { useEffect, useState } from 'react';
+
+/*
+Browser API
+1. XmlHttpRequest (xhr Ajax)
+2. Fetch API (promise based)
+
+External Libraries:
+1. jQuery (ajax)
+2. Axios  (promise based)
+3. TanStack Query
+
+*/
+
+export default function useMarvelMovies() {
+  const [movies, setMovies] = useState([]);
+
+  useEffect(() => {
+    refreshMovies();
+  }, []);
+
+  async function refreshMovies() {
+    const res = await fetch(
+      'https://mcuapi.herokuapp.com/api/v1/movies?limit=50'
+    );
+    const data = await res.json();
+    setMovies(data.data);
+  }
+
+  return [movies, refreshMovies];
+}
+```
+
+```css
+body {
+  margin: 0;
+}
+
+.container {
+  margin: 10px 20px;
+}
+
+ul.horizontal {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+ul.horizontal li {
+  float: left;
+}
+
+ul.horizontal li a {
+  display: inline-block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+ul.horizontal li a:hover:not(.active) {
+  background-color: #000;
+}
+
+ul.horizontal li a.active {
+  background-color: #04aa6d;
+}
+
+.my-3 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.ms-3 {
+  margin-left: 1rem;
+}
+```
+
+</Sandpack>
 
 ---
 

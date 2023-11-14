@@ -5,7 +5,7 @@ import Diagram from './components/slides/Diagram';
 import Illustration from './components/slides/Illustration';
 import { createBrowserRouter, Outlet, useParams } from 'react-router-dom';
 import { lazy, Suspense, useEffect, useMemo } from 'react';
-import Status from './decks/6-manage-state/7-reducer-context.fr.mdx';
+import Status from './decks/1-fundamentals.fr.mdx';
 
 const components = {
   Sandpack,

@@ -66,7 +66,7 @@ ul {
 `.trim();
 
 function SandpackRoot(props: SandpackProps) {
-  let { children, autorun = true } = props;
+  let { children, autorun = true, ...rest } = props;
   const codeSnippets = Children.toArray(children) as React.ReactElement[];
   const files = createFileMap(codeSnippets);
 
@@ -77,7 +77,7 @@ function SandpackRoot(props: SandpackProps) {
 
   return (
     <div className='sandpack sandpack--playground w-full my-8' dir='ltr'>
-      <Sandpack template='react' files={files} theme='dark' />
+      <Sandpack template='react' files={files} theme='dark' {...rest} />
     </div>
   );
 }

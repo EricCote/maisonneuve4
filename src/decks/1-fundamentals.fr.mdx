@@ -114,7 +114,7 @@ https://github.com/chentsulin/awesome-react-renderer
 
 - **Facile de faire du mauvais code** Il est facile de faire du code spaghetti en React
 - **Certaines composantes ne sont pas compatibles antérieures ou postérieures** Il faut alors se mettre à jour
-- **Il faut se faire des opinions** Il faut choisir un biblothèque de routage, une autre de chargement, une autre pour le caching, une autre pour les syles... C'est fatiguant!
+- **Il faut se faire des opinions** Il faut choisir une biblothèque de routage, une autre de chargement, une autre pour le caching, une autre pour les syles... C'est fatiguant!
 - **Pas de conventions** Chaque application React a sa propre approche pour résoudre les problèmes
 
 ---
@@ -137,10 +137,10 @@ https://github.com/chentsulin/awesome-react-renderer
 ### Boites à outils clé en main
 
 - Aujourd'hui, on peut prendre des outils simples, ou des Framework évolués:
-  - Create-React-App (déprécié en 2023)
+  - Create-React-App (2016-2023)
   - Vite
   - Gatsby
-  - Next js
+  - Next.js
   - Remix
   - T3
   - Epic Stack
@@ -229,6 +229,20 @@ On se déplace vers le nouveau dossier et on peut ouvrir code dans le dossier co
 - **node_modules** : contient les dépendances et sous-dépendances. **Ne pas toucher.** Utilisez `npm install` ou `npm update` pour rafraîchir.
 - **src**: contient les fichiers .js, .css et .svg qui sont compilés par Vite.
 - **public**: contient les fichiers qui sont inclus sans être modifiés par Vite. (png, pdf, etc)
+
+---
+
+## Éliminer les warnings de prop-types
+
+En mode JS, il y a une règle du Linter qui demande d'ajouter des prop-types. Cette règle n'est pas tellement utile. [PropTypes aren’t commonly used in modern React.](https://legacy.reactjs.org/docs/typechecking-with-proptypes.html)
+
+Pour éliminer cet avertissement inutile, on ajoute le code suivant dans le fichier `.eslintrc.cjs`.
+
+```js eslint.jsx
+  'rules': {
+    'react/prop-types': 'off',
+  }
+```
 
 ---
 

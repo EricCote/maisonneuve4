@@ -141,10 +141,10 @@ https://github.com/chentsulin/awesome-react-renderer
 ### Turnkey Toolbox
 
 - Today, you have a plethora of toolboxes available:
-  - Create-React-App (deprecated in 2023)
+  - Create-React-App (2016-2023)
   - Vite
   - Gatsby
-  - Next js
+  - Next.js
   - Remix
   - T3
   - Epic Stack
@@ -234,6 +234,20 @@ This creates a new folder. Navigate to the new folder.
 - **node_modules** : contains dependencies and sub-dependencies. **Don't touch.** Use `npm install` or `npm update` pour manage.
 - **src**: contains .js, .ts, jsx, .css, and .svg files that are compiled by vite
 - **public**: contains files that are served but not compiled by vite (png, pdf, etc)
+
+---
+
+## Éliminer les warnings de prop-types
+
+With JavaScript language, there is a linter rule asking to provide prop-types. This rule isn't useful. [PropTypes aren’t commonly used in modern React.](https://legacy.reactjs.org/docs/typechecking-with-proptypes.html)
+
+To eliminate this useless warning, we add this rule in the file `eslintrc.cjs`.
+
+```js eslint.jsx
+  'rules': {
+    'react/prop-types': 'off',
+  }
+```
 
 ---
 
